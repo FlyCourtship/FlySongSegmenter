@@ -1,4 +1,6 @@
-function plot_ipitime(pulseInfo,fs);
+function plot_ipitime(pulseInfo,fs)
+%blue is distribution of ipis, red is scaled by amount of time performing
+%ipis of that length
 
 ipi = fit_ipi_model(pulseInfo,fs);
 
