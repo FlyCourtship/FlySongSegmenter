@@ -46,14 +46,11 @@ e = round(Fs/50); %lowIPI: estimate of a very low IPI (even, rounded)
 f = 1.1; %pulse peak height has to be at least k times the side windows
 g = 5; %thresh: Proportion of smoothed threshold over which pulses are counted. (wide mean, then set threshold as a fifth of that mean) - key for eliminating sine song.....
 
-%parameters for winnowing pulses: 
-%first winnow: (returns pulseInfo)
+%parameters for winnowing pulses:
 h = 6; %factor times the mean of xempty - only pulses larger than this amplitude are counted as true pulses
-
-%second winnow: (returns pulseInfo2)
-i = round(Fs/5); %if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse, not within IPI range of another pulse, is likely not a true pulse)
-j = 700; %if best matched scale is greater than this frequency, then don't include pulse as true pulse
-k = round(Fs/50); %if pulse peaks are this close together, only keep the larger pulse (this value should be less than the species-typical IPI)
+k = round(Fs/2); %if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse, not within IPI range of another pulse, is likely not a true pulse)
+l = 700; %if best matched scale is greater than this frequency, then don't include pulse as true pulse
+m = round(Fs/40); %if pulse peaks are this close together, only keep the larger pulse (this value should be less than the species-typical IPI)
 
 %SET THE PARAMETERS FOR winnow_sine
 max_pulse_pause = 0.200; %max_pulse_pause in seconds, used to winnow apparent sine between pulses

@@ -1,4 +1,4 @@
-function [pulseInfo, pulseInfo2, pcndInfo,cmhSong,cmhNoise,cmo, cPnts] = PulseSegmentationv3(xsong, xempty, pps, a, b, c, d, e, f, g, h, i, j, k,Fs)
+function [pulseInfo, pulseInfo2, pcndInfo,cmhSong,cmhNoise,cmo, cPnts] = PulseSegmentationv3(xsong, xempty, pps, a, b, c, d, e, f, g, h, i, j, k, l,m,Fs)
 
 %========PARAMETERS=================
 segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
@@ -7,7 +7,7 @@ segParams.DoGwvlt = b;  % Derivative of Gaussian wavelets examined
 
 segParams.pWid = c; %pWid: Approx Pulse Width in points (odd, rounded)
 
-segParams.pulsewindow = round(c); %factor for computing window around pulse peak (this determines how much of the signal before and after the peak is included in the pulse)
+segParams.pulsewindow = round(c/2); %factor for computing window around pulse peak (this determines how much of the signal before and after the peak is included in the pulse)
 
 segParams.buff = d; % buff: Points to take around each pulse
 
@@ -21,11 +21,22 @@ xn = xempty;
 noise = h*mean(abs(xn));                         
 segParams.wnwMinAbsVoltage = noise; 
 
-segParams.IPI = i; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
 
-segParams.frequency = j; %if pulseInfo.fcmx is greater than this frequency, then don't include pulse
 
-segParams.close = k; %if pulse peaks are this close together, only keep the larger pulse
+
+
+
+
+
+
+
+
+
+segParams.IPI = k; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
+
+segParams.frequency = l; %if pulseInfo.fcmx is greater than this frequency, then don't include pulse
+
+segParams.close = m; %if pulse peaks are this close together, only keep the larger pulse
 
 sp = segParams;
 
@@ -126,8 +137,9 @@ cmhSong = cmh;
 cmhNoise = cmh_noise;
 
 %% 
-%Calculate running maxima for wavelet fits and then smooth
-%Perform all operations on noise to make later comparisons meaningful
+%Calculate running maxima for wavelet fits then raise to specified power
+% then smooth and raise to inverse power (reduce back to normal level).
+% Perform all operations on noise to make later comparisons meaningful
 
 pWid = sp.pWid;
 
@@ -142,7 +154,7 @@ nDat = abs(nDat); %don't want negatives
 %% 
 %Take signal, subtract noise, calculate the mean value of region lowIPI/2
 % either side of pulse and take the maximum of this value (to be used as
-% threshold). Finally make threshold infinite at start and end to avoid edge
+% threshold). Finally make threshold inf. at start and end to avoid edge
 % effects.
 
 lowIPI = sp.lowIPI;
@@ -180,7 +192,6 @@ for i = 1:length(srtIdx)
 cPnts(i) = cPnts(i) + srtIdx(i) -1;
 end
 
-%for debugging:
 %figure; plot(xs, 'k'); hold on; plot(cPnts,0.4,'.r'); plot(smthThresh,'b'); plot(sig4Test,'m');
 %% Use output of putativepulse2 (pps) to identify regions of song that may contain pulses (and do not contain sines)
 
@@ -248,8 +259,7 @@ if pcndInfo.wc==0;
     return
 end
 %%
-%FIRST WINNOW
-%Collecting pulses in pulseInfo (removing those below the noise threshold):
+%Collecting pulses in pulseInfo (removing those below the noise threshold) before winnowing:
 
 indPulse = 0*xs;
 np = numel(pcndInfo.wc); %the number of pulses total
@@ -285,7 +295,7 @@ for i = 1:np
    pcndInfo.scmx(i) = sc_at_max;
    
    pulsewin = [];
-   pulsewin = 2*sp.pulsewindow;
+   pulsewin = sp.pulsewindow;
    
    %pcndInfo.w0(i) = round(peak-pulsewin*sc_at_max); 
    pcndInfo.w0(i) = round(peak-pulsewin); 
@@ -348,9 +358,7 @@ if pulseInfo.w0==0;
 end
    
 %%
-%SECOND WINNOW
-%Collecting pulses in pulseInfo2:
-fprintf('WINNOWING PULSES FURTHER.\n');
+fprintf('WINNOWING PULSES.\n');
 
 %now that you have collected pulses in pulseInfo, winnow further:
 indPulse = 0*xs;

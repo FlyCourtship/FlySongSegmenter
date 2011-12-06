@@ -96,23 +96,23 @@ else
 end
 
 %Produce some song stats (figures will be saved in the current directory)
-% [IPI, meanIPI, stdIPI, IPIs_within_stdev,train_times,IPI_train,train_length,pulses_per_train, meanIPI_train, pulsefreq_train, meanpulsefreq_train, mean_IPI, mean_freq,N,NN,train] = analyze(pulseInfo2,xsong,winnowed_sine);
-%  
-%  song_stats = {};
-%  song_stats.IPI = IPI; %all IPIs in ms (this vector is one shorter than pulseInfo2.wc)
-%  song_stats.meanIPI = meanIPI; %mean of those IPIs < 100ms
-%  song_stats.stdIPI = stdIPI; %st dev of those IPIs < 100ms
-%  song_stats.IPIs_within_stdev = IPIs_within_stdev; %IPIs within one stdev of the mean
-%  song_stats.train_times = train_times; %start and stop times of pulse trains > 3 pulses in length
-%  song_stats.IPI_train = IPI_train; %IPIs within each train
-%  song_stats.train_length = train_length; %length of each pulse train
-%  song_stats.pulses_per_train = pulses_per_train; %number of pulses per train
-%  song_stats.meanIPI_train = meanIPI_train; %mean IPI, each train
-%  song_stats.pulsefreq_train = pulsefreq_train; %pulse frequencies within each train
-%  song_stats.meanpulsefreq_train = meanpulsefreq_train; %mean pulse frequency, each train
-%  song_stats.mean_IPI = mean_IPI; %mean IPI for each position in the train
-%  song_stats.mean_freq = mean_freq; %mean pulse frequency for each position in the train
-%  song_stats.sinetimes = N; %vector of ones and zeros, ones indicate presence of sine song
-%  song_stats.pulsetimes = NN; %vector of ones and zeros, ones indicate presence of pulse trains (pulse song)
-%  song_stats.train = train; %these are the indices of song_stats.IPI_train that were fit (r2 > 0.45) with an exponential
-%  
+[IPI, meanIPI, stdIPI, IPIs_within_stdev,train_times,IPI_train,train_length,pulses_per_train, meanIPI_train, pulsefreq_train, meanpulsefreq_train, mean_IPI, mean_freq,N,NN,train] = analyze(pulseInfo2,xsong,winnowed_sine);
+ 
+ song_stats = {};
+ song_stats.IPI = IPI; %all IPIs in ms (this vector is one shorter than pulseInfo2.wc)
+ song_stats.meanIPI = meanIPI; %mean of those IPIs < 100ms
+ song_stats.stdIPI = stdIPI; %st dev of those IPIs < 100ms
+ song_stats.IPIs_within_stdev = IPIs_within_stdev; %IPIs within one stdev of the mean
+ song_stats.train_times = train_times; %start and stop times of pulse trains > 3 pulses in length
+ song_stats.IPI_train = IPI_train; %IPIs within each train
+ song_stats.train_length = train_length; %length of each pulse train
+ song_stats.pulses_per_train = pulses_per_train; %number of pulses per train
+ song_stats.meanIPI_train = meanIPI_train; %mean IPI, each train
+ song_stats.pulsefreq_train = pulsefreq_train; %pulse frequencies within each train
+ song_stats.meanpulsefreq_train = meanpulsefreq_train; %mean pulse frequency, each train
+ song_stats.mean_IPI = mean_IPI; %mean IPI for each position in the train
+ song_stats.mean_freq = mean_freq; %mean pulse frequency for each position in the train
+ song_stats.sinetimes = N; %vector of ones and zeros, ones indicate presence of sine song
+ song_stats.pulsetimes = NN; %vector of ones and zeros, ones indicate presence of pulse trains (pulse song)
+ song_stats.train = train; %these are the indices of song_stats.IPI_train that were fit (r2 > 0.45) with an exponential
+ 
