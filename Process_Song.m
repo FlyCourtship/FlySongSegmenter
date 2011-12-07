@@ -84,16 +84,31 @@ else
     pcndInfo = {};
 end
 
+% Mask putative pulses in xsong. Use pcndInfo pulses.
+
+pm_xsong = pulse_mask(xsong,pulseInfo2);
+
+fprintf('Running multitaper analysis on pulse-masked signal.\n')
+pm_ssf = sinesongfinder(pm_xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
+
+%freq1 = min value for fundamental frequency of sine song (to determine this value run the compute_spectrogram and plot_computed_spectrogram functions in the spectrogram folder on example data.
+%freq2 = max value for fundamental frequency of sine song
+fprintf('Finding putative sine in pulse-masked signal.\n')
+pm_sine = lengthfinder4(pm_ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps); %returns sine, which is a structure containing the following fields:
+
 % Use results of PulseSegmentation to winnow sine song (remove sine that overlaps pulse)
 %Run only if there is any sine 
 
 if sine.num_events == 0;
-    winnowed_sine = sine;
+    winnowed_sine = pm_sine;
 elseif pulseInfo2.w0 == 0;
-    winnowed_sine = sine;
+    winnowed_sine = pm_sine;
 else
-    winnowed_sine = winnow_sine(sine,pulseInfo2,ssf,param.max_pulse_pause,param.sine_low_freq,param.sine_high_freq);
+    winnowed_sine = winnow_sine(pm_sine,pulseInfo2,pm_ssf,param.max_pulse_pause,param.sine_low_freq,param.sine_high_freq);
 end
+
+
+
 
 %Produce some song stats (figures will be saved in the current directory)
 % [IPI, meanIPI, stdIPI, IPIs_within_stdev,train_times,IPI_train,train_length,pulses_per_train, meanIPI_train, pulsefreq_train, meanpulsefreq_train, mean_IPI, mean_freq,N,NN,train] = analyze(pulseInfo2,xsong,winnowed_sine);

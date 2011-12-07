@@ -60,13 +60,13 @@ winnowed_sine_1 = setdiff(all_sine,all_pulses);
 sample_pause=[];
 pulse_pauses=[];
 for i = 1:numel(pulseInfo2.w0)-1
-    try%will exit with error if i+1 index exceeds values
+    %try%will exit with error if i+1 index exceeds values
         if pulseInfo2.w0(i+1)/ssf.fs-pulseInfo2.w1(i)/ssf.fs < max_pulse_pause
             sample_pause = pulseInfo2.w1(i)/ssf.fs:1/ssf.fs:pulseInfo2.w0(i+1)/ssf.fs;
             pulse_pauses = [pulse_pauses,sample_pause];
         end
-    catch
-    end
+    %catch
+    %end
     
 end
 

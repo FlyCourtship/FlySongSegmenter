@@ -1,7 +1,5 @@
-% Plotting the Results from PulseSegmentation:
-
 function Plot_PulseSegmentation_Results(ssf,winnowed_sine,pcndInfo,pulseInfo,pulseInfo2,pps)
-
+%USAGE Plot_PulseSegmentation_Results(ssf,winnowed_sine,pcndInfo,pulseInfo,pulseInfo2,pps)
 figure; clf;
 %plot the signal
 plot((1:size(ssf.d,1))./ssf.fs,ssf.d,'Color',[.742 .742 .742])

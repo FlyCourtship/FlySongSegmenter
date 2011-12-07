@@ -30,7 +30,7 @@ cutoff_quantile = 0.95;%used when user supplies separate noise file %was 0.99
 cutoff_sd = 3;%used when only signal file is provided
 %user definable parameters to increase range of putative pulse
 range = 1.3;%expand putative pulse by this number of steps on either side
-combine_time = 15;%combine putative pulse if within this step size. i.e. this # * step_size in ms 
+combine_time = 5;%combine putative pulse if within this step size. i.e. this # * step_size in ms 
 low_freq_cutoff = 80;
 high_freq_cutoff = 1000;
 noise_cutoff = 0.9;
@@ -40,7 +40,7 @@ noise_cutoff = 0.9;
 %general parameters:
 a = [100:25:750]; %wavelet scales: frequencies examined. 
 b = [2:3]; %Derivative of Gaussian wavelets examined
-c = round(Fs/500)+1; %pWid:  Approx Pulse Width in points (odd, rounded)
+c = round(Fs/250)+1; %pWid:  Approx Pulse Width in points (odd, rounded)
 d = round(Fs/80); % buff: Points to take around each pulse for finding pulse peaks
 e = round(Fs/50); %lowIPI: estimate of a very low IPI (even, rounded)
 f = 1.1; %pulse peak height has to be at least k times the side windows
@@ -56,7 +56,7 @@ j = 700; %if best matched scale is greater than this frequency, then don't inclu
 k = round(Fs/50); %if pulse peaks are this close together, only keep the larger pulse (this value should be less than the species-typical IPI)
 
 %SET THE PARAMETERS FOR winnow_sine
-max_pulse_pause = 0.200; %max_pulse_pause in seconds, used to winnow apparent sine between pulses
+max_pulse_pause = 0.070; %max_pulse_pause in seconds, used to winnow apparent sine between pulses
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
