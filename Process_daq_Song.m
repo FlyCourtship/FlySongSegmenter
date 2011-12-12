@@ -56,7 +56,7 @@ for y = 1:nchannels_song
         %save data
         
         save(outfile, 'ssf','noise_ssf','winnowed_sine','pps',...
-            'pulseInfo2','pulseInfo','pcndInfo')
+            'pulseInfo2','pulseInfo','pcndInfo','-v7.3')
         %clear workspace
         clear song noise ssf noise_ssf winnowed_sine pps pulseInfo2 pulseInfo pcndInfo
     else
