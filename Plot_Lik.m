@@ -1,8 +1,8 @@
-function Plot_Lik(ssf,pulseInfo,winnowed_sine,labels,Lik_pulse,LOD_pulse)
-%Plot_Lik(ssf,pulseInfo,winnowed_sine,labels,Lik_pulse,LOD_pulse)
+function Plot_Lik(ssf,pulseInfo,winnowed_sine,labels,Lik_pulse)
+%Plot_Lik(ssf,pulseInfo,winnowed_sine,labels,Lik_pulse)
 %USAGE
 %
-%Plot_Lik(ssf,pulseInfo2,winnowed_sine,[],Lik_pulse.Lik)
+%Plot_Lik(ssf,pulseInfo2,winnowed_sine,[],Lik_pulse.LLR_best)
 %
 %Plot with pulses labeled (default no labels, much faster plotting)
 %Plot_Lik(ssf,pulseInfo2,winnowed_sine,'yes',Lik_pulse.Lik)
@@ -84,7 +84,7 @@ end
 %title('Sine & Pulses','FontSize',14);
 %legend('Signal','Sine','Pulses','Pulse Peaks');
 
-
+grid on
 hold off
 
 
