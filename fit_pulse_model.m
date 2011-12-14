@@ -1,12 +1,7 @@
 function [pulse_model,Lik_pulse] = fit_pulse_model(pulses)
-%[pulse_model,Lik_pulse] = fit_pulseharm_model(pulses)
 %USAGE
-%calculate model and likelihoods
-%[pulse_model,Lik_pulse] = fit_pulse_model(pulseInfo2.x)
-%calculate just likelihoods from previously calculated model and aligned
-%data
-%[~,Lik_pulse] = fit_pulse_model([],pulse_model.M,pulse_model.Z)
-%
+%[pulse_model,Lik_pulse] = fit_pulseharm_model(pulses)
+
 %
 %provide sample of pulses
 %return pulse model & std etc and Lik of individual pulses given the model

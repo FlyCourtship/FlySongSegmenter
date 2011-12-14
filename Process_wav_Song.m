@@ -27,7 +27,7 @@ for y = 1:file_num
                 
                 %run Process_Song on selected channel
                 fprintf('Processing song.\n')
-                [ssf,noise_ssf,winnowed_sine, pps, pulseInfo2, pulseInfo, pcndInfo] = Process_Song(song,noise,Fs);
+                [ssf,winnowed_sine, pps, pulseInfo2, pulseInfo, pcndInfo] = Process_Song(song,noise);
 
                 %save data
                 save(outfile, 'ssf','noise_ssf','winnowed_sine','pps',...
