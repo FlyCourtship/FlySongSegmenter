@@ -55,13 +55,8 @@ for y = 1:nchannels_song
         [ssf,winnowed_sine, pps, pulseInfo2, pulseInfo, pcndInfo] = Process_Song(song);
         %save data
         
-<<<<<<< HEAD
-        save(outfile, 'ssf','noise_ssf','winnowed_sine','pps',...
-            'pulseInfo2','pulseInfo','pcndInfo','-v7.3')
-=======
         save(outfile, 'ssf','winnowed_sine','pps',...
-            'pulseInfo2','pulseInfo','pcndInfo')
->>>>>>> New modeling code, etc.
+            'pulseInfo2','pulseInfo','pcndInfo','-v7.3')
         %clear workspace
         clear song noise ssf noise_ssf winnowed_sine pps pulseInfo2 pulseInfo pcndInfo
     else
