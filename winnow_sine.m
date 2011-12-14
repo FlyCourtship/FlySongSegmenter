@@ -85,7 +85,7 @@ winnowed_sine_2 = setdiff(winnowed_sine_1,pulse_pauses);
 
 %then recalc all variables
 
-length = sine_stop - sine_start;
+%length = sine_stop - sine_start;
 
 NumBouts = numel(sine_start);
 
@@ -102,8 +102,8 @@ end
 %frequencies are in column 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-MeanFundFreq=zeros(NumBouts,1);
-MedianFundFreq=zeros(NumBouts,1);
+%MeanFundFreq=zeros(NumBouts,1);
+%MedianFundFreq=zeros(NumBouts,1);
 sine_bout_events=cell(NumBouts,1);
 
 for i = 1:NumBouts
@@ -123,18 +123,18 @@ for i = 1:NumBouts
     
     values = values(values>=min);%take only values that fall between min and max
     values = values(values<=max);
-    MeanFundFreq(i) = mean(values);
-    MedianFundFreq(i) = median(values);
+    %MeanFundFreq(i) = mean(values);
+    %MedianFundFreq(i) = median(values);
     sine_bout_events{i} = values;
 end
     
     
-winnowed_sine.num_events = NumBouts;
+%winnowed_sine.num_events = NumBouts;
 winnowed_sine.start = sine_start';
 winnowed_sine.stop = sine_stop';
-winnowed_sine.length = length;
-winnowed_sine.MeanFundFreq = MeanFundFreq';
-winnowed_sine.MedianFundFreq=MedianFundFreq';
+%winnowed_sine.length = length;
+%winnowed_sine.MeanFundFreq = MeanFundFreq';
+%winnowed_sine.MedianFundFreq=MedianFundFreq';
 winnowed_sine.clips = sine_clips;
 winnowed_sine.events = sine_bout_events;
 
