@@ -280,17 +280,18 @@ best_LLR = max(LLR_fh,LLR_sh);
 %LOD_for = d_pdf - u_pdf;
 %LOD_rev = d_rev_pdf - u_pdf;
 
-pulse_model.M = M;
-pulse_model.Z = Z;
-pulse_model.S = S;
-pulse_model.fhM = fhM;
-pulse_model.shM = shM;
-pulse_model.fhZ = Z2fhM;
-pulse_model.shZ = Z2shM;
+pulse_model.M = fhM;
+pulse_model.fhZ = fhZ;%aligned pulses that fit first harmonic best
+pulse_model.Z = Z2fhM;%aligned all pulses to first harmonic model
+pulse_model.S = S_Z2fhM;
+%pulse_model.fhM = fhM;
+%pulse_model.shM = shM;
+%pulse_model.shZ = Z2shM;
 
 Lik_pulse.LLR_best = best_LLR;
 Lik_pulse.LLR_fh = LLR_fh;
 Lik_pulse.LLR_sh = LLR_sh;
+Lik_pulse.LLR_th = LLR_th;
 %Lik_pulse.d_pdf = d_pdf;
 %Lik_pulse.u_pdf = u_pdf;
 %Lik_pulse.d_rev_pdf = d_rev_pdf;
