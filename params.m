@@ -10,7 +10,7 @@ NW = 12;%NW = time-bandwidth product for tapers
 K = 20;%K = num independent tapers to average over, must be < 2*NW
 dT = 0.1;%dT = window length
 dS = 0.01;%dS = window step size
-pval = 0.5;%pval = criterion for F-test
+pval = 0.05;%pval = criterion for F-test
 
 
 %SET THE PARAMETERS FOR lengthfinder3

@@ -1,5 +1,5 @@
-function Plot_PulseSegmentation_Results(ssf,winnowed_sine,pcndInfo,pulseInfo,pulseInfo2,pps)
-%USAGE Plot_PulseSegmentation_Results(ssf,winnowed_sine,pcndInfo,pulseInfo,pulseInfo2,pps)
+function Plot_PulseSegmentation_Results(ssf,winnowed_sine,pulseInfo,pulseInfo2)
+%USAGE Plot_PulseSegmentation_Results(ssf,winnowed_sine,pulseInfo,pulseInfo2)
 figure; clf;
 %plot the signal
 plot((1:size(ssf.d,1))./ssf.fs,ssf.d,'Color',[.742 .742 .742])
@@ -50,19 +50,19 @@ title('Sine & Pulses','FontSize',14);
 
 hold off
 
-figure; clf;
-%plot the signal
-plot((1:size(ssf.d,1))./ssf.fs,ssf.d,'Color',[.742 .742 .742])
-hold on; 
-
-%plot putative pulses
-for n = 1:length(pps.start);
-    x_start = round(pps.start(n)*ssf.fs);
-    x_stop = round(x_start + size(pps.clips{n},1));
-    time = (x_start:x_stop-1);
-    y = pps.clips{n};
-    plot(time./ssf.fs,y,'g')
-end
+% figure; clf;
+% %plot the signal
+% plot((1:size(ssf.d,1))./ssf.fs,ssf.d,'Color',[.742 .742 .742])
+% hold on; 
+% 
+% %plot putative pulses
+% for n = 1:length(pps.start);
+%     x_start = round(pps.start(n)*ssf.fs);
+%     x_stop = round(x_start + size(pps.clips{n},1));
+%     time = (x_start:x_stop-1);
+%     y = pps.clips{n};
+%     plot(time./ssf.fs,y,'g')
+% end
 zoom xon;
 
 title('Putative Pulse Regions','FontSize',14);

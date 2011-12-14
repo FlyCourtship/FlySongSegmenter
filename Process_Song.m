@@ -1,8 +1,8 @@
 function [ssf,winnowed_sine, pps, pulseInfo2, pulseInfo, pcndInfo,cmhSong,cmhNoise,cmo,cPnts] = Process_Song(xsong,xempty)
 
-%USAGE [ssf,noise_ssf,winnowed_sine, pps, pulseInfo2, pulseInfo, pcndInfo] = Process_Song(xsong,xempty)
+%USAGE [ssf,winnowed_sine, pps, pulseInfo2, pulseInfo, pcndInfo] = Process_Song(xsong,xempty)
 %OR
-%[ssf,noise_ssf,winnowed_sine, pps, pulseInfo2, pulseInfo, pcndInfo] = Process_Song(xsong)
+%[ssf,winnowed_sine, pps, pulseInfo2, pulseInfo, pcndInfo]  = Process_Song(xsong)
 
 addpath(genpath('./chronux'))
 
