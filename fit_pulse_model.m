@@ -1,7 +1,7 @@
 function [pulse_model,Lik_pulse] = fit_pulse_model(pulses)
-%USAGE
-%[pulse_model,Lik_pulse] = fit_pulseharm_model(pulses)
 
+%[pulse_model,Lik_pulse] = fit_pulse_model(pulses)
+%USAGE
 %
 %provide sample of pulses
 %return pulse model & std etc and Lik of individual pulses given the model
@@ -145,44 +145,39 @@ fprintf('Building first harmonic model.\n');
 [fhM,fhZ] = alignpulses(fhZ,20);
 [~,fhZ] = realign_abberant_peaks(fhM,fhZ);
 
+
+%
+%Can this be cut?
+%
 %Decimate fhZ data to fit shM and thM
 
-shZ = downsample(fhZ',2);
-shZ = shZ';
-thZ = downsample(fhZ',3);
-thZ = thZ';
-
-%pad shZ and thZ to same size as Z
-delta = abs(size(shZ,2) - size(Z,2));
-left_pad = round(delta/2);
-right_pad = delta - left_pad;
-m = size(shZ,1);
-left_pad_ar = zeros(m,left_pad);
-right_pad_ar = zeros(m,right_pad);
-shZ = [left_pad_ar,shZ,right_pad_ar];
-
-delta = abs(size(thZ,2) - size(Z,2));
-left_pad = round(delta/2);
-right_pad = delta - left_pad;
-m = size(shZ,1);
-left_pad_ar = zeros(m,left_pad);
-right_pad_ar = zeros(m,right_pad);
-thZ = [left_pad_ar,thZ,right_pad_ar];
-
-
-%Build model of sh with sh data
-%de novo fit high freq model
-%take mean of columns
-% fprintf('Building second harmonic model.\n');
-% [shM,shZ] = alignpulses(shZ,20);
-% [~,shZ] = realign_abberant_peaks(shM,shZ);
-
-%Build model of sh with sh data
-%de novo fit high freq model
-%take mean of columns
-% fprintf('Building third harmonic model.\n');
-% [thM,thZ] = alignpulses(thZ,20);
-% [~,thZ] = realign_abberant_peaks(thM,thZ);
+% shZ = downsample(fhZ',2);
+% shZ = shZ';
+% thZ = downsample(fhZ',3);
+% thZ = thZ';
+% 
+% %pad shZ and thZ to same size as Z
+% delta = abs(size(shZ,2) - size(Z,2));
+% left_pad = round(delta/2);
+% right_pad = delta - left_pad;
+% m = size(shZ,1);
+% left_pad_ar = zeros(m,left_pad);
+% right_pad_ar = zeros(m,right_pad);
+% shZ = [left_pad_ar,shZ,right_pad_ar];
+% 
+% delta = abs(size(thZ,2) - size(Z,2));
+% left_pad = round(delta/2);
+% right_pad = delta - left_pad;
+% m = size(shZ,1);
+% left_pad_ar = zeros(m,left_pad);
+% right_pad_ar = zeros(m,right_pad);
+% thZ = [left_pad_ar,thZ,right_pad_ar];
+% 
+% %
+%
+%to here
+%
+%
 
 
 %Now realign all data to the two models
@@ -205,9 +200,9 @@ st = std(Z(:,samplepos))/sqrt(n_samples);
 start=find(abs(M)>st,1,'first');
 finish=find(abs(M)>st,1,'last');
 
-M = M(start:finish);
+%M = M(start:finish);
 Z = Z(:,start:finish);
-S = std(Z);
+%S = std(Z);
 
 fhM = fhM(start:finish);
 shM = shM(start:finish);
@@ -270,6 +265,7 @@ LLR_th = LL_thM - LL_0_thpdf;
 
 %compare fit to basic model and second harmonic model
 best_LLR = max(LLR_fh,LLR_sh);
+best_LLR = max(best_LLR,LLR_th);
 
 %LR_best = d_best_pdf - u_pdf;
 %LOD_for = d_pdf - u_pdf;

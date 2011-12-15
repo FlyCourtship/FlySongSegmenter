@@ -1,16 +1,10 @@
-function Plot_Lik(ssf,pulseInfo,winnowed_sine,labels,Lik_pulse)
-%Plot_Lik(ssf,pulseInfo,winnowed_sine,labels,Lik_pulse)
+function Plot_Lik(ssf,pulseInfo,winnowed_sine,Lik_pulse)
+%Plot_Lik(ssf,pulseInfo,winnowed_sine,Lik_pulse)
 %USAGE
 %
-%Plot_Lik(ssf,pulseInfo2,winnowed_sine,[],Lik_pulse.LLR_best)
-%
-%Plot with pulses labeled (default no labels, much faster plotting)
-%Plot_Lik(ssf,pulseInfo2,winnowed_sine,'yes',Lik_pulse.Lik)
+%Plot_Lik(ssf,pulseInfo2,winnowed_sine,Lik_pulse.LLR_best)
 %
 %
-%
-
-addpath ./lscatter
 
 Lik = Lik_pulse;
 
@@ -40,7 +34,8 @@ zoom xon;
 
 
 % plot sine data
-if winnowed_sine.num_events>0
+num_events=length(winnowed_sine.start);
+if num_events>0
     for n = 1:size(winnowed_sine.start,1)
         x_start = round(winnowed_sine.start(n)*ssf.fs);
         x_stop = round(x_start + size(winnowed_sine.clips{n},1));
@@ -70,14 +65,14 @@ if numel(pulseInfo) > 0
         mxv(i) = pulseInfo.mxv(i);
     end
     
-    if strcmp(labels,'yes') == 1 %user specifies labels
-        hold on;
-        points = 1:n;
-        subplot(ax1);
-        lscatter(wc,mxv+mxv./10,points);
-        subplot(ax2);
-        lscatter(wc,mxv,points);
-    end
+%     if strcmp(labels,'yes') == 1 %user specifies labels
+%         hold on;
+%         points = 1:n;
+%         subplot(ax1);
+%         lscatter(wc,mxv+mxv./10,points);
+%         subplot(ax2);
+%         lscatter(wc,mxv,points);
+%     end
 end
 
 
