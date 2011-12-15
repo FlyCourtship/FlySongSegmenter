@@ -4,7 +4,7 @@ function xempty = segnspp(ssf,param)
 %%Finds putative noise by fitting a mixture model to the distribution of
 %%power values (A) and taking the lowest mean (±var) as noise
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+warning('off','stats:gmdistribution:FailedToConverge')
 %find freq range of ssf.A to analyze
 low_freq_index = find(ssf.f>param.low_freq_cutoff,1,'first');
 high_freq_index = find(ssf.f<param.high_freq_cutoff,1,'last');
