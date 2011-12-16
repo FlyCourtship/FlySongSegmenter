@@ -26,7 +26,7 @@ ax = tight_subplot(nchannels,ncolumns+1,[.005 .01],[.01 .01],[.01 .01]);
 for y = 1:nchannels
     fprintf(['Grabbing channel %s.\n'], num2str(y))
     song = daqread(daqfile,'Channels',y);
-    snip = song(1:5e5);
+    snip = song(1:1e6);
     
     %grab short snip of song to find noise
     fprintf('Finding noise.\n')
