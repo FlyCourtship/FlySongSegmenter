@@ -73,13 +73,16 @@ for y = 1:nchannels
             else
                 if samples(i-1) ~= 0;
                     plot(1:3e4+1,song(samples(i-1) - 1.5e4:samples(i-1) + 1.5e4),'k')
+                axis([1 3e4+1 -10*cutoff 10*cutoff])
                 else
                     %if no song, plot flatline
                     plot([1 2],[0 0],'k')
+                    axis([1 2 -10*cutoff 10*cutoff])
                 end
+                
             end
             axis off
-            axis tight
+            
             
         end
         
@@ -95,9 +98,10 @@ for y = 1:nchannels
                 text(0,.5,row,'FontSize',10);
             else
                 plot(1:3e4+1,song(samples(i-1) - 1.5e4:samples(i-1) + 1.5e4),'k')
+                axis([1 3e4+1 -10*cutoff 10*cutoff])
             end
             axis off
-            axis tight
+            
             
         end
     end
