@@ -19,13 +19,14 @@ param.low_freq_cutoff = 100;
 param.high_freq_cutoff = 200;
 param.cutoff_sd = 3;
 plotnum = 0;
-
+clf;
+figure('OuterPosition',[0 0 ncolumns*200 nchannels*100]);
 ax = tight_subplot(nchannels,ncolumns+1,[.005 .01],[.01 .01],[.01 .01]);
 
 for y = 1:nchannels
     fprintf(['Grabbing channel %s.\n'], num2str(y))
     song = daqread(daqfile,'Channels',y);
-    snip = song(1:3e5);
+    snip = song(1:5e5);
     
     %grab short snip of song to find noise
     fprintf('Finding noise.\n')
@@ -45,14 +46,20 @@ for y = 1:nchannels
         cutoff = 5 * std(xempty);
         
         %%
-        %Now find 5 segments of 3 seconds each with events that exceed cutoff
+        %Now find ncolumns segments of 3 seconds each with events that exceed cutoff
         
         signal = find(song > cutoff);
         
-        samples = randsample(signal,ncolumns);
-        while any(samples-2e4<0) || any(samples+2e4>length(song))%this is to ensure that plotted values are included in song
+        if numel(signal) >= ncolumns;
             samples = randsample(signal,ncolumns);
+            while any(samples-2e4<0) || any(samples+2e4>length(song))%this is to ensure that plotted values are included in song
+                samples = randsample(signal,ncolumns);
+            end
+        else
+            %if no song found
+            samples = zeros(10,1);
         end
+        
         
         
         fprintf('Plotting some results.\n')
@@ -61,10 +68,15 @@ for y = 1:nchannels
             plotnum = plotnum + 1;
             axes(ax(plotnum))
             if i == 1
-                row = ['Channel ' num2str(y)];
+                row = sprintf(['Channel ' num2str(y)]);
                 text(0,.5,row,'FontSize',10);
-            else               
-                plot(1:3e4+1,song(samples(i-1) - 1.5e4:samples(i-1) + 1.5e4),'k')
+            else
+                if samples(i-1) ~= 0;
+                    plot(1:3e4+1,song(samples(i-1) - 1.5e4:samples(i-1) + 1.5e4),'k')
+                else
+                    %if no song, plot flatline
+                    plot([1 2],[0 0],'k')
+                end
             end
             axis off
             axis tight
@@ -73,13 +85,13 @@ for y = 1:nchannels
         
     else
         for i = 1:ncolumns+1
-            %could not extract noise, take 5 loud bits
+            %could not extract noise, take ncolumns loud bits
             signal = find(song > 3 * std(song));
             samples = randsample(signal,ncolumns);
             plotnum = plotnum + 1;
             axes(ax(plotnum))
             if i == 1
-                row = ['Channel ' num2str(y) ':Error'];
+                row = sprintf(['Channel ' num2str(y) ':Error\nCould not extract noise.']);
                 text(0,.5,row,'FontSize',10);
             else
                 plot(1:3e4+1,song(samples(i-1) - 1.5e4:samples(i-1) + 1.5e4),'k')
@@ -95,7 +107,8 @@ for y = 1:nchannels
 end
 
 fprintf('Saving figure.\n')
-outfile = ['Channels_1 -' num2str(y) '.png'];
+[pathstr, name, ~] = fileparts(daqfile);
+outfile = [pathstr name '.png'];
 warning('off','MATLAB:LargeImage')
 export_fig(outfile,'-r300');
     
