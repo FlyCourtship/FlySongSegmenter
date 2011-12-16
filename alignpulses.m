@@ -1,4 +1,4 @@
-function [Model,Aligned_pulses] = alignpulses(array,reps)
+function [Aligned_pulses,Model] = alignpulses(array,reps)
 %[Model,Aligned_pulses] = alignpulses(array,reps)
 
 %take mean of columns

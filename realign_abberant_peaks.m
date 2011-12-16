@@ -1,4 +1,4 @@
-function [Model,Aligned_pulses] = realign_abberant_peaks(M,Z);
+function [Aligned_pulses,Model] = realign_abberant_peaks(Z,M);
 
 [n_samples,total_length] = size(Z);
 %fprintf('Double checking peak alignments.\n');
