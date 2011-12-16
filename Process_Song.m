@@ -55,7 +55,7 @@ fprintf('Finding segments of putative pulse in signal.\n')
 %Run PulseSegmentation using xsong, xempty, and pps as inputs (and a list of parameters defined above):
 if numel(pps.start) > 0
     fprintf('Running wavelet transformation on putative pulse segments.\n')
-    [pulseInfo, pulseInfo2, pcndInfo,cmhSong,cmhNoise,cmo,cPnts] = PulseSegmentationv3(xsong,xempty,pps,param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.j,param.k,param.Fs);
+    [pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong,xempty,pps,param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.j,param.k,param.Fs);
     
     if pulseInfo2.w0>0;   
     % Grab the pulse information
@@ -81,7 +81,7 @@ else
     numPulses = 0;
     pulseInfo = {};
     pulseInfo2 = {};
-    pcndInfo = {};
+    %pcndInfo = {};
 end
 
 % Mask putative pulses in xsong. Use pcndInfo pulses.
