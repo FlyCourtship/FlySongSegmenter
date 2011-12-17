@@ -1,4 +1,4 @@
-function  [IPI, meanIPI, stdIPI, IPIs_within_stdev,train_times,IPI_train,train_length,pulses_per_train, meanIPI_train, pulsefreq_train, meanpulsefreq_train, mean_IPI, mean_freq,N,NN, train] = analyze(pulseInfo2,xsong,winnowed_sine);
+function  [IPI, rsquare, meanIPI, stdIPI, IPIs_within_stdev,train_times,IPI_train,train_length,pulses_per_train, meanIPI_train, pulsefreq_train, meanpulsefreq_train, mean_IPI, mean_freq,N,NN, train] = analyze(pulseInfo2,xsong,winnowed_sine);
 
 Fs=10000;
 
@@ -26,7 +26,7 @@ cc = bb(index2); %times for these IPIs
 IPIs_within_stdev = (A(index2));
 
 h=figure(11); hist(IPIs_within_stdev,50); title('IPI histogram');
-saveas(h,'IPI_hist.fig'); 
+%saveas(h,'IPI_hist.fig'); 
 
 lambda = poissfit(round(IPIs_within_stdev));
 xval = min(round(IPIs_within_stdev)):1:max(round(IPIs_within_stdev));
@@ -34,7 +34,7 @@ Y = poisspdf(xval,lambda);
 %Y=Y./max(Y);
 
 h=figure(2); plot(xval, Y,'-r'); title('IPI Poisson dist');
-saveas(h,'IPI_poisson_dist.fig'); 
+%saveas(h,'IPI_poisson_dist.fig'); 
 
 %find pulse trains==============================
 a=find(IPI>meanIPI+2*stdIPI); %these larger IPIs must be the starts of pulse trains
@@ -98,11 +98,11 @@ end
 
 %plot the start times of pulse trains versus the meanIPI or mean pulsefreq within that train
 h=figure(3); errorbar(train_times(:,1)./Fs,meanIPI_train,stdIPI_train,'.-k'); title('mean IPI within a train versus train start time');
-saveas(h,'meanIPI_pulsetrainstart.fig'); 
+%saveas(h,'meanIPI_pulsetrainstart.fig'); 
 h=figure(4); plot(train_times(:,1)./Fs,meanpulsefreq_train,'.-r');  title('mean pulse frequency within a train versus train start time');
-saveas(h,'meanpulsefreq_pulsetrainstart.fig');
+%saveas(h,'meanpulsefreq_pulsetrainstart.fig');
 h=figure(5); plot(train_times(:,1)./Fs,pulses_per_train,'.-g'); title('number of pulses per train versus train start time');
-saveas(h,'pulsespertrain_pulsetrainstart.fig');
+%saveas(h,'pulsespertrain_pulsetrainstart.fig');
 
 %plot the IPI trends:
 yf=[];
@@ -115,8 +115,9 @@ vect = (1:aa);
 [cfun,cfit,output] = fit(vect', IPI_train{i}', 'exp1'); %exp1: Y = a*exp(b*x)
 rsquare(i) = cfit.adjrsquare;
 const = cfun.b;
+mult = cfun.a;
 xf = linspace(1,60,60);
-    if cfit.adjrsquare>0.45;
+    if cfit.adjrsquare>0.45; %if rsquare value is > 0.5
     train(n) = i;
     yf(n,:) = exp(const*xf);
     n=n+1;
@@ -128,7 +129,7 @@ h=figure(6); for i=1:size(yf,1);
 hold on; plot(yf(i,:));
 end
 ylim([0 5]); title('exponential fits of IPIs within a train');
-saveas(h,'expfits_IPI_train.fig'); 
+%saveas(h,'expfits_IPI_train.fig'); 
 
 %means for each position in the train=========================
 mean_IPI = NaN(size(IPI_train,2),60);
@@ -140,14 +141,14 @@ end
 mean_IPI_plot = mean_IPI';
 t = 1:1:60;
 h = figure(66); plot(t,mean_IPI_plot);  title('IPIs for each pulse train');
-saveas(h,'IPI_each_train.fig');
+%saveas(h,'IPI_each_train.fig');
 ave_IPI = nanmean(mean_IPI,1);
 std_IPI = nanstd(mean_IPI,1);
 
 h=figure(7); boxplot(mean_IPI); title('IPI stats within a train');
-saveas(h,'IPI_boxplot.fig'); 
+%saveas(h,'IPI_boxplot.fig'); 
 h=figure(8); boxplot(mean_freq); title('pulsefreq stats within a train');
-saveas(h,'pulsefreq_boxplot.fig'); 
+%saveas(h,'pulsefreq_boxplot.fig'); 
 
 
 %statistics of pulse trains follwed by sine?===========================
@@ -155,7 +156,7 @@ N = zeros(1,length(xsong)); %N is the location and length of all sines
 NN = zeros(1,length(xsong)); %NN is the location and length of all pulse trains containing > 3 pulses
 
 for i=1:length(winnowed_sine.start);
-    N(round(winnowed_sine.start(i))*10000:round(winnowed_sine.stop(i))*10000) = 1;
+    N(round(winnowed_sine.start(i)*10000):round(winnowed_sine.stop(i)*10000)) = 1;
 end
 
 for i=1:length(train_times);
