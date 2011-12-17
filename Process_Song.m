@@ -1,4 +1,4 @@
-function [ssf,winnowed_sine, pps, pulseInfo2, pulseInfo, pcndInfo,cmhSong,cmhNoise,cmo,cPnts] = Process_Song(xsong,xempty)
+function [ssf,winnowed_sine, pps, pulseInfo2, pulseInfo] = Process_Song(xsong,xempty)
 
 %USAGE [ssf,winnowed_sine, pps, pulseInfo2, pulseInfo, pcndInfo] = Process_Song(xsong,xempty)
 %OR
@@ -11,48 +11,22 @@ fetch_song_params
 fprintf('Running multitaper analysis on signal.\n')
 [ssf] = sinesongfinder(xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
 
-if nargin == 1%if user provides only xsong
+if nargin == 1 %if user provides only xsong
     xempty = segnspp(ssf,param);
-end%if user provides both xsong and xempty
+end %if user provides both xsong and xempty
 
 fprintf('Running multitaper analysis on noise.\n')
 [noise_ssf] = sinesongfinder(xempty,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval); %returns noise_ssf
 
-%Run lengthfinder3 on ssf and noise_ssf, where:
-
-%freq1 = min value for fundamental frequency of sine song (to determine this value run the compute_spectrogram and plot_computed_spectrogram functions in the spectrogram folder on example data.
-%freq2 = max value for fundamental frequency of sine song
+%Run lengthfinder4 on ssf and noise_ssf, where:
 fprintf('Finding putative sine and power in signal.\n')
 [sine] = lengthfinder4(ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps); %returns sine, which is a structure containing the following fields:
 
-%ssf is structure returned by sinesongfinder, containing results of F test,
-%among other things
-%freq1 and freq2 define the bottom and top of the frequency band that you
-%believe contains the fundamental frequency of true sine song
-
-
-%start:
-%stop:
-%length:
-%MeanFundFreq:
-%MedianFundFreq:
-%clips: a cell array containing each sine song clip - each clip is possibly a different length
-%fprintf('Finding power in empty chamber.\n')
-%[noise_sine] = lengthfinder3(noise_ssf, freq1, freq2);
-
 %Run putativepulse2 on sine and noise_sine, where:
-
-%cutoff_quantile =
-
-
 fprintf('Finding segments of putative pulse in signal.\n')
 [pps] = putativepulse3(ssf,sine,noise_ssf,param.cutoff_quantile,param.range,param.combine_time,param.low_freq_cutoff,param.high_freq_cutoff);  %returns pps, which is a structure containing the following fields:
-%start: times at which putative pulse trains start
-%stop: times at which putative pulse trains stop
-%clips: the actual clips of the putative pulse trains; these are handed off to PulseSegmentation
 
-
-%Run PulseSegmentation using xsong, xempty, and pps as inputs (and a list of parameters defined above):
+%Run PulseSegmentationv3 using xsong, xempty, and pps as inputs (and a list of parameters defined above):
 if numel(pps.start) > 0
     fprintf('Running wavelet transformation on putative pulse segments.\n')
     [pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong,xempty,pps,param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.j,param.k,param.Fs);
@@ -65,13 +39,6 @@ if numel(pps.start) > 0
     pulseCenter= pulseInfo2.wc;
     pulseFreq  = pulseInfo2.fcmx;
     
-    % Show information for a random pulse, to demonstrate the
-    % meaning of values above
-%    whichPulse = 1;
-%    fprintf('\n\nPulse %d occured between indices %d and %d in the song clip.\n', whichPulse, pulseStart(whichPulse), pulseEnd(whichPulse));
-%    fprintf('It was centered at index %d.\n', pulseCenter(whichPulse));
-%    fprintf('It''s center frequency was ~%d Hz.\n', pulseFreq(whichPulse));
-    
     elseif pulseInfo2.i0 == 0;
     fprintf('no pulses found.\n');    
     end
@@ -81,18 +48,13 @@ else
     numPulses = 0;
     pulseInfo = {};
     pulseInfo2 = {};
-    %pcndInfo = {};
 end
 
 % Mask putative pulses in xsong. Use pcndInfo pulses.
-
 pm_xsong = pulse_mask(xsong,pulseInfo2);
-
 fprintf('Running multitaper analysis on pulse-masked signal.\n')
 pm_ssf = sinesongfinder(pm_xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
 
-%freq1 = min value for fundamental frequency of sine song (to determine this value run the compute_spectrogram and plot_computed_spectrogram functions in the spectrogram folder on example data.
-%freq2 = max value for fundamental frequency of sine song
 fprintf('Finding putative sine in pulse-masked signal.\n')
 pm_sine = lengthfinder4(pm_ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps); %returns sine, which is a structure containing the following fields:
 
@@ -107,9 +69,7 @@ else
     winnowed_sine = winnow_sine(pm_sine,pulseInfo2,pm_ssf,param.max_pulse_pause,param.sine_low_freq,param.sine_high_freq);
 end
 
-
-
-
+%Uncomment if you want song_stats to be produced automatically
 %Produce some song stats (figures will be saved in the current directory)
 % [IPI, meanIPI, stdIPI, IPIs_within_stdev,train_times,IPI_train,train_length,pulses_per_train, meanIPI_train, pulsefreq_train, meanpulsefreq_train, mean_IPI, mean_freq,N,NN,train] = analyze(pulseInfo2,xsong,winnowed_sine);
 %  
