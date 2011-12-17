@@ -6,7 +6,7 @@ plot((1:size(ssf.d,1))./ssf.fs,ssf.d,'Color',[.742 .742 .742])
 hold on; 
 
 %plot sine data
-if winnowed_sine.num_events>0
+if winnowed_sine.start>0
     for n = 1:size(winnowed_sine.start,1)
         x_start = round(winnowed_sine.start(n)*ssf.fs);
         x_stop = round(x_start + size(winnowed_sine.clips{n},1));
@@ -32,11 +32,12 @@ if numel(pulseInfo) > 0
 n = length(pulseInfo2.x);
 wc = nan(1,n); %NaNs the length of n (number of pulses in pulseInfo2)
 mxv = nan(1,n);
+mmxv = nan(1,n);
 for i = 1:n
         wc(i) = pulseInfo2.wc(i)/ssf.fs;
         wwc(i) = pulseInfo.wc(i)/ssf.fs; %pulses before second round of winnowing
-        mxv(i) = pulseInfo2.mxv(i);
-        mmxv(i) = pulseInfo.mxv(i); %pulses before second round of winnowing
+        mxv(i) = max(abs(pulseInfo2.x{i}));
+        mmxv(i) = max(abs(pulseInfo.x{i})); %pulses before second round of winnowing
 end
 plot(wwc,mmxv,'.m');
 hold on;
