@@ -110,7 +110,7 @@ rsquare=[];
 n=1;
 for i=1:size(IPI_train,2);
 aa=length(IPI_train{i});
-if aa>5;
+if aa>5; %if there are at least 6 pulses in the train
 vect = (1:aa);
 [cfun,cfit,output] = fit(vect', IPI_train{i}', 'exp1'); %exp1: Y = a*exp(b*x)
 rsquare(i) = cfit.adjrsquare;

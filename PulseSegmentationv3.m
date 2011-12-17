@@ -1,4 +1,4 @@
-function [pulseInfo, pulseInfo2, pcndInfo,cmhSong,cmhNoise,cmo, cPnts] = PulseSegmentationv3(xsong, xempty, pps, a, b, c, d, e, f, g, h, i, j, k,Fs)
+function [pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong, xempty, pps, a, b, c, d, e, f, g, h, i, j, k,Fs)
 
 %========PARAMETERS=================
 segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
@@ -235,7 +235,6 @@ end
      
 zz = zeros(1,length(pulse_peaks));
 pcndInfo = struct('wc',double(pulse_peaks),...
-           'ok',zz,...
            'dog',zz,'scmx',zz,'fcmx',zz,'w0',zz,'w1',zz);
 
 tend = toc;
@@ -269,8 +268,8 @@ pulseInfo.w0 = zz; % start of window centered at wc
 pulseInfo.w1 = zz; % end of window centered at wc
 
 pulseInfo.x = cell(1,np); % the signals themselves
-pulseInfo.mxv = zz; %max voltage
-pulseInfo.aven = zz; %power
+%pulseInfo.mxv = zz; %max voltage
+%pulseInfo.aven = zz; %power
 
 for i = 1:np
    
@@ -287,12 +286,14 @@ for i = 1:np
    pulsewin = [];
    pulsewin = 2*sp.pulsewindow;
    
-   %pcndInfo.w0(i) = round(peak-pulsewin*sc_at_max); 
+   %pcndInfo.w0(i) = round(peak-pulsewin*sc_at_max); %use this if you want
+   %to scale the window around each pulse based on frequency
    pcndInfo.w0(i) = round(peak-pulsewin); 
    if pcndInfo.w0(i) < 0;
        pcndInfo.w0(i) = 1;
    end
-   %pcndInfo.w1(i) = round(peak+pulsewin*sc_at_max); 
+   %pcndInfo.w1(i) = round(peak+pulsewin*sc_at_max); %use this if you want
+   %to scale the window around each pulse based on frequency
    pcndInfo.w1(i) = round(peak+pulsewin); 
    if pcndInfo.w1(i) > length(xs);
        pcndInfo.w1(i) = length(xs);
@@ -313,7 +314,7 @@ for i = 1:np
    end
    
    indPulse(max(pcndInfo.w0(i),1):min(pcndInfo.w1(i),numel(xs)))=1;
-   pcndInfo.ok(i) = 1;
+   %pcndInfo.ok(i) = 1;
    nOk = nOk+1;
    
    pulseInfo.dog(nOk) = pcndInfo.dog(i);
@@ -324,8 +325,8 @@ for i = 1:np
    pulseInfo.w1(nOk) = pcndInfo.w1(i);   
   
    pulseInfo.x{nOk} = xs(w0:w1);
-   pulseInfo.aven(nOk) = mean(xs(w0:w1).^2);
-   pulseInfo.mxv(nOk) = max(abs(xs(w0:w1)));   
+   %pulseInfo.aven(nOk) = mean(xs(w0:w1).^2);
+   %pulseInfo.mxv(nOk) = max(abs(xs(w0:w1)));   
 end
 
 if (nOk)
@@ -335,9 +336,9 @@ if (nOk)
   pulseInfo.wc = pulseInfo.wc(1:nOk);
   pulseInfo.w0 = pulseInfo.w0(1:nOk);
   pulseInfo.w1 = pulseInfo.w1(1:nOk);
-  pulseInfo.aven = pulseInfo.aven(1:nOk);
+  %pulseInfo.aven = pulseInfo.aven(1:nOk);
   pulseInfo.x = pulseInfo.x(1:nOk);
-  pulseInfo.mxv = pulseInfo.mxv(1:nOk);
+  %pulseInfo.mxv = pulseInfo.mxv(1:nOk);
 end
 
 if pulseInfo.w0==0;
@@ -365,8 +366,8 @@ pulseInfo2.wc = zz; % location of peak correlation
 pulseInfo2.w0 = zz; % start of window centered at wc
 pulseInfo2.w1 = zz; % end of window centered at wc
 pulseInfo2.x = cell(1,np); % the signals themselves
-pulseInfo2.mxv = zz;
-pulseInfo2.aven = zz;
+%pulseInfo2.mxv = zz;
+%pulseInfo2.aven = zz;
 
 
 for i = 1:np;
@@ -402,7 +403,7 @@ end
         continue;
     end
     
-%=====If pulses are close together (parameter l), keep the larger pulse===========
+%=====If pulses are close together (parameter sp.close), keep the larger pulse===========
     a0=[];
     a1=[];
     b0=[];
@@ -447,7 +448,7 @@ end
     end
           
    indPulse(max(pulseInfo.w0(i),1):min(pulseInfo.w1(i),numel(xs)))=1;
-   pulseInfo2.ok(i) = 1;
+   %pulseInfo2.ok(i) = 1;
    nOk = nOk+1;
    
    pulseInfo2.dog(nOk) = pulseInfo.dog(i);
@@ -457,8 +458,8 @@ end
    pulseInfo2.w0(nOk) = pulseInfo.w0(i);
    pulseInfo2.w1(nOk) = pulseInfo.w1(i);   
    pulseInfo2.x{nOk} = pulseInfo.x{i};
-   pulseInfo2.aven(nOk) = pulseInfo.aven(i);
-   pulseInfo2.mxv(nOk) = pulseInfo.mxv(i);
+   %pulseInfo2.aven(nOk) = pulseInfo.aven(i);
+   %pulseInfo2.mxv(nOk) = pulseInfo.mxv(i);
 end
 
 if (nOk)
@@ -468,9 +469,9 @@ if (nOk)
   pulseInfo2.wc = pulseInfo2.wc(1:nOk);
   pulseInfo2.w0 = pulseInfo2.w0(1:nOk);
   pulseInfo2.w1 = pulseInfo2.w1(1:nOk);
-  pulseInfo2.aven = pulseInfo2.aven(1:nOk);
+  %pulseInfo2.aven = pulseInfo2.aven(1:nOk);
   pulseInfo2.x = pulseInfo2.x(1:nOk);
-  pulseInfo2.mxv = pulseInfo2.mxv(1:nOk);
+  %pulseInfo2.mxv = pulseInfo2.mxv(1:nOk);
 end
 
 if pulseInfo2.w0==0;
