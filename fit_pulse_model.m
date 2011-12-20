@@ -37,32 +37,32 @@ for n=1:n_samples;
 end
 
 [fhZ,fhM] = alignpulses(Z,20);
-[fhZ,~] = realign_abberant_peaks(fhZ,fhM);
+%fhZ = realign_abberant_peaks(fhZ,fhM);
 
 
 %Generate second harmonic model
 fprintf('Fitting second harmonic model\n')
 
-shM = decimate(M,2);
+shM = decimate(fhM,2);
 delta = abs(length(shM) - length(fhM));
 left_pad = round(delta/2);
 right_pad = delta -left_pad;
 shM = [zeros(left_pad,1)',shM,zeros((right_pad),1)'];
 
-[shZ,~] = alignpulses2model(Z,shM);
+shZ = alignpulses2model(fhZ,shM);
 
 
 %Generate third harmonic model
 
 fprintf('Fitting third harmonic model\n')
 
-thM = decimate(M,3);
+thM = decimate(fhM,3);
 delta = abs(length(thM) - length(fhM));
 left_pad = round(delta/2);
 right_pad = delta -left_pad;
 thM = [zeros(left_pad,1)',thM,zeros((right_pad),1)'];
 
-[thZ,~] = alignpulses2model(Z,thM);
+thZ = alignpulses2model(fhZ,thM);
 
 
 %Generate phase reversed model
@@ -70,8 +70,8 @@ fprintf('Fitting phase reversed model\n')
 
 fhRM = -fhM;
 
-[fhRZ,~] = alignpulses2model(Z,fhRM);
-[fhRZ,~] = realign_abberant_peaks(fhRZ,fhRM);
+fhRZ = alignpulses2model(Z,fhRM);
+%fhRZ = realign_abberant_peaks(fhRZ,fhRM);
 
 
 %Generate phase reversed second harmonic model
@@ -79,16 +79,16 @@ fprintf('Fitting phase reversed second harmonic model\n')
 
 shRM = -shM;
 
-[shRZ,~] = alignpulses2model(Z,shRM);
-[shRZ,~] = realign_abberant_peaks(shRZ,shRM);
+shRZ = alignpulses2model(Z,shRM);
+%shRZ = realign_abberant_peaks(shRZ,shRM);
 
 %Generate phase reversed third harmonic model
 fprintf('Fitting phase reversed third harmonic model\n')
 
 thRM = -thM;
 
-[thRZ,~] = alignpulses2model(Z,thRM);
-[thRZ,~] = realign_abberant_peaks(thRZ,thRM);
+thRZ = alignpulses2model(Z,thRM);
+%thRZ = realign_abberant_peaks(thRZ,thRM);
 
 
 for n=1:n_samples;
@@ -113,7 +113,7 @@ for n=1:n_samples;
 
 end
 
-[~,best_chisqr_idx] = min(chisq,[],2);
+[best_chisqr,best_chisqr_idx] = min(chisq,[],2);
 
 %flip data that fits a reversed model better (columns 3 or 4)
 for n=1:n_samples
@@ -128,18 +128,19 @@ end
 %%This redefines fhZ to be only those data that fit fhM best
 %%
 
-%grab events that fit first harmonic model better
-fhZ = Z(best_chisqr_idx == 1 | best_chisqr_idx == 4,:);
+%grab events that are reasonable fits (chisq < 1.5) and fit first harmonic model better
+fhZ4M = fhZ(best_chisqr <1.5 & best_chisqr_idx == 1 | best_chisqr_idx == 4,:);
 %grab events that fit second harmonic model better
 %shZ = Z(best_chisqr_idx == 2 | best_chisqr_idx == 5,:);
+shZ4M = fhZ(best_chisqr <1.5 & best_chisqr_idx == 2 | best_chisqr_idx == 5,:);
 %grab events that fit second harmonic model better
 %thZ = Z(best_chisqr_idx == 3 | best_chisqr_idx == 6,:);
+thZ4M = fhZ(best_chisqr <1.5 & best_chisqr_idx == 3 | best_chisqr_idx == 6,:);
 
 %%
 
 %compare models with Lik analysis
-%first make two de novo models from presumptive first and second harmonic
-%data
+%first make  de novo models from presumptive first harmonic data
 %then, compare all data to each model with likelihood analysis
 
 %de novo fit low freq model
@@ -147,84 +148,107 @@ fhZ = Z(best_chisqr_idx == 1 | best_chisqr_idx == 4,:);
 
 %Build model of fh with fh data
 fprintf('Fitting first harmonic model.\n');
-[fhZ,fhM] = alignpulses(fhZ,20);
-[fhZ,~] = realign_abberant_peaks(fhZ,fhM);
+%fhZ4M == goof fhZ used to build
+[fhZ4M,fhM] = alignpulses(fhZ4M,20);
+%fhZ4M = realign_abberant_peaks(fhZ4M,fhM);
 
 %Build second harmonic model
 fprintf('Building second harmonic model\n')
 
-shM = decimate(fhM,2);
-delta = abs(length(shM) - length(fhM));
-left_pad = round(delta/2);
-right_pad = delta -left_pad;
-shM = [zeros(left_pad,1)',shM,zeros((right_pad),1)'];
+% shM = decimate(fhM,2);
+% delta = abs(length(shM) - length(fhM));
+% left_pad = round(delta/2);
+% right_pad = delta -left_pad;
+% shM = [zeros(left_pad,1)',shM,zeros((right_pad),1)'];
+
+[shZ4M,shM] = alignpulses(shZ4M,20);
+%shZ4M = realign_abberant_peaks(shZ4M,shM);
+
 
 %Generate third harmonic model
 
 fprintf('Building third harmonic model\n')
 
-thM = decimate(fhM,3);
-delta = abs(length(thM) - length(fhM));
-left_pad = round(delta/2);
-right_pad = delta -left_pad;
-thM = [zeros(left_pad,1)',thM,zeros((right_pad),1)'];
+% thM = decimate(fhM,3);
+% delta = abs(length(thM) - length(fhM));
+% left_pad = round(delta/2);
+% right_pad = delta -left_pad;
+% thM = [zeros(left_pad,1)',thM,zeros((right_pad),1)'];
+
+[thZ4M,thM] = alignpulses(thZ4M,20);
+%thZ4M = realign_abberant_peaks(thZ4M,thM);
+
+
 
 %Now realign all data to the  models
 fprintf('Aligning all data to the models.\n');
-[Z2fhM,fhM] = alignpulses2model(Z,fhM);
-[Z2fhM,~] = realign_abberant_peaks(Z2fhM,fhM);
+Z2fhM = alignpulses2model(fhZ,fhM);
+%Z2fhM = realign_abberant_peaks(Z2fhM,fhM);
 
-[Z2shM,shM] = alignpulses2model(Z,shM);
-[Z2shM,~] = realign_abberant_peaks(Z2shM,shM);
+Z2shM = alignpulses2model(fhZ,shM);
+%Z2shM = realign_abberant_peaks(Z2shM,shM);
 
-[Z2thM,thM] = alignpulses2model(Z,thM);
-[Z2thM,~] = realign_abberant_peaks(Z2thM,thM);
+Z2thM = alignpulses2model(fhZ,thM);
+%Z2thM = realign_abberant_peaks(Z2thM,thM);
 
-
-%Calc SE of samples at point of peak signal and
-%find first and last points that exceed abs of this SE
-% [~,samplepos] = max(fhM);
-% st = std(Z2fhM(:,samplepos))/sqrt(n_samples);
-% start=find(abs(fhM)>st,1,'first');
-% finish=find(abs(fhM)>st,1,'last');
 
 
 %compare SE at each point (from front and back) with deviation of model
 %start and stop when deviation exceeds SE of data
+
+%first grab start and finish
+% % 
+% % S_Z2fhM = std(Z2fhM);
+% % SE_Z2fhM = S_Z2fhM/sqrt(n_samples);
+% % 
+% % fh_start = find(abs(fhM>SE_Z2fhM),1,'first');
+% % fh_finish = find(abs(fhM>SE_Z2fhM),1,'last');
+% % 
+% % sh_start = find(abs(shM>SE_Z2fhM),1,'first');
+% % sh_finish = find(abs(shM>SE_Z2fhM),1,'last');
+% % 
+% % th_start = find(abs(thM>SE_Z2fhM),1,'first');
+% % th_finish = find(abs(thM>SE_Z2fhM),1,'last');
+% % 
+% % 
+% % fhM = fhM(fh_start:fh_finish);
+% % shM = shM(sh_start:sh_finish);
+% % thM = thM(th_start:th_finish);
+% % 
+% % fhZ4M = fhZ4M(:,fh_start:fh_finish);
+% % Z2fhM = Z2fhM(:,fh_start:fh_finish);
+% % Z2shM = Z2shM(:,sh_start:sh_finish);
+% % Z2thM = Z2thM(:,th_start:th_finish);
+
+
+%compare SE at each point (from front and back) with deviation of fh model
+%start and stop when deviation exceeds SE of data
+S_Z = std(Z2fhM);
+SE_Z = S_Z/sqrt(n_samples);
+
+start = find(abs(fhM>SE_Z),1,'first');
+finish = find(abs(fhM>SE_Z),1,'last');
+
+fhM = fhM(start:finish);
+shM = shM(start:finish);
+thM = thM(start:finish);
+
+fhZ4M = fhZ4M(:,start:finish);
+shZ4M = shZ4M(:,start:finish);
+thZ4M = thZ4M(:,start:finish);
+
+Z2fhM = Z2fhM(:,start:finish);
+Z2shM = Z2shM(:,start:finish);
+Z2thM = Z2thM(:,start:finish);
+
+
+
+
+%Get standard deviation at each point
+
 S_Z2fhM = std(Z2fhM);
 S_Z2shM = std(Z2shM);
 S_Z2thM = std(Z2thM);
-
-SE_Z2fhM = S_Z2fhM/sqrt(n_samples);
-SE_Z2shM = S_Z2shM/sqrt(n_samples);
-SE_Z2thM = S_Z2thM/sqrt(n_samples);
-
-fh_start = find(abs(fhM>SE_Z2fhM),1,'first');
-fh_finish = find(abs(fhM>SE_Z2fhM),1,'last');
-
-sh_start = find(abs(shM>SE_Z2shM),1,'first');
-sh_finish = find(abs(shM>SE_Z2shM),1,'last');
-
-th_start = find(abs(thM>SE_Z2thM),1,'first');
-th_finish = find(abs(thM>SE_Z2thM),1,'last');
-
-
-%M = M(start:finish);
-%Z = Z(:,start:finish);
-%S = std(Z);
-
-fhM = fhM(fh_start:fh_finish);
-shM = shM(sh_start:sh_finish);
-thM = thM(th_start:th_finish);
-fhZ = fhZ(:,fh_start:fh_finish);
-Z2fhM = Z2fhM(:,fh_start:fh_finish);
-Z2shM = Z2shM(:,sh_start:sh_finish);
-Z2thM = Z2thM(:,th_start:th_finish);
-
-S_Z2fhM = S_Z2fhM(fh_start:fh_finish);
-S_Z2shM = S_Z2shM(sh_start:sh_finish);
-S_Z2thM = S_Z2thM(th_start:th_finish);
-
 
 %M_ar = repmat(M,size(Z,1),1);
 %S_ar = repmat(S,size(Z,1),1);
@@ -265,8 +289,12 @@ best_LLR = max(best_LLR,LLR_th);
 pulse_model.fhM = fhM;
 pulse_model.shM = shM;
 pulse_model.thM = thM;
-pulse_model.fhZ = fhZ;%aligned pulses that fit first harmonic best
-pulse_model.Z = Z2fhM;%aligned all pulses to first harmonic model
+pulse_model.fhZ = fhZ4M;%aligned pulses that fit first harmonic best
+pulse_model.shZ = shZ4M;%aligned pulses that fit first harmonic best
+pulse_model.thZ = thZ4M;%aligned pulses that fit first harmonic best
+pulse_model.Z2fhM = Z2fhM;%aligned all pulses to first harmonic model
+pulse_model.Z2shM = Z2shM;%aligned all pulses to first harmonic model
+pulse_model.Z2thM = Z2thM;%aligned all pulses to first harmonic model
 %pulse_model.S = S_Z2fhM;
 %pulse_model.fhM = fhM;
 %pulse_model.shM = shM;
