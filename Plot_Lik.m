@@ -55,24 +55,7 @@ if numel(pulseInfo) > 0
         y = ssf.d(a:b);
         plot(ax1,t./ssf.fs,y,'r'); %hold on;
     end
-    %
-    % %plot pulse data
-    n = length(pulseInfo.x);
-    wc = nan(1,n); %NaNs the length of n (number of pulses in pulseInfo2)
-    mxv = nan(1,n);
-    for i = 1:n
-        wc(i) = pulseInfo.wc(i)/ssf.fs;
-        mxv(i) = pulseInfo.mxv(i);
-    end
-    
-%     if strcmp(labels,'yes') == 1 %user specifies labels
-%         hold on;
-%         points = 1:n;
-%         subplot(ax1);
-%         lscatter(wc,mxv+mxv./10,points);
-%         subplot(ax2);
-%         lscatter(wc,mxv,points);
-%     end
+
 end
 
 
