@@ -1,6 +1,6 @@
-function [pulse_model,Lik_pulse] = fit_pulse_model(pulses)
+function new_pulse_model = add_2_pulse_model(pulse_model,new_pulses)
 
-%[pulse_model,Lik_pulse] = fit_pulse_model(pulses)
+%new_pulse_model = add_2_pulse_model(pulse_model,new_pulses)
 %USAGE
 %
 %provide sample of pulses
@@ -13,11 +13,33 @@ function [pulse_model,Lik_pulse] = fit_pulse_model(pulses)
 %that best fits this model. It then decimates the model and best fit data
 %to build the second and third harmonic models for likelihood testing
 
-%d will often = pulseInfo2.x
+%e.g.
+% pulse_model = 
+% 
+%       fhM: [1x150 double]
+%       shM: [1x150 double]
+%       thM: [1x150 double]
+%       fhZ: [503x150 double]
+%       shZ: [79x150 double]
+%       thZ: [30x150 double]
+%     Z2fhM: [634x150 double]
+%     Z2shM: [634x150 double]
+%     Z2thM: [634x150 double]
+%
+% new_pulses = pulseInfo.x
 
 
-fprintf('Fitting pulse model\n')
-d = pulses;
+fprintf('Fitting new data to pulse model\n')
+
+fhM = pulse_model.fhM;
+shM = pulse_model.shM;
+thM = pulse_model.thM;
+
+fhZ = pulse_model.fhZ;
+shZ = pulse_model.shZ;
+thZ = pulse_model.thZ;
+
+d = new_pulses;
 
 %grab samples, center, and pad
 
@@ -36,34 +58,57 @@ for n=1:n_samples;
     Z(n,:) = [zeros(left_pad,1); X ;zeros((right_pad),1)];
 end
 
-[fhZ,fhM] = alignpulses(Z,20);
-%fhZ = realign_abberant_peaks(fhZ,fhM);
 
-
-%Generate second harmonic model
-fprintf('Fitting second harmonic model\n')
-
-shM = decimate(fhM,2);
-delta = abs(length(shM) - length(fhM));
+%
+%pad old data
+%
+delta = abs(total_length - length(fhM));
 left_pad = round(delta/2);
 right_pad = delta -left_pad;
+
+fhZ = [zeros(size(fhZ,1),left_pad) fhZ zeros(size(fhZ,1),right_pad)];
+shZ = [zeros(size(shZ,1),left_pad) shZ zeros(size(shZ,1),right_pad)];
+thZ = [zeros(size(thZ,1),left_pad) thZ zeros(size(thZ,1),right_pad)];
+
+
+%[fhZ,fhM] = alignpulses(Z,20);
+
+fhM = [zeros(left_pad,1)',fhM,zeros((right_pad),1)'];
 shM = [zeros(left_pad,1)',shM,zeros((right_pad),1)'];
-
-shZ = alignpulses2model(fhZ,shM);
-shZ = scaleZ2M(shZ,fhM);
-
-%Generate third harmonic model
-
-fprintf('Fitting third harmonic model\n')
-
-thM = decimate(fhM,3);
-delta = abs(length(thM) - length(fhM));
-left_pad = round(delta/2);
-right_pad = delta -left_pad;
 thM = [zeros(left_pad,1)',thM,zeros((right_pad),1)'];
 
-thZ = alignpulses2model(fhZ,thM);
-thZ = scaleZ2M(thZ,fhM);
+
+%align new data to old models
+
+Z2fhM = alignpulses2model(Z,fhM);
+Z2fhM = scaleZ2M(Z2fhM,fhM);
+
+Z2shM = alignpulses2model(Z,shM);
+Z2shM = scaleZ2M(Z2shM,shM);
+
+Z2thM = alignpulses2model(Z,thM);
+Z2thM = scaleZ2M(Z2thM,thM);
+
+%Generate phase reversed model
+
+fhRM = -fhM;
+
+Z2fhRM = alignpulses2model(Z,fhRM);
+Z2fhRM = scaleZ2M(Z2fhRM,fhRM);
+
+%Generate phase reversed second harmonic model
+
+shRM = -shM;
+
+Z2shRM = alignpulses2model(Z,shRM);
+Z2shRM = scaleZ2M(Z2shRM,shRM);
+
+%Generate phase reversed third harmonic model
+
+thRM = -thM;
+
+Z2thRM = alignpulses2model(Z,thRM);
+Z2thRM = scaleZ2M(Z2thRM,thRM);
 
 %Generate phase reversed model
 fprintf('Fitting phase reversed model\n')
@@ -93,22 +138,22 @@ thRZ  = scaleZ2M(thRZ,thRM);
 for n=1:n_samples;
 %calc chi-square for first model
     chisq(n,1) = ...
-        mean((fhZ(n,:) - fhM).^2./var(fhZ(n,:)));
+        mean((Z2fhM(n,:) - fhM).^2./var(Z2fhM(n,:)));
 %calc chi-square for second harmonic model
     chisq(n,2) = ...
-        mean((shZ(n,:) - shM).^2./var(shZ(n,:)));
+        mean((Z2shM(n,:) - shM).^2./var(Z2shM(n,:)));
 %calc chi-square for third harmonic model
     chisq(n,3) = ...
-        mean((thZ(n,:) - thM).^2./var(thZ(n,:)));    
+        mean((Z2thM(n,:) - thM).^2./var(Z2thM(n,:)));    
 %calc chi-square for reversed model
     chisq(n,4) = ...
-        mean((fhRZ(n,:) - fhRM).^2./var(fhRZ(n,:)));
+        mean((Z2fhRM(n,:) - fhRM).^2./var(Z2fhRM(n,:)));
 %calc chi-square for reversed second harmonic model
     chisq(n,5) = ...
-        mean((shRZ(n,:) - shRM).^2./var(shRZ(n,:)));
+        mean((Z2shRM(n,:) - shRM).^2./var(Z2shRM(n,:)));
 %calc chi-square for reversed third harmonic model
     chisq(n,6) = ...
-        mean((thRZ(n,:) - thRM).^2./var(thRZ(n,:)));    
+        mean((Z2thRM(n,:) - thRM).^2./var(Z2thRM(n,:)));    
 
 end
 
@@ -128,15 +173,23 @@ end
 %%
 
 %grab events that are reasonable fits (chisq < 1.5) and fit first harmonic model better
-fhZ4M = fhZ(best_chisqr <1.5 & best_chisqr_idx == 1 | best_chisqr_idx == 4,:);
+fhZ4M = Z(best_chisqr <1.5 & best_chisqr_idx == 1 | best_chisqr_idx == 4,:);
 %grab events that fit second harmonic model better
 %shZ = Z(best_chisqr_idx == 2 | best_chisqr_idx == 5,:);
-shZ4M = fhZ(best_chisqr <1.5 & best_chisqr_idx == 2 | best_chisqr_idx == 5,:);
+shZ4M = Z(best_chisqr <1.5 & best_chisqr_idx == 2 | best_chisqr_idx == 5,:);
 %grab events that fit second harmonic model better
 %thZ = Z(best_chisqr_idx == 3 | best_chisqr_idx == 6,:);
-thZ4M = fhZ(best_chisqr <1.5 & best_chisqr_idx == 3 | best_chisqr_idx == 6,:);
+thZ4M = Z(best_chisqr <1.5 & best_chisqr_idx == 3 | best_chisqr_idx == 6,:);
 
-%%
+%
+%concatenate old and new data for each model
+%
+
+
+fhZ4M = cat(1,fhZ4M,fhZ);
+shZ4M = cat(1,shZ4M,shZ);
+thZ4M = cat(1,thZ4M,thZ);
+
 
 %compare models with Lik analysis
 %first make  de novo models from presumptive first harmonic data
@@ -149,35 +202,17 @@ thZ4M = fhZ(best_chisqr <1.5 & best_chisqr_idx == 3 | best_chisqr_idx == 6,:);
 fprintf('Fitting first harmonic model.\n');
 %fhZ4M == goof fhZ used to build
 [fhZ4M,fhM] = alignpulses(fhZ4M,20);
-%fhZ4M = realign_abberant_peaks(fhZ4M,fhM);
 
 %Build second harmonic model
 fprintf('Building second harmonic model\n')
 
 [shZ4M,shM] = alignpulses(shZ4M,20);
-%shZ4M = realign_abberant_peaks(shZ4M,shM);
-
 
 %Generate third harmonic model
 
 fprintf('Building third harmonic model\n')
 
 [thZ4M,thM] = alignpulses(thZ4M,20);
-%thZ4M = realign_abberant_peaks(thZ4M,thM);
-
-
-
-%Now realign all data to the  models
-fprintf('Aligning all data to the models.\n');
-Z2fhM = alignpulses2model(fhZ,fhM);
-Z2fhM  = scaleZ2M(Z2fhM,fhM);
-
-Z2shM = alignpulses2model(fhZ,shM);
-Z2shM  = scaleZ2M(Z2shM,shM);
-
-Z2thM = alignpulses2model(fhZ,thM);
-Z2thM  = scaleZ2M(Z2thM,thM);
-
 
 %compare SE at each point (from front and back) with deviation of fh model
 %start and stop when deviation exceeds SE of data
@@ -195,73 +230,12 @@ fhZ4M = fhZ4M(:,start:finish);
 shZ4M = shZ4M(:,start:finish);
 thZ4M = thZ4M(:,start:finish);
 
-Z2fhM = Z2fhM(:,start:finish);
-Z2shM = Z2shM(:,start:finish);
-Z2thM = Z2thM(:,start:finish);
 
 
-%Get standard deviation at each point
-
-S_Z2fhM = std(Z2fhM);
-S_Z2shM = std(Z2shM);
-S_Z2thM = std(Z2thM);
-
-%M_ar = repmat(M,size(Z,1),1);
-%S_ar = repmat(S,size(Z,1),1);
-S_ar_fh = repmat(S_Z2fhM,size(Z2fhM,1),1);
-S_ar_sh = repmat(S_Z2shM,size(Z2shM,1),1);
-S_ar_th = repmat(S_Z2thM,size(Z2thM,1),1);
-%d_pdf = sum(log10(normpdf(Z,M_ar,S_ar)),2);
-%u_pdf = sum(log10(normpdf(Z,0,S_ar)),2);
-
-
-
-%%%%
-%%calculate likelihood of data under each model
-
-fhM_ar = repmat(fhM,size(Z2fhM,1),1);
-LL_fhM = sum(log10(normpdf(Z2fhM,fhM_ar,S_ar_fh)),2);
-LL_0_fhpdf = sum(log10(normpdf(Z2fhM,0,S_ar_fh)),2);
-
-shM_ar = repmat(shM,size(Z2shM,1),1);
-LL_shM = sum(log10(normpdf(Z2shM,shM_ar,S_ar_sh)),2);
-LL_0_shpdf = sum(log10(normpdf(Z2shM,0,S_ar_sh)),2);
-
-thM_ar = repmat(thM,size(Z2thM,1),1);
-LL_thM = sum(log10(normpdf(Z2thM,thM_ar,S_ar_th)),2);
-LL_0_thpdf = sum(log10(normpdf(Z2thM,0,S_ar_th)),2);
-
-
-LLR_fh = LL_fhM - LL_0_fhpdf;
-LLR_sh = LL_shM - LL_0_shpdf;
-LLR_th = LL_thM - LL_0_thpdf;
-
-
-%Take best LLR
-best_LLR = max(LLR_fh,LLR_sh);
-best_LLR = max(best_LLR,LLR_th);
-
-
-pulse_model.fhM = fhM;
-pulse_model.shM = shM;
-pulse_model.thM = thM;
-pulse_model.fhZ = fhZ4M;%aligned pulses that fit first harmonic best
-pulse_model.shZ = shZ4M;%aligned pulses that fit first harmonic best
-pulse_model.thZ = thZ4M;%aligned pulses that fit first harmonic best
-pulse_model.Z2fhM = Z2fhM;%aligned all pulses to first harmonic model
-pulse_model.Z2shM = Z2shM;%aligned all pulses to first harmonic model
-pulse_model.Z2thM = Z2thM;%aligned all pulses to first harmonic model
-%pulse_model.S = S_Z2fhM;
-%pulse_model.fhM = fhM;
-%pulse_model.shM = shM;
-%pulse_model.shZ = Z2shM;
-
-Lik_pulse.LLR_best = best_LLR;
-Lik_pulse.LLR_fh = LLR_fh;
-Lik_pulse.LLR_sh = LLR_sh;
-Lik_pulse.LLR_th = LLR_th;
-%Lik_pulse.d_pdf = d_pdf;
-%Lik_pulse.u_pdf = u_pdf;
-%Lik_pulse.d_rev_pdf = d_rev_pdf;
-
+new_pulse_model.fhM = fhM;
+new_pulse_model.shM = shM;
+new_pulse_model.thM = thM;
+new_pulse_model.fhZ = fhZ4M;%aligned pulses that fit first harmonic best
+new_pulse_model.shZ = shZ4M;%aligned pulses that fit first harmonic best
+new_pulse_model.thZ = thZ4M;%aligned pulses that fit first harmonic best
 
