@@ -25,10 +25,7 @@ sep = filesep;
 new_dir = [pathstr name '_out'];
 mkdir(new_dir);
 
-% if nchannels_song ~= nchannels_noise
-%     fprintf('Number of channels of song and noise daqs do not agree.\n');
-%     return
-% else
+
 for y = 1:nchannels_song
     outfile = [new_dir sep 'PS_ch' num2str(y) '.mat'];
     file_exist = exist(outfile,'file');
@@ -52,10 +49,10 @@ for y = 1:nchannels_song
         
         %run Process_Song on selected channel
         fprintf('Processing song.\n')
-        [ssf,winnowed_sine, pps, pulseInfo2, pulseInfo, pcndInfo] = Process_Song(song);
+        [data,winnowed_sine, pulseInfo2, pulseInfo, pcndInfo] = Process_Song(song);
         %save data
         
-        save(outfile, 'ssf','winnowed_sine','pps',...
+        save(outfile, 'data','winnowed_sine',...
             'pulseInfo2','pulseInfo','pcndInfo','-v7.3')
         %clear workspace
         clear song noise ssf noise_ssf winnowed_sine pps pulseInfo2 pulseInfo pcndInfo
@@ -63,4 +60,3 @@ for y = 1:nchannels_song
         fprintf(['File %s exists. Skipping.\n'], outfile)
     end
 end
-%end
