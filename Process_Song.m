@@ -1,8 +1,8 @@
-function [ssf,winnowed_sine, pps, pulseInfo2, pulseInfo] = Process_Song(xsong,xempty)
+function [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(xsong,xempty)
 
-%USAGE [ssf,winnowed_sine, pps, pulseInfo2, pulseInfo] = Process_Song(xsong,xempty)
+%USAGE [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(xsong,xempty)
 %OR
-%[ssf,winnowed_sine, pps, pulseInfo2, pulseInfo, pcndInfo]  = Process_Song(xsong)
+%[data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(xsong)
 
 addpath(genpath('./chronux'))
 
@@ -68,6 +68,9 @@ elseif pulseInfo2.w0 == 0;
 else
     winnowed_sine = winnow_sine(pm_sine,pulseInfo2,pm_ssf,param.max_pulse_pause,param.sine_low_freq,param.sine_high_freq);
 end
+
+data.d = ssf.d;
+data.fs = ssf.fs;
 
 %Uncomment if you want song_stats to be produced automatically
 %Produce some song stats (figures will be saved in the current directory)
