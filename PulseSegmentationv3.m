@@ -17,10 +17,13 @@ segParams.hgt = f; %pulse peak height parameter
 
 segParams.thresh = g; %thresh: Proportion of smoothed threshold over which pulses are counted.
 
+
+%1st winnow
 xn = xempty;
 noise = h*mean(abs(xn));                         
 segParams.wnwMinAbsVoltage = noise; 
 
+%2nd winnow
 segParams.IPI = i; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
 
 segParams.frequency = j; %if pulseInfo.fcmx is greater than this frequency, then don't include pulse
@@ -59,24 +62,20 @@ fprintf('DONE.\n');
 %% Perform CWT on Signal
 fprintf('PERFORMING CWT SUITE.\n');
 
-cmo = zeros(1,numel(xs));   % Storage for the maximum morlet wavelet
-                                                % coefficient for each bin.
+cmo = zeros(1,numel(xs));   % Storage for the maximum morlet wavelet coefficient for each bin.
 
-cmh = cmo;      % Storage for the maximum mexican hat
-                          % wavelet coefficient for each bin.
+cmh = cmo;      % Storage for the maximum DoG wavelet coefficient for each bin.
                           
-cmh_noise = zeros(1,numel(xn));     % Storage for the maximum mexican hat
-                                                              % wavelet coefficient for each bin in noise signal.
+cmh_noise = zeros(1,numel(xn));     % Storage for the maximum DoG wavelet coefficient for each bin in noise signal.
 
-cmo_sc = cmo;             % Storage for the scale at which the
-                                        % highest coefficient occured for each bin.
+%cmo_sc = cmo;             % Storage for the scale at which the highest morlet coefficient occured for each bin.
 
 cmh_dog = cmo;            % Storage for the order of the
-                          % D.o.G. wavelet for which the highest
+                          % DoG wavelet for which the highest
                           % coefficient occured.
 
 cmh_sc = cmo;             % Storage for the scale at which the
-                          % highest mexican hat coefficient occured.
+                          % highest DoG coefficient occured.
                           
 for i= 1:numel(wvlt)
     fprintf('\t%s\n',wvlt{i});
@@ -94,7 +93,7 @@ for i= 1:numel(wvlt)
     [cn,cin] = max(abs(Cn));    
     if (isequal(wvlt{i},'morl'))
         cmo = cs;
-        cmo_sc = ci;  %best cmo scale
+        %cmo_sc = ci;  %best cmo scale
     else %if a DoG wavelet
         cmh1 = cs;
         cmh2 = cn;
@@ -139,6 +138,9 @@ sig4Test = smooth(sig4Test,(Fs/1000)+pWid);
 nDat = smooth(nDat,(Fs/1000)+pWid);
 nDat = abs(nDat); %don't want negatives
 
+%for debugging
+%figure(1); hold on; plot(xs,'k'); plot(cmhSong,'b');
+
 %% 
 %Take signal, subtract noise, calculate the mean value of region lowIPI/2
 % either side of pulse and take the maximum of this value (to be used as
@@ -160,6 +162,9 @@ smthMid = smooth(sig4Test,lowIPI*2+1);
 smthMid(smthSide == inf) = inf;
 smthThresh = max([smthMid smthSide*hgt], [], 2); 
 smthThresh(smthThresh < mean(nDat)) = mean(nDat);
+
+%for debugging
+%figure(1); hold on; plot(sig4Test,'k'); plot(smthThresh,'m');
 %% 
 %Perform Threshold Matching
 thresh = sp.thresh;
@@ -181,7 +186,7 @@ cPnts(i) = cPnts(i) + srtIdx(i) -1;
 end
 
 %for debugging:
-%figure; plot(xs, 'k'); hold on; plot(cPnts,0.4,'.r'); plot(smthThresh,'b'); plot(sig4Test,'m');
+%figure(1); hold on; plot(cPnts,1,'.r'); 
 %% Use output of putativepulse2 (pps) to identify regions of song that may contain pulses (and do not contain sines)
 
 tic;
