@@ -1,6 +1,6 @@
 function [ssf,winnowed_sine, pps, pulseInfo2, pulseInfo] = Process_Song(xsong,xempty)
 
-%USAGE [ssf,winnowed_sine, pps, pulseInfo2, pulseInfo, pcndInfo] = Process_Song(xsong,xempty)
+%USAGE [ssf,winnowed_sine, pps, pulseInfo2, pulseInfo] = Process_Song(xsong,xempty)
 %OR
 %[ssf,winnowed_sine, pps, pulseInfo2, pulseInfo, pcndInfo]  = Process_Song(xsong)
 
