@@ -1,13 +1,13 @@
-function Plot_Lik(ssf,pulseInfo,winnowed_sine,Lik_pulse)
-%Plot_Lik(ssf,pulseInfo,winnowed_sine,Lik_pulse)
+function Plot_Lik(data,pulseInfo,winnowed_sine,Lik_pulse)
+%Plot_Lik(data,pulseInfo,winnowed_sine,Lik_pulse)
 %USAGE
 %
-%Plot_Lik(ssf,pulseInfo2,winnowed_sine,Lik_pulse.LLR_best)
+%Plot_Lik(data,pulseInfo2,winnowed_sine,Lik_pulse.LLR_best)
 %
 %
 
 Lik = Lik_pulse;
-
+ssf=data;
 figure; clf;
 %plot the signal
 ax1 = subplot(2,1,1);
