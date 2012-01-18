@@ -1,13 +1,13 @@
-function Plot_Lik(ssf,pulseInfo,winnowed_sine,Lik_pulse)
-%Plot_Lik(ssf,pulseInfo,winnowed_sine,Lik_pulse)
+function Plot_Lik(data,pulseInfo,winnowed_sine,Lik_pulse)
+%Plot_Lik(data,pulseInfo,winnowed_sine,Lik_pulse)
 %USAGE
 %
-%Plot_Lik(ssf,pulseInfo2,winnowed_sine,Lik_pulse.LLR_best)
+%Plot_Lik(data,pulseInfo2,winnowed_sine,Lik_pulse.LLR_best)
 %
 %
 
 Lik = Lik_pulse;
-
+ssf=data;
 figure; clf;
 %plot the signal
 ax1 = subplot(2,1,1);
@@ -55,24 +55,7 @@ if numel(pulseInfo) > 0
         y = ssf.d(a:b);
         plot(ax1,t./ssf.fs,y,'r'); %hold on;
     end
-    %
-    % %plot pulse data
-    n = length(pulseInfo.x);
-    wc = nan(1,n); %NaNs the length of n (number of pulses in pulseInfo2)
-    mxv = nan(1,n);
-    for i = 1:n
-        wc(i) = pulseInfo.wc(i)/ssf.fs;
-        mxv(i) = pulseInfo.mxv(i);
-    end
-    
-%     if strcmp(labels,'yes') == 1 %user specifies labels
-%         hold on;
-%         points = 1:n;
-%         subplot(ax1);
-%         lscatter(wc,mxv+mxv./10,points);
-%         subplot(ax2);
-%         lscatter(wc,mxv,points);
-%     end
+
 end
 
 
