@@ -11,11 +11,20 @@
 %dS = window step size
 %pval = criterion for F-test
 %
+%optional:
+%reduced_memory = 1, don't save  SSF.Fval - used by Process_Song
+%reduced_memory = 0, save SSF.Fval
+%
 %might need to:
 %addpath chronux\spectral_analysis\helper\
 %addpath chronux\spectral_analysis\continuous\
 
-function SSF=sinesongfinder(d,fs,NW,K,dT,dS,pval)
+function SSF=sinesongfinder(d,fs,NW,K,dT,dS,pval,reduced_memory)
+
+
+if nargin == 7
+    reduced_memory = 0;
+end
 
 dT2=round(dT*fs);
 dS2=round(dS*fs);
@@ -85,5 +94,8 @@ SSF.pval=pval;
 SSF.t=t;
 SSF.f=f;
 SSF.A=A;
-SSF.Fval=Fval;
 SSF.events=events;
+if reduced_memory == 0
+    SSF.Fval=Fval;
+end
+
