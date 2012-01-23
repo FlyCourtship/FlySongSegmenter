@@ -5,7 +5,10 @@ function [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(xsong,xempt
 %[data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(xsong)
 
 addpath(genpath('./chronux'))
-
+pool = exist('matlabpool','file');
+if pool~=0
+    matlabpool(getenv('NUMBER_OF_PROCESSORS'))
+end
 fetch_song_params
 
 fprintf('Running multitaper analysis on signal.\n')
@@ -76,7 +79,9 @@ else
 end
 
 clear pm_ssf pm_sine
-
+if pool~=0
+    matlabpool close
+end
 %Uncomment if you want song_stats to be produced automatically
 %Produce some song stats (figures will be saved in the current directory)
 % [IPI, meanIPI, stdIPI, IPIs_within_stdev,train_times,IPI_train,train_length,pulses_per_train, meanIPI_train, pulsefreq_train, meanpulsefreq_train, mean_IPI, mean_freq,N,NN,train] = analyze(pulseInfo2,xsong,winnowed_sine);

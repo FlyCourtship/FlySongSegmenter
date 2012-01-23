@@ -1,5 +1,7 @@
 function [pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong, xempty, pps, a, b, c, d, e, f, g, h, i, j, k,Fs)
 
+pool = exist('matlabpool','file');
+
 %========PARAMETERS=================
 segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
 
@@ -17,13 +19,10 @@ segParams.hgt = f; %pulse peak height parameter
 
 segParams.thresh = g; %thresh: Proportion of smoothed threshold over which pulses are counted.
 
-
-%1st winnow
 xn = xempty;
 noise = h*mean(abs(xn));                         
 segParams.wnwMinAbsVoltage = noise; 
 
-%2nd winnow
 segParams.IPI = i; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
 
 segParams.frequency = j; %if pulseInfo.fcmx is greater than this frequency, then don't include pulse
@@ -59,46 +58,71 @@ for i = 1:numel(wvlt)
 end
 fprintf('DONE.\n');
 
+
+
+
 %% Perform CWT on Signal
 fprintf('PERFORMING CWT SUITE.\n');
 
-cmo = zeros(1,numel(xs));   % Storage for the maximum morlet wavelet coefficient for each bin.
+cmo = zeros(1,numel(xs));   % Storage for the maximum morlet wavelet
+                                                % coefficient for each bin.
 
-cmh = cmo;      % Storage for the maximum DoG wavelet coefficient for each bin.
+cmh = cmo;      % Storage for the maximum mexican hat
+                          % wavelet coefficient for each bin.
                           
-cmh_noise = zeros(1,numel(xn));     % Storage for the maximum DoG wavelet coefficient for each bin in noise signal.
+cmh_noise = zeros(1,numel(xn));     % Storage for the maximum mexican hat
+                                                              % wavelet coefficient for each bin in noise signal.
 
-%cmo_sc = cmo;             % Storage for the scale at which the highest morlet coefficient occured for each bin.
+% cmo_sc = cmo;             % Storage for the scale at which the
+                                        % highest coefficient occured for each bin.
 
 cmh_dog = cmo;            % Storage for the order of the
-                          % DoG wavelet for which the highest
+                          % D.o.G. wavelet for which the highest
                           % coefficient occured.
 
 cmh_sc = cmo;             % Storage for the scale at which the
-                          % highest DoG coefficient occured.
+                          % highest mexican hat coefficient occured.
                           
-for i= 1:numel(wvlt)
-    fprintf('\t%s\n',wvlt{i});
-    tic;
-    fprintf('\t\t...on Signal\n');
-    Cs = cwt(xs,sc(i,:),wvlt{i}); %wavelet transformation on signal for that scale and that wavelet
-     fprintf('\t\t...on Noise\n');
-    Cn = cwt(xn,sc(i,:),wvlt{i}); %wavelet transformation on noise for that scale and that wavelet
-    fprintf('\t\tComputing power.\n');
-    Ps = Cs.*conj(Cs);
-    Pn = Cn.*conj(Cn);
-    
+Cs = zeros(length(fc),length(xs),numel(wvlt));Cn = zeros(length(fc),length(xn),numel(wvlt));
+% if pool ~=0;%if multicore capability, then use
+%     parfor i= 1:numel(wvlt)
+%         fprintf('\t%s\n',wvlt{i});
+%         fprintf('\t\t...on Signal\n');
+%         Cs(:,:,i) = cwt(xs,sc(i,:),wvlt{i}); %wavelet transformation on signal for that scale and that wavelet
+%     end
+%     parfor i= 1:numel(wvlt)
+%         fprintf('\t%s\n',wvlt{i});
+%         fprintf('\t\t...on Noise\n');
+%         Cn(:,:,i) = cwt(xn,sc(i,:),wvlt{i}); %wavelet transformation on noise for that scale and that wavelet
+%     end
+% else
+    for i= 1:numel(wvlt)
+        fprintf('\t%s\n',wvlt{i});
+        fprintf('\t\t...on Signal\n');
+        Cs(:,:,i) = cwt(xs,sc(i,:),wvlt{i}); %wavelet transformation on signal for that scale and that wavelet
+        fprintf('\t\t...on Noise\n');
+        Cn(:,:,i) = cwt(xn,sc(i,:),wvlt{i}); %wavelet transformation on noise for that scale and that wavelet
+%         fprintf('\t\tComputing power.\n');
+%         Ps = Cs(:,:,i).*conj(Cs(:,:,i));
+%         Pn = Cn(:,:,i).*conj(Cn(:,:,i));
+    end
+% end
+
+
+
+
+for i = 1:numel(wvlt)
     fprintf('\t\tFinding the maximum coefficient for each bin.\n');
-    [cs,ci] = max(abs(Cs));    
-    [cn,cin] = max(abs(Cn));    
+    [cs,ci] = max(abs(Cs(:,:,i)));    
+    [cn,~] = max(abs(Cn(:,:,i)));    
     if (isequal(wvlt{i},'morl'))
         cmo = cs;
-        %cmo_sc = ci;  %best cmo scale
+        cmo_sc = ci;  %best cmo scale
     else %if a DoG wavelet
         cmh1 = cs;
         cmh2 = cn;
         best_sc = ci;
-        best_sc_noise = cin;
+%         best_sc_noise = cin;
         cmh1gtcmh = cmh1>cmh; % indices where current coefficient
                               % was greater than the running max.
                               
@@ -116,8 +140,6 @@ for i= 1:numel(wvlt)
         cmh_dog = (i-1).*cmh1gtcmh+cmh_dog.*~cmh1gtcmh; 
         
     end
-    tend = toc;
-    fprintf('\tDONE after %2.3f sec.\n',tend);
 end
 
 %now we have cmh and cmo for the signal and cmh_noise for the noise
@@ -132,14 +154,11 @@ pWid = sp.pWid;
 
 [sig4Test] = runningExtreme(cmhSong,pWid,'max');
 [nDat] = runningExtreme(cmhNoise,pWid,'max');
-sig4Test = sig4Test;
-nDat = nDat;
+% sig4Test = sig4Test;
+% nDat = nDat;
 sig4Test = smooth(sig4Test,(Fs/1000)+pWid);
 nDat = smooth(nDat,(Fs/1000)+pWid);
 nDat = abs(nDat); %don't want negatives
-
-%for debugging
-%figure(1); hold on; plot(xs,'k'); plot(cmhSong,'b');
 
 %% 
 %Take signal, subtract noise, calculate the mean value of region lowIPI/2
@@ -162,9 +181,6 @@ smthMid = smooth(sig4Test,lowIPI*2+1);
 smthMid(smthSide == inf) = inf;
 smthThresh = max([smthMid smthSide*hgt], [], 2); 
 smthThresh(smthThresh < mean(nDat)) = mean(nDat);
-
-%for debugging
-%figure(1); hold on; plot(sig4Test,'k'); plot(smthThresh,'m');
 %% 
 %Perform Threshold Matching
 thresh = sp.thresh;
@@ -186,7 +202,7 @@ cPnts(i) = cPnts(i) + srtIdx(i) -1;
 end
 
 %for debugging:
-%figure(1); hold on; plot(cPnts,1,'.r'); 
+%figure; plot(xs, 'k'); hold on; plot(cPnts,0.4,'.r'); plot(smthThresh,'b'); plot(sig4Test,'m');
 %% Use output of putativepulse2 (pps) to identify regions of song that may contain pulses (and do not contain sines)
 
 tic;
@@ -213,9 +229,9 @@ end
 
 fprintf('EXTRACTING CANDIDATE PULSES.\n');
 
-pulses = {};
-pulse_start_times = [];
-pulse_lengths = [];
+% pulses = {};
+% pulse_start_times = [];
+% pulse_lengths = [];
 
 n = 1;
 for i=1:number; %for each putative pulse segment
@@ -242,8 +258,7 @@ zz = zeros(1,length(pulse_peaks));
 pcndInfo = struct('wc',double(pulse_peaks),...
            'dog',zz,'scmx',zz,'fcmx',zz,'w0',zz,'w1',zz);
 
-tend = toc;
-fprintf('\tDONE after %2.3f sec.\n',tend);
+
 
 if pcndInfo.wc==0;
     zz = zeros(1,10);
@@ -288,7 +303,7 @@ for i = 1:np
    pcndInfo.fcmx(i) = fc_at_max;
    pcndInfo.scmx(i) = sc_at_max;
    
-   pulsewin = [];
+%    pulsewin = [];
    pulsewin = 2*sp.pulsewindow;
    
    %pcndInfo.w0(i) = round(peak-pulsewin*sc_at_max); %use this if you want
@@ -402,19 +417,19 @@ end
         c = pulseInfo.w0(i);
     end
     
-    if b-a>sp.IPI & a-c>sp.IPI; 
+    if b-a>sp.IPI && a-c>sp.IPI; 
 %        fprintf('%8.2f', pulseInfo.w0(i)./Fs);
 %        fprintf(' NO PULSE WITHIN j samples.\n');
         continue;
     end
     
 %=====If pulses are close together (parameter sp.close), keep the larger pulse===========
-    a0=[];
-    a1=[];
+%     a0=[];
+%     a1=[];
     b0=[];
-    b1=[];
+%     b1=[];
     c0=[];
-    c1=[];
+%     c1=[];
     a0 = pulseInfo.w0(i);
     a1 = pulseInfo.w1(i);
     y = max(abs(xs(a0:a1))); %pulse peak
