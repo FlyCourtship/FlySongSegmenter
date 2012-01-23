@@ -25,7 +25,7 @@ fs = song_daqinfo.ObjInfo.SampleRate;
 %make directory for output
 sep = filesep;
 [pathstr, name, ext] = fileparts(song_daq_file); 
-new_dir = [pathstr name '_out'];
+new_dir = [pathstr sep name '_out'];
 mkdir(new_dir);
 
 
