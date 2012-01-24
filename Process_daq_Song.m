@@ -2,6 +2,10 @@ function Process_daq_Song(song_daq_file,song_range)
 
 %old - when require noise file
 %function Process_daq_Song(song_daq_file,song_range)
+pool = exist('matlabpool','file');
+if pool~=0
+    matlabpool(getenv('NUMBER_OF_PROCESSORS'))
+end
 
 
 song_daqinfo = daqread(song_daq_file,'info');
@@ -43,7 +47,7 @@ for y = 1:nchannels_song
  
         %run Process_Song on selected channel
         fprintf('Processing song.\n')
-        [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(song);
+        [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song_from_daqcall(song);
         %save data
         
         save(outfile, 'data','winnowed_sine','pulseInfo2','pulseInfo','-v7.3')
@@ -52,4 +56,7 @@ for y = 1:nchannels_song
     else
         fprintf(['File %s exists. Skipping.\n'], outfile)
     end
+end
+if pool~=0
+    matlabpool close
 end
