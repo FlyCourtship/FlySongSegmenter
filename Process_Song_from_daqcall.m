@@ -34,44 +34,31 @@ if numel(pps.start) > 0
     fprintf('Running wavelet transformation on putative pulse segments.\n')
     [pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong,xempty,pps,param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.j,param.k,param.Fs);
     
-%     if pulseInfo2.w0>0;   
-%     % Grab the pulse information
-%     numPulses  = numel(pulseInfo2.w0);
-%     pulseStart = pulseInfo2.w0;
-%     pulseEnd   = pulseInfo2.w1;
-%     pulseCenter= pulseInfo2.wc;
-%     pulseFreq  = pulseInfo2.fcmx;
-%     
-%     elseif pulseInfo2.i0 == 0;
-%     fprintf('no pulses found.\n');    
-%     end
+    clear pps
     
+    % Mask putative pulses in xsong. Use pcndInfo pulses.
+    pm_xsong = pulse_mask(xsong,pulseInfo2);
+    fprintf('Running multitaper analysis on pulse-masked signal.\n')
+    pm_ssf = sinesongfinder(pm_xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,1); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
+    
+    fprintf('Finding putative sine in pulse-masked signal.\n')
+    pm_sine = lengthfinder4(pm_ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps); %returns sine, which is a structure containing the following fields:
+    
+    % Use results of PulseSegmentation to winnow sine song (remove sine that overlaps pulse)
+    %Run only if there is any sine
+    
+    if sine.num_events == 0;
+        winnowed_sine = pm_sine;
+    elseif pulseInfo2.w0 == 0;
+        winnowed_sine = pm_sine;
+    else
+        winnowed_sine = winnow_sine(pm_sine,pulseInfo2,pm_ssf,param.max_pulse_pause,param.sine_low_freq,param.sine_high_freq);
+    end
 else
     fprintf('No segments of putative pulse detected.\n')
-%     numPulses = 0;
     pulseInfo = {};
     pulseInfo2 = {};
-end
-
-clear pps
-
-% Mask putative pulses in xsong. Use pcndInfo pulses.
-pm_xsong = pulse_mask(xsong,pulseInfo2);
-fprintf('Running multitaper analysis on pulse-masked signal.\n')
-pm_ssf = sinesongfinder(pm_xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,1); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
-
-fprintf('Finding putative sine in pulse-masked signal.\n')
-pm_sine = lengthfinder4(pm_ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps); %returns sine, which is a structure containing the following fields:
-
-% Use results of PulseSegmentation to winnow sine song (remove sine that overlaps pulse)
-%Run only if there is any sine 
-
-if sine.num_events == 0;
-    winnowed_sine = pm_sine;
-elseif pulseInfo2.w0 == 0;
-    winnowed_sine = pm_sine;
-else
-    winnowed_sine = winnow_sine(pm_sine,pulseInfo2,pm_ssf,param.max_pulse_pause,param.sine_low_freq,param.sine_high_freq);
+    winnowed_sine = sine;
 end
 
 clear pm_ssf pm_sine
