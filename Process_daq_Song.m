@@ -7,6 +7,7 @@ if poolavail~=0
     isOpen = matlabpool('size') > 0;%check if pools open (as might occur, for eg if called from Process_multi_daq_Song
     if isOpen == 0%if not open, then open
         matlabpool(getenv('NUMBER_OF_PROCESSORS'))
+        isOpen = -1;%now know pool was opened in this scripts (no negative pools from matlabpool('size'))
     end
 end
 
@@ -59,8 +60,8 @@ for y = 1:nchannels_song
         fprintf(['File %s exists. Skipping.\n'], outfile)
     end
 end
-if isOpen == 0%if pool opened in this script, then close
+if isOpen == -1%if pool opened in this script, then close
     if poolavail~=0
-        matlabpool close
+        matlabpool close force local
     end
 end

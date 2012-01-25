@@ -9,6 +9,7 @@ if poolavail~=0
     isOpen = matlabpool('size') > 0;%check if pools open (as might occur, for eg if called from Process_multi_daq_Song
     if isOpen == 0%if not open, then open
         matlabpool(getenv('NUMBER_OF_PROCESSORS'))
+        isOpen = -1;%now know pool was opened in this scripts (no negative pools from matlabpool('size'))
     end
 end
 
@@ -70,7 +71,7 @@ for y = 1:file_num
 %                 
                 %run Process_Song on selected channel
                 fprintf('Processing song.\n')
-                [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song_from_daqcall(song);
+                [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_daq_Song(song);
                 %save data
                 
                 save(outfile, 'data','winnowed_sine','pulseInfo2','pulseInfo','-v7.3')
@@ -87,9 +88,9 @@ for y = 1:file_num
         fprintf(['File %s exists. Skipping.\n'])
     end
 end
-if isOpen == 0%if pool opened in this script, then close
+if isOpen == -1%if pool opened in this script, then close
     if poolavail~=0
-        matlabpool close
+        matlabpool close force local
     end
 end
 

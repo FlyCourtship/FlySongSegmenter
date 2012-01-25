@@ -5,13 +5,16 @@ function [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(xsong,xempt
 %[data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(xsong)
 
 addpath(genpath('./chronux'))
+
 poolavail = exist('matlabpool','file');%check if toolbox is available
 if poolavail~=0
     isOpen = matlabpool('size') > 0;%check if pools open (as might occur, for eg if called from Process_multi_daq_Song
     if isOpen == 0%if not open, then open
         matlabpool(getenv('NUMBER_OF_PROCESSORS'))
+        isOpen = -1;%now know pool was opened in this scripts (no negative pools from matlabpool('size'))
     end
 end
+
 fetch_song_params
 
 fprintf('Running multitaper analysis on signal.\n')
@@ -71,9 +74,9 @@ else
 end
 
 clear pm_ssf pm_sine
-if isOpen == 0%if pool opened in this script, then close
+if isOpen == -1%if pool opened in this script, then close
     if poolavail~=0
-        matlabpool close
+        matlabpool close force local
     end
 end
 %Uncomment if you want song_stats to be produced automatically
