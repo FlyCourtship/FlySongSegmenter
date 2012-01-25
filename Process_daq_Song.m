@@ -52,7 +52,7 @@ for y = 1:nchannels_song
         
         save(outfile, 'data','winnowed_sine','pulseInfo2','pulseInfo','-v7.3')
         %clear workspace
-        clear song data, winnowed_sine, pulseInfo2, pulseInfo
+        clear song data winnowed_sine pulseInfo2 pulseInfo
     else
         fprintf(['File %s exists. Skipping.\n'], outfile)
     end

@@ -34,21 +34,21 @@ if numel(pps.start) > 0
     fprintf('Running wavelet transformation on putative pulse segments.\n')
     [pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong,xempty,pps,param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.j,param.k,param.Fs);
     
-    if pulseInfo2.w0>0;   
-    % Grab the pulse information
-    numPulses  = numel(pulseInfo2.w0);
-    pulseStart = pulseInfo2.w0;
-    pulseEnd   = pulseInfo2.w1;
-    pulseCenter= pulseInfo2.wc;
-    pulseFreq  = pulseInfo2.fcmx;
-    
-    elseif pulseInfo2.i0 == 0;
-    fprintf('no pulses found.\n');    
-    end
+%     if pulseInfo2.w0>0;   
+%     % Grab the pulse information
+%     numPulses  = numel(pulseInfo2.w0);
+%     pulseStart = pulseInfo2.w0;
+%     pulseEnd   = pulseInfo2.w1;
+%     pulseCenter= pulseInfo2.wc;
+%     pulseFreq  = pulseInfo2.fcmx;
+%     
+%     elseif pulseInfo2.i0 == 0;
+%     fprintf('no pulses found.\n');    
+%     end
     
 else
     fprintf('No segments of putative pulse detected.\n')
-    numPulses = 0;
+%     numPulses = 0;
     pulseInfo = {};
     pulseInfo2 = {};
 end
