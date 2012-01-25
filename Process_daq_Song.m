@@ -37,7 +37,7 @@ mkdir(new_dir);
 
 
 for y = 1:nchannels_song
-    outfile  = [new_dir sep 'PS_ch' num2str(y) '.mat'];
+    outfile  = [new_dir sep 'PS_' name '_ch' num2str(y) '.mat'];
     file_exist = exist(outfile,'file');
     if file_exist == 0;%if file exists, skip
         %grab song and noise from each channel
@@ -50,7 +50,7 @@ for y = 1:nchannels_song
  
         %run Process_Song on selected channel
         fprintf('Processing song.\n')
-        [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song_from_daqcall(song);
+        [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(song);
         %save data
         
         save(outfile, 'data','winnowed_sine','pulseInfo2','pulseInfo','-v7.3')
