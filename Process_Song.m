@@ -45,7 +45,7 @@ if numel(pps.start) > 0
     [pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong,xempty,pps,param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.j,param.k,param.Fs);
     
     clear pps
-    if numel(pulseInfo2.x) > 0
+    if exist('pulseInfo2.x','var') ~= 0
         
         % Mask putative pulses in xsong. Use pcndInfo pulses.
         pm_xsong = pulse_mask(xsong,pulseInfo2);
@@ -65,6 +65,9 @@ if numel(pps.start) > 0
         else
             winnowed_sine = winnow_sine(pm_sine,pulseInfo2,pm_ssf,param.max_pulse_pause,param.sine_low_freq,param.sine_high_freq);
         end
+    else
+        pulseInfo2 = {};
+        winnowed_sine = sine;
     end
 else
     fprintf('No segments of putative pulse detected.\n')
