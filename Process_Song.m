@@ -5,9 +5,12 @@ function [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(xsong,xempt
 %[data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(xsong)
 
 addpath(genpath('./chronux'))
-pool = exist('matlabpool','file');
-if pool~=0
-    matlabpool(getenv('NUMBER_OF_PROCESSORS'))
+poolavail = exist('matlabpool','file');%check if toolbox is available
+if poolavail~=0
+    isOpen = matlabpool('size') > 0;%check if pools open (as might occur, for eg if called from Process_multi_daq_Song
+    if isOpen == 0%if not open, then open
+        matlabpool(getenv('NUMBER_OF_PROCESSORS'))
+    end
 end
 fetch_song_params
 
@@ -39,7 +42,7 @@ if numel(pps.start) > 0
     [pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong,xempty,pps,param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.j,param.k,param.Fs);
     
     clear pps
-    if numel(pulseInfo2) > 0
+    if numel(pulseInfo2.x) > 0
         
         % Mask putative pulses in xsong. Use pcndInfo pulses.
         pm_xsong = pulse_mask(xsong,pulseInfo2);
@@ -68,8 +71,10 @@ else
 end
 
 clear pm_ssf pm_sine
-if pool~=0
-    matlabpool close
+if isOpen == 0%if pool opened in this script, then close
+    if poolavail~=0
+        matlabpool close
+    end
 end
 %Uncomment if you want song_stats to be produced automatically
 %Produce some song stats (figures will be saved in the current directory)

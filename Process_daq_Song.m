@@ -2,11 +2,13 @@ function Process_daq_Song(song_daq_file,song_range)
 
 %old - when require noise file
 %function Process_daq_Song(song_daq_file,song_range)
-pool = exist('matlabpool','file');
-if pool~=0
-    matlabpool(getenv('NUMBER_OF_PROCESSORS'))
+poolavail = exist('matlabpool','file');%check if toolbox is available
+if poolavail~=0
+    isOpen = matlabpool('size') > 0;%check if pools open (as might occur, for eg if called from Process_multi_daq_Song
+    if isOpen == 0%if not open, then open
+        matlabpool(getenv('NUMBER_OF_PROCESSORS'))
+    end
 end
-
 
 song_daqinfo = daqread(song_daq_file,'info');
 %noise_daqinfo = daqread(noise_daq_file,'info');
@@ -57,6 +59,8 @@ for y = 1:nchannels_song
         fprintf(['File %s exists. Skipping.\n'], outfile)
     end
 end
-if pool~=0
-    matlabpool close
+if isOpen == 0%if pool opened in this script, then close
+    if poolavail~=0
+        matlabpool close
+    end
 end
