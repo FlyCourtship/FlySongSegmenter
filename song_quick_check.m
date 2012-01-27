@@ -1,10 +1,18 @@
-function song_quick_check(daqfile)
+function song_quick_check(daqfile,sample)
 %USAGE
 %song_quick_check(daqfile)
-%
+%song_quick_check(daqfile,[start finish])
 %Takes output from array_take and performs a quick and simple analysis to
 %find and display several snippets of putative song. Outputs three plots of
 %each channel.
+
+% if nargin == 2
+%     sample = sample;
+% end
+pool = exist('matlabpool','file');
+if pool~=0
+    matlabpool(getenv('NUMBER_OF_PROCESSORS'))
+end
 
 addpath(genpath('./export_fig'))
 addpath(genpath('./tight_subplot'))
@@ -25,8 +33,17 @@ ax = tight_subplot(nchannels,ncolumns+1,[.005 .01],[.01 .01],[.01 .01]);
 
 for y = 1:nchannels
     fprintf(['Grabbing channel %s.\n'], num2str(y))
-    song = daqread(daqfile,'Channels',y);
-    snip = song(1:1e6);
+    if exist('sample','var')
+        song = daqread(daqfile,'Channels',y,'Samples',sample);
+        if length(song) > 1e6
+            snip = song(1:1e6);
+        else
+            snip = song;
+        end
+    else
+        song = daqread(daqfile,'Channels',y);
+        snip = song(1:1e6);
+    end
     
     %grab short snip of song to find noise
     fprintf('Finding noise.\n')
@@ -109,7 +126,9 @@ for y = 1:nchannels
     clear xempty
     
 end
-
+if pool~=0
+    matlabpool close
+end
 fprintf('Saving figure.\n')
 [pathstr, name, ~] = fileparts(daqfile);
 outfile = [pathstr name '.png'];

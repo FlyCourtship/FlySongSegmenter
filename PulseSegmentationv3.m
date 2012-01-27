@@ -1,5 +1,7 @@
 function [pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong, xempty, pps, a, b, c, d, e, f, g, h, i, j, k,Fs)
 
+pool = exist('matlabpool','file');
+
 %========PARAMETERS=================
 segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
 
@@ -56,6 +58,9 @@ for i = 1:numel(wvlt)
 end
 fprintf('DONE.\n');
 
+
+
+
 %% Perform CWT on Signal
 fprintf('PERFORMING CWT SUITE.\n');
 
@@ -68,7 +73,7 @@ cmh = cmo;      % Storage for the maximum mexican hat
 cmh_noise = zeros(1,numel(xn));     % Storage for the maximum mexican hat
                                                               % wavelet coefficient for each bin in noise signal.
 
-cmo_sc = cmo;             % Storage for the scale at which the
+% cmo_sc = cmo;             % Storage for the scale at which the
                                         % highest coefficient occured for each bin.
 
 cmh_dog = cmo;            % Storage for the order of the
@@ -78,20 +83,36 @@ cmh_dog = cmo;            % Storage for the order of the
 cmh_sc = cmo;             % Storage for the scale at which the
                           % highest mexican hat coefficient occured.
                           
-for i= 1:numel(wvlt)
-    fprintf('\t%s\n',wvlt{i});
-    tic;
-    fprintf('\t\t...on Signal\n');
-    Cs = cwt(xs,sc(i,:),wvlt{i}); %wavelet transformation on signal for that scale and that wavelet
-     fprintf('\t\t...on Noise\n');
-    Cn = cwt(xn,sc(i,:),wvlt{i}); %wavelet transformation on noise for that scale and that wavelet
-    fprintf('\t\tComputing power.\n');
-    Ps = Cs.*conj(Cs);
-    Pn = Cn.*conj(Cn);
-    
+Cs = zeros(length(fc),length(xs),numel(wvlt));Cn = zeros(length(fc),length(xn),numel(wvlt));
+% if pool ~=0;%if multicore capability, then use
+%     parfor i= 1:numel(wvlt)
+%         fprintf('\t%s\n',wvlt{i});
+%         fprintf('\t\t...on Signal\n');
+%         Cs(:,:,i) = cwt(xs,sc(i,:),wvlt{i}); %wavelet transformation on signal for that scale and that wavelet
+%         fprintf('\t%s\n',wvlt{i});
+%         fprintf('\t\t...on Noise\n');
+%         Cn(:,:,i) = cwt(xn,sc(i,:),wvlt{i}); %wavelet transformation on noise for that scale and that wavelet
+%     end
+% else
+    for i= 1:numel(wvlt)
+        fprintf('\t%s\n',wvlt{i});
+        fprintf('\t\t...on Signal\n');
+        Cs(:,:,i) = cwt(xs,sc(i,:),wvlt{i}); %wavelet transformation on signal for that scale and that wavelet
+        fprintf('\t\t...on Noise\n');
+        Cn(:,:,i) = cwt(xn,sc(i,:),wvlt{i}); %wavelet transformation on noise for that scale and that wavelet
+%         fprintf('\t\tComputing power.\n');
+%         Ps = Cs(:,:,i).*conj(Cs(:,:,i));
+%         Pn = Cn(:,:,i).*conj(Cn(:,:,i));
+    end
+% end
+
+
+
+
+for i = 1:numel(wvlt)
     fprintf('\t\tFinding the maximum coefficient for each bin.\n');
-    [cs,ci] = max(abs(Cs));    
-    [cn,cin] = max(abs(Cn));    
+    [cs,ci] = max(abs(Cs(:,:,i)));    
+    [cn,~] = max(abs(Cn(:,:,i)));    
     if (isequal(wvlt{i},'morl'))
         cmo = cs;
         cmo_sc = ci;  %best cmo scale
@@ -99,7 +120,7 @@ for i= 1:numel(wvlt)
         cmh1 = cs;
         cmh2 = cn;
         best_sc = ci;
-        best_sc_noise = cin;
+%         best_sc_noise = cin;
         cmh1gtcmh = cmh1>cmh; % indices where current coefficient
                               % was greater than the running max.
                               
@@ -117,8 +138,6 @@ for i= 1:numel(wvlt)
         cmh_dog = (i-1).*cmh1gtcmh+cmh_dog.*~cmh1gtcmh; 
         
     end
-    tend = toc;
-    fprintf('\tDONE after %2.3f sec.\n',tend);
 end
 
 %now we have cmh and cmo for the signal and cmh_noise for the noise
@@ -133,8 +152,8 @@ pWid = sp.pWid;
 
 [sig4Test] = runningExtreme(cmhSong,pWid,'max');
 [nDat] = runningExtreme(cmhNoise,pWid,'max');
-sig4Test = sig4Test;
-nDat = nDat;
+% sig4Test = sig4Test;
+% nDat = nDat;
 sig4Test = smooth(sig4Test,(Fs/1000)+pWid);
 nDat = smooth(nDat,(Fs/1000)+pWid);
 nDat = abs(nDat); %don't want negatives
@@ -208,9 +227,9 @@ end
 
 fprintf('EXTRACTING CANDIDATE PULSES.\n');
 
-pulses = {};
-pulse_start_times = [];
-pulse_lengths = [];
+% pulses = {};
+% pulse_start_times = [];
+% pulse_lengths = [];
 
 n = 1;
 for i=1:number; %for each putative pulse segment
@@ -237,8 +256,7 @@ zz = zeros(1,length(pulse_peaks));
 pcndInfo = struct('wc',double(pulse_peaks),...
            'dog',zz,'scmx',zz,'fcmx',zz,'w0',zz,'w1',zz);
 
-tend = toc;
-fprintf('\tDONE after %2.3f sec.\n',tend);
+
 
 if pcndInfo.wc==0;
     zz = zeros(1,10);
@@ -283,7 +301,7 @@ for i = 1:np
    pcndInfo.fcmx(i) = fc_at_max;
    pcndInfo.scmx(i) = sc_at_max;
    
-   pulsewin = [];
+%    pulsewin = [];
    pulsewin = 2*sp.pulsewindow;
    
    %pcndInfo.w0(i) = round(peak-pulsewin*sc_at_max); %use this if you want
@@ -397,19 +415,19 @@ end
         c = pulseInfo.w0(i);
     end
     
-    if b-a>sp.IPI & a-c>sp.IPI; 
+    if b-a>sp.IPI && a-c>sp.IPI; 
 %        fprintf('%8.2f', pulseInfo.w0(i)./Fs);
 %        fprintf(' NO PULSE WITHIN j samples.\n');
         continue;
     end
     
 %=====If pulses are close together (parameter sp.close), keep the larger pulse===========
-    a0=[];
-    a1=[];
+%     a0=[];
+%     a1=[];
     b0=[];
-    b1=[];
+%     b1=[];
     c0=[];
-    c1=[];
+%     c1=[];
     a0 = pulseInfo.w0(i);
     a1 = pulseInfo.w1(i);
     y = max(abs(xs(a0:a1))); %pulse peak

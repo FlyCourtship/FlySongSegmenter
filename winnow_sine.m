@@ -148,17 +148,18 @@ winnowed_sine.events = sine_bout_events;
 function [start,stop] = contiguous_sequence(array,sampling_freq)
 start = [];
 stop=[];
-start(1) = array(1);
-N_runs = 1;
-for x = 1:numel(array)-1%for all but last sample
-    if round(array(x+1)*sampling_freq) == round(array(x)*sampling_freq) + 1%if next sample is step_size away, then part of same contiguous sequence
-        
-    else%record stop and next start
-        stop(N_runs) = array(x);
-        N_runs = N_runs+1;
-        start(N_runs) = array(x+1);
+if numel(array) > 0
+    start(1) = array(1);
+    N_runs = 1;
+    for x = 1:numel(array)-1%for all but last sample
+        if round(array(x+1)*sampling_freq) == round(array(x)*sampling_freq) + 1%if next sample is step_size away, then part of same contiguous sequence
+            
+        else%record stop and next start
+            stop(N_runs) = array(x);
+            N_runs = N_runs+1;
+            start(N_runs) = array(x+1);
+        end
     end
+    %for last sample
+    stop(N_runs)=array(x+1);
 end
-%for last sample
-stop(N_runs)=array(x+1);
-

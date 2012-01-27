@@ -42,7 +42,7 @@ a = [100:25:750]; %wavelet scales: frequencies examined.
 b = [2:3]; %Derivative of Gaussian wavelets examined
 c = round(Fs/250)+1; %pWid:  Approx Pulse Width in points (odd, rounded)
 d = round(Fs/80); % buff: Points to take around each pulse for finding pulse peaks
-e = round(Fs/50); %lowIPI: estimate of a very low IPI (even, rounded)
+e = round(Fs/100); %lowIPI: estimate of a very low IPI (even, rounded)
 f = 1.1; %pulse peak height has to be at least k times the side windows
 g = 5; %thresh: Proportion of smoothed threshold over which pulses are counted. (wide mean, then set threshold as a fifth of that mean) - key for eliminating sine song.....
 

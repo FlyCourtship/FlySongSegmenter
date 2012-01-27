@@ -4,6 +4,8 @@ function xempty = segnspp(ssf,param)
 %%Finds putative noise by fitting a mixture model to the distribution of
 %%power values (A) and taking the lowest mean (±var) as noise
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
+pool = exist('matlabpool','file');
+
 warning('off','stats:gmdistribution:FailedToConverge')
 %find freq range of ssf.A to analyze
 low_freq_index = find(ssf.f>param.low_freq_cutoff,1,'first');
@@ -13,10 +15,20 @@ high_freq_index = find(ssf.f<param.high_freq_cutoff,1,'last');
 AIC=zeros(1,6);
 obj=cell(1,6);
 A_sums = sum(abs(ssf.A(low_freq_index:high_freq_index,:)));
-for k=1:6
-    obj{k}=gmdistribution.fit(A_sums',k);
-    if obj{k}.Converged == 1%keep AIC only for those that converged
-        AIC(k)=obj{k}.AIC;
+if pool ~=0
+    %fprintf('running segnspp in pools')
+    parfor k=1:6
+        obj{k}=gmdistribution.fit(A_sums',k);
+        if obj{k}.Converged == 1%keep AIC only for those that converged
+            AIC(k)=obj{k}.AIC;
+        end
+    end
+else
+    for k=1:6
+        obj{k}=gmdistribution.fit(A_sums',k);
+        if obj{k}.Converged == 1%keep AIC only for those that converged
+            AIC(k)=obj{k}.AIC;
+        end
     end
 end
 [minAIC,numComponents]=min(AIC);%best fit model
@@ -33,24 +45,27 @@ noise_cutoff = presumptive_noise_mean + (presumptive_noise_SD * param.cutoff_sd)
 %get indices of ssf.A ? noise_cutoff
  
 A_noise_indices = find(A_sums<noise_cutoff);
- 
-noise = [];
-length_total_sample = size(ssf.t,2);
-for segment = A_noise_indices
-    if length(noise) < (300 * ssf.fs)
-    %skip segment 1 and last because range overlaps extremes of sample. Could add code to handle these times.
-        if segment ~= 1 || segment ~= length_total_sample
-            start_sample=round((segment * ssf.dS - ssf.dS/2) * ssf.fs)+1;
-            stop_sample=round((segment * ssf.dS + ssf.dS/2) * ssf.fs);
-            sample_noise = ssf.d(start_sample:stop_sample);
-            noise = cat(1,noise,sample_noise);
-        end
-    
-    end
+%skip segment 1 and last because range overlaps extremes of sample. Could add code to handle these times.
+A_noise_indices = A_noise_indices(2:end-1);
+%take only first 300 samples max for noise
+if length(A_noise_indices) >300
+    A_noise_indices = A_noise_indices(1:300);
 end
- 
- 
+noise =zeros(300*ssf.fs,1);
+for i = 1:length(A_noise_indices)
+    segment = A_noise_indices(i);
+    start_sample=round((segment * ssf.dS - ssf.dS/2) * ssf.fs)+1;
+    stop_sample=round((segment * ssf.dS + ssf.dS/2) * ssf.fs);
+    sample_noise = ssf.d(start_sample:stop_sample);
+    start_in_noise = (i-1) * length(sample_noise) + 1;
+    stop_in_noise = i *length(sample_noise);
+    noise(start_in_noise:stop_in_noise) = sample_noise;
+end
+noise_end = find(noise >0,1,'last');
+noise = noise(1:noise_end);
+
 xempty = noise;
+
 
 
 
