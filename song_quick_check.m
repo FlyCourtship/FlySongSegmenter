@@ -35,14 +35,14 @@ for y = 1:nchannels
     fprintf(['Grabbing channel %s.\n'], num2str(y))
     if exist('sample','var')
         song = daqread(daqfile,'Channels',y,'Samples',sample);
-        if length(song) > 1e6
-            snip = song(1:1e6);
+        if length(song) > 5e6
+            snip = song(1:5e6);
         else
             snip = song;
         end
     else
         song = daqread(daqfile,'Channels',y);
-        snip = song(1:1e6);
+        snip = song(1:5e6);
     end
     
     %grab short snip of song to find noise
@@ -52,18 +52,20 @@ for y = 1:nchannels
     %find noise
     try%sometimes may fail to generate noise file. Then, just abort plot
         xempty = segnspp(ssf,param);
+        noise = 'noise';
     catch
-        xempty = 0;
+        xempty = 5e-3;
+        noise = 'nonoise';
     end
     %fprintf('Running multitaper analysis on noise.\n')
     %[noise_ssf] = sinesongfinder(xempty,fs,20,12,.1,.01,.05); %returns noise_ssf
         
-    
-    if xempty ~= 0
-        cutoff = 5 * std(xempty);
+    cutoff = 5 * std(xempty);
+    if strcmp(noise,'noise') == 1
+        
         
         %%
-        %Now find ncolumns segments of 3 seconds each with events that exceed cutoff
+        %Now find ncolumns of events that exceed cutoff
         
         signal = find(song > cutoff);
         
@@ -74,7 +76,7 @@ for y = 1:nchannels
             end
         else
             %if no song found
-            samples = zeros(10,1);
+            samples = zeros(1,10);
         end
         
         
@@ -90,7 +92,7 @@ for y = 1:nchannels
             else
                 if samples(i-1) ~= 0;
                     plot(1:3e4+1,song(samples(i-1) - 1.5e4:samples(i-1) + 1.5e4),'k')
-                axis([1 3e4+1 -10*cutoff 10*cutoff])
+                    axis([1 3e4+1 -10*cutoff 10*cutoff])
                 else
                     %if no song, plot flatline
                     plot([1 2],[0 0],'k')
@@ -114,8 +116,14 @@ for y = 1:nchannels
                 row = sprintf(['Channel ' num2str(y) ':Error\nCould not extract noise.']);
                 text(0,.5,row,'FontSize',10);
             else
-                plot(1:3e4+1,song(samples(i-1) - 1.5e4:samples(i-1) + 1.5e4),'k')
-                axis([1 3e4+1 -10*cutoff 10*cutoff])
+                if samples(i-1) ~= 0;
+                    plot(1:3e4+1,song(samples(i-1) - 1.5e4:samples(i-1) + 1.5e4),'k')
+                    axis([1 3e4+1 -10*cutoff 10*cutoff])
+                else
+                    %if no song, plot flatline
+                    plot([1 2],[0 0],'k')
+                    axis([1 2 -10*cutoff 10*cutoff])
+                end
             end
             axis off
             
