@@ -35,14 +35,13 @@ for y = 1:nchannels
     fprintf(['Grabbing channel %s.\n'], num2str(y))
     if exist('sample','var')
         song = daqread(daqfile,'Channels',y,'Samples',sample);
-        if length(song) > 5e6
-            snip = song(1:5e6);
-        else
-            snip = song;
-        end
     else
         song = daqread(daqfile,'Channels',y);
+    end
+    if length(song) > 5e6
         snip = song(1:5e6);
+    else
+        snip = song;
     end
     
     %grab short snip of song to find noise
