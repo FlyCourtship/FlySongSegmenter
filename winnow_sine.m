@@ -117,7 +117,7 @@ for i = 1:NumBouts
     event_times = find(ismember(events,sine_bout));
 
     
-    values = [];
+    %values = [];
     
     values = ssf.events(event_times,2);
     

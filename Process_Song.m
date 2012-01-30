@@ -1,4 +1,4 @@
-function [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(xsong,xempty)
+function [data, winnowed_sine, pulseInfo, pulseInfo2] = Process_Song(xsong,xempty)
 
 %USAGE [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(xsong,xempty)
 %OR
@@ -45,7 +45,7 @@ if numel(pps.start) > 0
     [pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong,xempty,pps,param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.j,param.k,param.Fs);
     
     clear pps
-    if exist('pulseInfo2.x','var') ~= 0
+    if size(pulseInfo2.x,2) > 0
         
         % Mask putative pulses in xsong. Use pcndInfo pulses.
         pm_xsong = pulse_mask(xsong,pulseInfo2);

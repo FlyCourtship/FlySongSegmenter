@@ -1,6 +1,6 @@
 function [pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong, xempty, pps, a, b, c, d, e, f, g, h, i, j, k,Fs)
 
-pool = exist('matlabpool','file');
+%pool = exist('matlabpool','file');
 
 %========PARAMETERS=================
 segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
