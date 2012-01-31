@@ -47,8 +47,8 @@ if numel(pps.start) > 0
     clear pps
     if size(pulseInfo2.x,2) > 0
         
-        % Mask putative pulses in xsong. Use pcndInfo pulses.
-        pm_xsong = pulse_mask(xsong,pulseInfo2);
+        % Mask putative pulses in xsong. Use pulseInfo pulses.
+        pm_xsong = pulse_mask(xsong,pulseInfo);
         fprintf('Running multitaper analysis on pulse-masked signal.\n')
         pm_ssf = sinesongfinder(pm_xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,1); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
         
