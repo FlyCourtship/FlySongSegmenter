@@ -14,7 +14,7 @@ function [pulse_model,Lik_pulse] = fit_pulse_model(pulses)
 %to build the second and third harmonic models for likelihood testing
 
 %d will often = pulseInfo2.x
-
+[poolavail,isOpen] = check_open_pool;
 
 fprintf('Fitting pulse model\n')
 d = pulses;
@@ -25,7 +25,7 @@ n_samples = length(d);
 max_length = max(cellfun(@length,d));
 total_length = 2* max_length;
 Z = zeros(n_samples,total_length );
-for n=1:n_samples;
+parfor n=1:n_samples;
     X = d{n};
     T = length(X);
     [~,C] = max(X);%get position of max power
@@ -92,7 +92,7 @@ shRZ  = scaleZ2M(shRZ,shRM);
 % thRZ = alignpulses2model(Z,thRM);
 % thRZ  = scaleZ2M(thRZ,thRM);
 
-
+chisq=zeros(n_samples,4);
 for n=1:n_samples;
 %calc chi-square for first model
     chisq(n,1) = ...
@@ -118,9 +118,9 @@ end
 [best_chisqr,best_chisqr_idx] = min(chisq,[],2);
 
 %flip data that fits a reversed model better (columns 3 or 4)
-for n=1:n_samples
+parfor n=1:n_samples
     if best_chisqr_idx(n) > 2
-        Z(n,:) = -Z(n,:);
+        fhZ(n,:) = -fhZ(n,:);
     end
 end
 
@@ -308,4 +308,4 @@ Lik_pulse.LLR_sh = LLR_nsh;
 %Lik_pulse.u_pdf = u_pdf;
 %Lik_pulse.d_rev_pdf = d_rev_pdf;
 
-
+check_close_pool(poolavail,isOpen);

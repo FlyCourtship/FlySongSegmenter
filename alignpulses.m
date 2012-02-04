@@ -1,6 +1,6 @@
 function [Aligned_pulses,Model] = alignpulses(array,reps)
 %[Model,Aligned_pulses] = alignpulses(array,reps)
-
+[poolavail,isOpen] = check_open_pool;
 %take mean of columns
 Z = array;
 M = mean(Z);
@@ -10,8 +10,8 @@ M = mean(Z);
 %deviation = zeros(reps);
 %fprintf('Aligning "true" pulses to build model.\n');
 for kk=1:reps;
-    fprintf('Cycle %d.\n', kk);
-    for n=1:n_samples;
+    %fprintf('Cycle %d.\n', kk);
+    parfor n=1:n_samples;
         C = xcorr(M,Z(n,:),'unbiased');
         [~,tpeak] = max(C);
         tpeak = tpeak - total_length;
@@ -39,4 +39,4 @@ M = M/scale;
 Z = Z/scale;
 Model = M;
 Aligned_pulses = Z;
-
+check_close_pool(poolavail,isOpen);

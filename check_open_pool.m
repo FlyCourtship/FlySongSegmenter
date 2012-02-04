@@ -1,4 +1,5 @@
 function [poolavail,isOpen] = check_open_pool
+%[poolavail,isOpen] = check_open_pool
 
 poolavail = exist('matlabpool','file');
 if poolavail~=0
@@ -7,4 +8,6 @@ if poolavail~=0
         matlabpool(getenv('NUMBER_OF_PROCESSORS'))
         isOpen = -1;%now know pool was opened in this script (no negative pools from matlabpool('size'))
     end
+else
+    isOpen = 0;
 end
