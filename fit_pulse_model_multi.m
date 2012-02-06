@@ -19,7 +19,7 @@ for y = 1:file_num
     
     if TG == 1
         load(path_file);
-        [pulse_model,Lik_pulse] = fit_pulse_model(pulses);
+        [pulse_model,Lik_pulse] = fit_pulse_model(pulseInfo.x);
         out_file = [folder sep root '_pm.mat'];
         save(out_file,'pulse_model','Lik_pulse','-mat')
     end
