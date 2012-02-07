@@ -1,8 +1,15 @@
-function fit_pulse_model_multi(folder)
+function fit_pulse_model_multi(folder,pulseInfo_ver)
 
-%function fit_pulse_model_multi(folder_containing_multiple_daqs,song_range)
+%function Process_multi_daq_Song(folder_containing_multiple_daqs,song_range)
 %This function allows you to analyze mutiple daqs in a folder and gives you
 %outputs in separate folders.
+%
+%pulseInfo_ver can take '1', '2', 'pcnd'
+
+%Indicate here which version of pulseInfo to use
+if nargin <2
+    pulseInfo_ver = '1';
+end
 
 [poolavail,isOpen] = check_open_pool;
 
@@ -19,7 +26,13 @@ for y = 1:file_num
     
     if TG == 1
         load(path_file);
-        [pulse_model,Lik_pulse] = fit_pulse_model(pulseInfo.x);
+        if pulseInfo_ver == '1'
+            [pulse_model,Lik_pulse] = fit_pulse_model(pulseInfo.x);
+        elseif pulseInfo_ver == '2'
+            [pulse_model,Lik_pulse] = fit_pulse_model(pulseInfo2.x);
+        elseif pulseInfo_ver == 'pcnd'
+            [pulse_model,Lik_pulse] = fit_pulse_model(pcndInfo.x);
+        end
         out_file = [folder sep root '_pm.mat'];
         save(out_file,'pulse_model','Lik_pulse','-mat')
     end
