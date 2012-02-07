@@ -6,14 +6,7 @@ function [data, winnowed_sine, pulseInfo, pulseInfo2] = Process_Song(xsong,xempt
 
 addpath(genpath('./chronux'))
 
-poolavail = exist('matlabpool','file');%check if toolbox is available
-if poolavail~=0
-    isOpen = matlabpool('size') > 0;%check if pools open (as might occur, for eg if called from Process_multi_daq_Song
-    if isOpen == 0%if not open, then open
-        matlabpool(getenv('NUMBER_OF_PROCESSORS'))
-        isOpen = -1;%now know pool was opened in this scripts (no negative pools from matlabpool('size'))
-    end
-end
+[poolavail,isOpen] = check_open_pool;
 
 fetch_song_params
 
@@ -77,11 +70,7 @@ else
 end
 
 clear pm_ssf pm_sine
-if isOpen == -1%if pool opened in this script, then close
-    if poolavail~=0
-        matlabpool close force local
-    end
-end
+check_close_pool(poolavail,isOpen);
 %Uncomment if you want song_stats to be produced automatically
 %Produce some song stats (figures will be saved in the current directory)
 % [IPI, meanIPI, stdIPI, IPIs_within_stdev,train_times,IPI_train,train_length,pulses_per_train, meanIPI_train, pulsefreq_train, meanpulsefreq_train, mean_IPI, mean_freq,N,NN,train] = analyze(pulseInfo2,xsong,winnowed_sine);

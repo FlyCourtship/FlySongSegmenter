@@ -1,6 +1,6 @@
-function Process_multi_daq_Song(folder,song_range)
+function Process_multi_daq_Song_pulseonly(folder,song_range)
 
-%function Process_multi_daq_Song(folder_containing_multiple_daqs,song_range)
+%function Process_multi_daq_Song_pulseonly(folder_containing_multiple_daqs,song_range)
 %This function allows you to analyze mutiple daqs in a folder and gives you
 %outputs in separate folders.
 
@@ -19,9 +19,9 @@ for y = 1:file_num
     
     if TG == 1
         if nargin ==2
-            Process_daq_Song(path_file,song_range);
+            Process_daq_Song_yaksan(path_file,song_range);
         else
-            Process_daq_Song(path_file);
+            Process_daq_Song_yaksan(path_file);
         end
     end
 end

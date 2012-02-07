@@ -1,7 +1,7 @@
-function Process_daq_Song(song_daq_file,song_range)
+function Process_daq_Song_pulseonly(song_daq_file,song_range)
 
 %old - when require noise file
-%function Process_daq_Song(song_daq_file,song_range)
+%function Process_daq_Song_pulseonly(song_daq_file,song_range)
 check_close_pool(poolavail,isOpen);
 
 song_daqinfo = daqread(song_daq_file,'info');
@@ -43,12 +43,12 @@ for y = 1:nchannels_song
  
         %run Process_Song on selected channel
         fprintf('Processing song.\n')
-        [data, winnowed_sine, pulseInfo, pulseInfo2] = Process_Song(song);
+        [data, ~, pulseInfo, pulseInfo2] = Process_Song(song);
         %save data
         
-        save(outfile, 'data','winnowed_sine','pulseInfo2','pulseInfo','-v7.3')
+        save(outfile, 'data','pulseInfo','pulseInfo2','-v7.3')
         %clear workspace
-        clear song data winnowed_sine pulseInfo2 pulseInfo
+        clear song data pulseInfo2 pulseInfo
     else
         fprintf(['File %s exists. Skipping.\n'], outfile)
     end
