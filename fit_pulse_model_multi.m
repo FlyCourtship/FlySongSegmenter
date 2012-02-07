@@ -1,6 +1,6 @@
 function fit_pulse_model_multi(folder)
 
-%function Process_multi_daq_Song(folder_containing_multiple_daqs,song_range)
+%function fit_pulse_model_multi(folder_containing_multiple_daqs,song_range)
 %This function allows you to analyze mutiple daqs in a folder and gives you
 %outputs in separate folders.
 
