@@ -293,7 +293,8 @@ daq=char(daq(1));
 ai = analoginput('nidaq',daq);
 set(ai,'InputType','NonReferencedSingleEnded');
 for(i=0:nchan-1)
-  tmp=addchannel(ai,31-i);
+  %tmp=addchannel(ai,31-i);
+  tmp=addchannel(ai,i);
   set(tmp,'InputRange',[-range range]);
 end
 set(ai,'SampleRate',Fs);

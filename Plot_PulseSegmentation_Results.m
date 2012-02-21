@@ -6,13 +6,15 @@ plot((1:size(data.d,1))./data.fs,data.d,'Color',[.742 .742 .742])
 hold on; 
 
 %plot sine data
-if winnowed_sine.start>0
-    for n = 1:size(winnowed_sine.start,1)
-        x_start = round(winnowed_sine.start(n)*data.fs);
-        x_stop = round(x_start + size(winnowed_sine.clips{n},1));
-        time = (x_start:x_stop-1);
-        y = winnowed_sine.clips{n};
-        plot(time./data.fs,y,'b')
+if(winnowed_sine)
+    if winnowed_sine.start>0
+        for n = 1:size(winnowed_sine.start,1)
+            x_start = round(winnowed_sine.start(n)*data.fs);
+            x_stop = round(x_start + size(winnowed_sine.clips{n},1));
+            time = (x_start:x_stop-1);
+            y = winnowed_sine.clips{n};
+            plot(time./data.fs,y,'b')
+        end
     end
 end
 zoom xon;

@@ -43,10 +43,10 @@ for y = 1:nchannels_song
  
         %run Process_Song on selected channel
         fprintf('Processing song.\n')
-        [data, ~, pulseInfo, pulseInfo2] = Process_Song(song);
+        [data, ~, pcndInfo, pulseInfo, pulseInfo2] = Process_Song(song);
         %save data
         
-        save(outfile, 'data','pulseInfo','pulseInfo2','-v7.3')
+        save(outfile, 'data','pcndInfo', 'pulseInfo','pulseInfo2','-v7.3')
         %clear workspace
         clear song data pulseInfo2 pulseInfo
     else

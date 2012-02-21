@@ -499,4 +499,3 @@ end
 
 fprintf('%d/%d (%2.1f %%) pulses passed second stage of winnowing.\n',nOk,np,nOk*100/np)
 fprintf('DONE.\n');
-

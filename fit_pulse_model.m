@@ -272,7 +272,7 @@ else
     if n_samples == 1
         pulse_model.fhM = [];
         pulse_model.shM = [];
-        pulse_model.fhZ = d(1);%aligned pulses that fit first harmonic best
+        pulse_model.fhZ = d{1};%aligned pulses that fit first harmonic best
         pulse_model.shZ = [];%aligned pulses that fit first harmonic best
         pulse_model.Z2fhM = [];%aligned all pulses to first harmonic model
         pulse_model.Z2shM = [];%aligned all pulses to first harmonic model
