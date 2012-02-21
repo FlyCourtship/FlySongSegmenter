@@ -51,4 +51,5 @@ catch
     obj{1} = original_ipi.fit;
 end
 
-ipi = struct('u',ipi_mean,'S',ipi_SD,'d',ipi_d,'fit',obj{numComponents});%results in units of samples
+ipi_time = pulseInfo.wc(1:end-1);
+ipi = struct('u',ipi_mean,'S',ipi_SD,'d',ipi_d,'t',ipi_time,'fit',obj{numComponents});%results in units of samples
