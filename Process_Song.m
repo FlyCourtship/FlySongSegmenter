@@ -1,4 +1,4 @@
-function [data, winnowed_sine, pcndInfo, pulseInfo, pulseInfo2] = Process_Song(xsong)
+function [data, winnowed_sine, pps, pcndInfo, pulseInfo, pulseInfo2] = Process_Song(xsong)
 
 %USAGE [data, winnowed_sine, pcndInfo, pulseInfo, pulseInfo2] = Process_Song(xsong)
 
