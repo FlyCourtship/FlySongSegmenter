@@ -1,4 +1,4 @@
-function [pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong, xempty, pps, a, b, c, d, e, f, g, h, i, j, k,Fs)
+function [pulseInfo, pulseInfo2, cmhSong] = PulseSegmentationv3(xsong, xempty, pps, a, b, c, d, e, f, g, h, i,Fs)
 
 pool = exist('matlabpool','file');
 
@@ -11,23 +11,24 @@ segParams.pWid = c; %pWid: Approx Pulse Width in points (odd, rounded)
 
 segParams.pulsewindow = round(c); %factor for computing window around pulse peak (this determines how much of the signal before and after the peak is included in the pulse)
 
-segParams.buff = d; % buff: Points to take around each pulse
+segParams.lowIPI = d; %lowIPI: estimate of a very low IPI (even, rounded)
 
-segParams.lowIPI = e; %lowIPI: estimate of a very low IPI (even, rounded)
-
-segParams.hgt = f; %pulse peak height parameter
-
-segParams.thresh = g; %thresh: Proportion of smoothed threshold over which pulses are counted.
+segParams.thresh = e; %thresh: Proportion of smoothed threshold over which pulses are counted.
 
 xn = xempty;
-noise = h*mean(abs(xn));                         
+noise = f*mean(abs(xn));                         
 segParams.wnwMinAbsVoltage = noise; 
 
+<<<<<<< HEAD
 segParams.IPI = i; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
+=======
+%2nd winnow
+segParams.IPI = g; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
+>>>>>>> recent changes
 
-segParams.frequency = j; %if pulseInfo.fcmx is greater than this frequency, then don't include pulse
+segParams.frequency = h; %if pulseInfo.fcmx is greater than this frequency, then don't include pulse
 
-segParams.close = k; %if pulse peaks are this close together, only keep the larger pulse
+segParams.close = i; %if pulse peaks are this close together, only keep the larger pulse
 
 sp = segParams;
 
@@ -57,10 +58,13 @@ for i = 1:numel(wvlt)
     sc(i,:) = scales_for_freqs(fc,1/fs,wvlt{i});
 end
 fprintf('DONE.\n');
+<<<<<<< HEAD
 
 
 
 
+=======
+>>>>>>> recent changes
 %% Perform CWT on Signal
 fprintf('PERFORMING CWT SUITE.\n');
 
@@ -146,6 +150,7 @@ end
 cmhSong = cmh;
 cmhNoise = cmh_noise;
 
+%figure; plot(xs,'k'); hold on; plot(cmhSong,'r');
 %% 
 %Calculate running maxima for wavelet fits and then smooth
 %Perform all operations on noise to make later comparisons meaningful
@@ -160,15 +165,19 @@ sig4Test = smooth(sig4Test,(Fs/1000)+pWid);
 nDat = smooth(nDat,(Fs/1000)+pWid);
 nDat = abs(nDat); %don't want negatives
 
+<<<<<<< HEAD
+=======
+%for debugging
+%figure(1); hold on; plot(xs,'k'); plot(sig4Test,'b');
+>>>>>>> recent changes
 %% 
 %Take signal, subtract noise, calculate the mean value of region lowIPI/2
-% either side of pulse and take the maximum of this value (to be used as
-% threshold). Finally make threshold infinite at start and end to avoid edge
-% effects.
+%either side of pulse and take the maximum of this value (to be used as
+%threshold). Finally make threshold infinite at start and end to avoid edge
+%effects.
 
 lowIPI = sp.lowIPI;
-buff = sp.buff;
-hgt = sp.hgt;
+buff = round(Fs/80); %to avoid edge effects
 
 sig4Test = sig4Test - mean(nDat);
 sig4Test = abs(sig4Test);
@@ -177,10 +186,20 @@ smoothB = smooth(circshift(sig4Test, - lowIPI/2-1), lowIPI+1);
 smthSide = max([smoothF smoothB], [], 2);
 smthSide(end - buff-1:end) = inf;
 smthSide(1:buff+1) = inf;
-smthMid = smooth(sig4Test,lowIPI*2+1); 
-smthMid(smthSide == inf) = inf;
-smthThresh = max([smthMid smthSide*hgt], [], 2); 
+smthSide = smthSide*1.1;
+smthThresh = smthSide; 
+
+% smthMid = smooth(sig4Test,lowIPI*2+1); %smooth sig4Test (will reduce the size of pulse peaks)
+% smthMid(smthSide == inf) = inf;
+% smthThresh = max([smthMid smthSide*1.1], [], 2); 
+
 smthThresh(smthThresh < mean(nDat)) = mean(nDat);
+<<<<<<< HEAD
+=======
+
+%for debugging
+%figure(1); hold on; plot(smthThresh,'m');
+>>>>>>> recent changes
 %% 
 %Perform Threshold Matching
 thresh = sp.thresh;
@@ -191,10 +210,8 @@ hiTest(hiTest - (smthThresh+smthThresh./thresh) <= 0) = 0; %Set threshold based 
 hiTest(hiTest > 0) = 1; %Take points above threshold
 srtIdx = find(diff([0; hiTest]) == 1); %Find start points above thresh
 endIdx = find(diff(hiTest) == -1);%Find end points above thresh
-
 %% 
-%Calculate cPnts by taking the maximum within each region that is above
-% threshold. 
+%Calculate cPnts by taking the maximum within each region that is above threshold. 
 
 for i = 1:length(srtIdx)
 [~, cPnts(i)] = max(sig4Test(srtIdx(i):endIdx(i)));
@@ -202,7 +219,11 @@ cPnts(i) = cPnts(i) + srtIdx(i) -1;
 end
 
 %for debugging:
+<<<<<<< HEAD
 %figure; plot(xs, 'k'); hold on; plot(cPnts,0.4,'.r'); plot(smthThresh,'b'); plot(sig4Test,'m');
+=======
+%figure(1); hold on; plot(cPnts,1,'.b'); 
+>>>>>>> recent changes
 %% Use output of putativepulse2 (pps) to identify regions of song that may contain pulses (and do not contain sines)
 
 tic;
