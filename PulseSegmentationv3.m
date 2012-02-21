@@ -1,4 +1,4 @@
-function [pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong, xempty, pps, a, b, c, d, e, f, g, h, i, j, k,Fs)
+function [pcndInfo,pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong, xempty, pps, a, b, c, d, e, f, g, h, i, j, k,Fs)
 
 %pool = exist('matlabpool','file');
 
@@ -43,14 +43,14 @@ ngw = numel(sp.DoGwvlt);
 fc  = sp.fc;
 fs  = Fs;
 
-wvlt = cell(1,ngw+1);
-wvlt{1} = 'morl'; %kept the morlet here in case it ends up being useful later
+wvlt = cell(1,ngw);
+% wvlt{1} = 'morl'; %kept the morlet here in case it ends up being useful later
 
 for i = 1:ngw
-    wvlt{i+1} = ['gaus' num2str(sp.DoGwvlt(i))];
+    wvlt{i} = ['gaus' num2str(sp.DoGwvlt(i))];
 end
 
-sc = zeros(ngw+1,numel(fc));
+sc = zeros(ngw,numel(fc));
 
 for i = 1:numel(wvlt)
     fprintf('\tComputing scales for %s.\n',wvlt{i});
@@ -64,10 +64,10 @@ fprintf('DONE.\n');
 %% Perform CWT on Signal
 fprintf('PERFORMING CWT SUITE.\n');
 
-cmo = zeros(1,numel(xs));   % Storage for the maximum morlet wavelet
+% cmo = zeros(1,numel(xs));   % Storage for the maximum morlet wavelet
                                                 % coefficient for each bin.
 
-cmh = cmo;      % Storage for the maximum mexican hat
+cmh = zeros(1,numel(xs));      % Storage for the maximum mexican hat
                           % wavelet coefficient for each bin.
                           
 cmh_noise = zeros(1,numel(xn));     % Storage for the maximum mexican hat
@@ -76,11 +76,11 @@ cmh_noise = zeros(1,numel(xn));     % Storage for the maximum mexican hat
 % cmo_sc = cmo;             % Storage for the scale at which the
                                         % highest coefficient occured for each bin.
 
-cmh_dog = cmo;            % Storage for the order of the
+cmh_dog = zeros(1,numel(xs));            % Storage for the order of the
                           % D.o.G. wavelet for which the highest
                           % coefficient occured.
 
-cmh_sc = cmo;             % Storage for the scale at which the
+cmh_sc = zeros(1,numel(xs));             % Storage for the scale at which the
                           % highest mexican hat coefficient occured.
                           
 Cs = zeros(length(fc),length(xs),numel(wvlt));Cn = zeros(length(fc),length(xn),numel(wvlt));
