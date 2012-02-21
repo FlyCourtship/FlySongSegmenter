@@ -1,4 +1,4 @@
-function  [IPI, rsquare, meanIPI, stdIPI, IPIs_within_stdev,train_times,IPI_train,train_length,pulses_per_train, meanIPI_train, pulsefreq_train, meanpulsefreq_train, mean_IPI, mean_freq,N,NN, train] = analyze(pulseInfo2,xsong,winnowed_sine);
+function  [IPI, rsquare, meanIPI, stdIPI, IPIs_within_stdev,train_times,IPI_train,train_length,pulses_per_train, meanIPI_train, pulsefreq_train, meanpulsefreq_train, mean_IPI, mean_freq,N,NN, train] = analyze(pulseInfo2,data,winnowed_sine);
 
 Fs=10000;
 
@@ -35,7 +35,7 @@ Y = poisspdf(xval,lambda);
 
 h=figure(2); plot(xval, Y,'-r'); title('IPI Poisson dist');
 %saveas(h,'IPI_poisson_dist.fig'); 
-
+%%
 %find pulse trains==============================
 a=find(IPI>meanIPI+2*stdIPI); %these larger IPIs must be the starts of pulse trains
 AA = [];
@@ -80,7 +80,7 @@ end
 % hold on;
 % plot(BB(:,1),ones,'.r'); 
 % plot(BB(:,2),ones,'.b');
-
+%%
 %now look at trends within a train=============================
 IPI_train={};
 pulsefreq_train={};
@@ -130,7 +130,7 @@ hold on; plot(yf(i,:));
 end
 ylim([0 5]); title('exponential fits of IPIs within a train');
 %saveas(h,'expfits_IPI_train.fig'); 
-
+%%
 %means for each position in the train=========================
 mean_IPI = NaN(size(IPI_train,2),60);
 mean_freq = NaN(size(IPI_train,2),60);
@@ -150,6 +150,7 @@ h=figure(7); boxplot(mean_IPI); title('IPI stats within a train');
 h=figure(8); boxplot(mean_freq); title('pulsefreq stats within a train');
 %saveas(h,'pulsefreq_boxplot.fig'); 
 
+xsong = data.d;
 
 %statistics of pulse trains follwed by sine?===========================
 N = zeros(1,length(xsong)); %N is the location and length of all sines
@@ -164,7 +165,7 @@ for i=1:length(train_times);
 end
 
 h=figure(9); plot(N,'.b'); hold on; plot(NN,'.r'); ylim([0.9 1.1]); title('sine(blue) and pulse(red) locations'); saveas(h,'sine_pulse_locations.fig');
-
+%%
 %look at the distribution of the number of pulses per train for pulse
 %trains within 70ms of sine song and those that are not.  
 
@@ -224,6 +225,5 @@ end
 % yfit = [ones(size(tfit)) cos((2*pi/x)*(tfit-x2))]*s_coeffs; 
 % plot(tfit,yfit,'r-','LineWidth',2)
 % legend('Data','Sinusoidal Fit','Location','NW')
-
 
 

@@ -1,6 +1,6 @@
-function [pcndInfo,pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong, xempty, pps, a, b, c, d, e, f, g, h, i, j, k,Fs)
+function [pcndInfo, pulseInfo, pulseInfo2, cmhSong] = PulseSegmentationv3(xsong, xempty, pps, a, b, c, d, e, f, g, h, i, Fs)
 
-%pool = exist('matlabpool','file');
+pool = exist('matlabpool','file');
 
 %========PARAMETERS=================
 segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
@@ -11,23 +11,22 @@ segParams.pWid = c; %pWid: Approx Pulse Width in points (odd, rounded)
 
 segParams.pulsewindow = round(c); %factor for computing window around pulse peak (this determines how much of the signal before and after the peak is included in the pulse)
 
-segParams.buff = d; % buff: Points to take around each pulse
+segParams.lowIPI = d; %lowIPI: estimate of a very low IPI (even, rounded)
 
-segParams.lowIPI = e; %lowIPI: estimate of a very low IPI (even, rounded)
-
-segParams.hgt = f; %pulse peak height parameter
-
-segParams.thresh = g; %thresh: Proportion of smoothed threshold over which pulses are counted.
+segParams.thresh = e; %thresh: Proportion of smoothed threshold over which pulses are counted.
 
 xn = xempty;
-noise = h*mean(abs(xn));                         
+noise = f*mean(abs(xn));                         
 segParams.wnwMinAbsVoltage = noise; 
 
 segParams.IPI = i; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
 
-segParams.frequency = j; %if pulseInfo.fcmx is greater than this frequency, then don't include pulse
+%for 2nd winnow
+segParams.IPI = g; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
 
-segParams.close = k; %if pulse peaks are this close together, only keep the larger pulse
+segParams.frequency = h; %if pulseInfo.fcmx is greater than this frequency, then don't include pulse
+
+segParams.close = i; %if pulse peaks are this close together, only keep the larger pulse
 
 sp = segParams;
 
@@ -165,8 +164,7 @@ nDat = abs(nDat); %don't want negatives
 % effects.
 
 lowIPI = sp.lowIPI;
-buff = sp.buff;
-hgt = sp.hgt;
+buff = round(Fs/80); %to avoid edge effects
 
 sig4Test = sig4Test - mean(nDat);
 sig4Test = abs(sig4Test);
@@ -175,9 +173,12 @@ smoothB = smooth(circshift(sig4Test, - lowIPI/2-1), lowIPI+1);
 smthSide = max([smoothF smoothB], [], 2);
 smthSide(end - buff-1:end) = inf;
 smthSide(1:buff+1) = inf;
-smthMid = smooth(sig4Test,lowIPI*2+1); 
-smthMid(smthSide == inf) = inf;
-smthThresh = max([smthMid smthSide*hgt], [], 2); 
+smthSide = smthSide*1.1;
+smthThresh = smthSide; 
+
+% smthMid = smooth(sig4Test,lowIPI*2+1); %smooth sig4Test (will reduce the size of pulse peaks)
+% smthMid(smthSide == inf) = inf;
+% smthThresh = max([smthMid smthSide*1.1], [], 2); 
 smthThresh(smthThresh < mean(nDat)) = mean(nDat);
 %% 
 %Perform Threshold Matching

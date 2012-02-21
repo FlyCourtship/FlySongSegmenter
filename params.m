@@ -38,22 +38,20 @@ noise_cutoff = 0.9;
 %SET THE PARAMETERS FOR PulseSegmentation
 
 %general parameters:
-a = [100:25:750]; %wavelet scales: frequencies examined. 
-b = [2:3]; %Derivative of Gaussian wavelets examined
+a = [100:25:750]; %wavelet scales: frequencies examined.
+b = [2:3]; %Derivative of Gaussian wavelets examined (2:3)
 c = round(Fs/250)+1; %pWid:  Approx Pulse Width in points (odd, rounded)
-d = round(Fs/80); % buff: Points to take around each pulse for finding pulse peaks
-e = round(Fs/100); %lowIPI: estimate of a very low IPI (even, rounded)
-f = 1.1; %pulse peak height has to be at least k times the side windows
-g = 5; %thresh: Proportion of smoothed threshold over which pulses are counted. (wide mean, then set threshold as a fifth of that mean) - key for eliminating sine song.....
+d = round(Fs/100); %lowIPI: estimate of a very low IPI (even, rounded)
+e = 5; %thresh:Proportion of smoothed threshold over which pulses are counted. 
 
 %parameters for winnowing pulses: 
 %first winnow: (returns pulseInfo)
-h = 6; %factor times the mean of xempty - only pulses larger than this amplitude are counted as true pulses
+f = 6; %factor times the mean of xempty - only pulses larger than this amplitude are counted as true pulses
 
 %second winnow: (returns pulseInfo2)
-i = round(Fs/5); %if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse, not within IPI range of another pulse, is likely not a true pulse)
-j = 700; %if best matched scale is greater than this frequency, then don't include pulse as true pulse
-k = round(Fs/50); %if pulse peaks are this close together, only keep the larger pulse (this value should be less than the species-typical IPI)
+g = round(Fs/5); %if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse, not within IPI range of another pulse, is likely not a true pulse)
+h = 700; %if best matched scale is greater than this frequency, then don't include pulse as true pulse
+i = round(Fs/50); %if pulse peaks are this close together, only keep the larger pulse (this value should be less than the species-typical IPI)
 
 %SET THE PARAMETERS FOR winnow_sine
 max_pulse_pause = 0.070; %max_pulse_pause in seconds, used to winnow apparent sine between pulses

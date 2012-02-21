@@ -1,8 +1,6 @@
-function [data, winnowed_sine, pps, pcndInfo, pulseInfo, pulseInfo2] = Process_Song(xsong)
+function [data, winnowed_sine, pulseInfo, pulseInfo2, pps, pcndInfo] = Process_Song(xsong)
 
-%USAGE [data, winnowed_sine, pcndInfo, pulseInfo, pulseInfo2] = Process_Song(xsong)
-
-%Process_Song2 is a streamlined version of Process_Song. Cut second sinesongfinder. 
+%USAGE [data, winnowed_sine, pulseInfo, pulseInfo2, pps, pcndInfo] = Process_Song(xsong)
 
 addpath(genpath('./chronux'))
 
@@ -32,9 +30,8 @@ clear ssf noise_ssf
 %Run PulseSegmentationv3 using xsong, xempty, and pps as inputs (and a list of parameters defined above):
 if numel(pps.start) > 0
     fprintf('Running wavelet transformation.\n')
-    [pcndInfo, pulseInfo, pulseInfo2] = PulseSegmentationv3(xsong,noise.d,pps,param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.j,param.k,param.Fs);
+    [pcndInfo, pulseInfo, pulseInfo2, cmhSong] = PulseSegmentationv3(xsong,noise.d,pps,param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.Fs);
     
-    clear pps
     if size(pulseInfo2.x,2) > 0
         
         % Mask putative pulses in xsong. Use pulseInfo pulses.
