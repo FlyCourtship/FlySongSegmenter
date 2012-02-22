@@ -184,8 +184,8 @@ if n_samples >1
         
         
         nfhM_ar = repmat(nfhM,size(Z2nfhM,1),1);
-        LL_nfhM = sum(log10(normpdf(Z2nfhM,nfhM_ar,S_ar_nfh)),2);
-        LL_0_nfhpdf = sum(log10(normpdf(Z2nfhM,0,S_ar_nfh)),2);
+        LL_nfhM = nansum(log10(normpdf(Z2nfhM,nfhM_ar,S_ar_nfh)),2);
+        LL_0_nfhpdf = nansum(log10(normpdf(Z2nfhM,0,S_ar_nfh)),2);
         
         LLR_nfh = LL_nfhM - LL_0_nfhpdf;
         
@@ -221,8 +221,8 @@ if n_samples >1
         %%calculate likelihood of data under each model
         
         nshM_ar = repmat(nshM,size(Z2nshM,1),1);
-        LL_nshM = sum(log10(normpdf(Z2nshM,nshM_ar,S_ar_nsh)),2);
-        LL_0_nshpdf = sum(log10(normpdf(Z2nshM,0,S_ar_nsh)),2);
+        LL_nshM = nansum(log10(normpdf(Z2nshM,nshM_ar,S_ar_nsh)),2);
+        LL_0_nshpdf = nansum(log10(normpdf(Z2nshM,0,S_ar_nsh)),2);
         LLR_nsh = LL_nshM - LL_0_nshpdf;
         
         

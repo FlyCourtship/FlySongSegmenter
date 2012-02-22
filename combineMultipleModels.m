@@ -1,0 +1,122 @@
+function combined_pulse_model = combineMultipleModels(folder)
+%USAGE combined_pulse_model = combinedMultipleModels(folder)
+
+%grab models in a folder and put in cell array
+
+sep = filesep;
+dir_list = dir(folder);
+file_num = length(dir_list);
+i= 0;
+
+file_names = cell(1,file_num);
+fhZ_size = zeros(file_num,1);
+shZ_size = zeros(file_num,1);
+
+%get file names and sample sizes for fhZ and shZ
+fprintf('Grabbing file names and data sizes\n');
+for y = 1:file_num
+    file = dir_list(y).name; %pull out the file name
+    [~,root,ext] = fileparts(file);
+    path_file = [folder file];
+    TG = strcmp(ext,'.mat');
+    
+    if TG == 1
+        i = i+1;
+        if strfind(root,'pm') ~= 0
+            %get plot data and limits
+            load(path_file,'pulse_model');
+            file_names{i} = file;
+            fhZ_size(i) = size(pulse_model.fhZ,1);
+            shZ_size(i) = size(pulse_model.shZ,1);
+        end
+    end
+end
+
+file_names(cellfun('isempty',file_names))=[];
+fhZ_size = fhZ_size(fhZ_size~=0);
+shZ_size = shZ_size(shZ_size~=0);
+numfhZ = sum(fhZ_size);
+numshZ = sum(shZ_size);
+
+file_num = numel(file_names);
+fhZAll = cell(1,numfhZ);
+shZAll = cell(1,numshZ);
+
+fprintf('Collecting pulses from all files\n');
+%collect data from each file
+fhZNum = 0;
+shZNum = 0;
+for y = 1:file_num
+    %reload each file
+    path_file = [folder file_names{y}];
+    load(path_file,'pulse_model')
+    %
+    %pad old data
+    %
+    
+    delta = length(pulse_model.fhM);
+    left_pad = round(delta/2);
+    right_pad = delta -left_pad;
+    fhZ = pulse_model.fhZ;
+    shZ = pulse_model.shZ;
+%     fhZ = [zeros(size(fhZ,1),left_pad) fhZ zeros(size(fhZ,1),right_pad)];
+%     shZ = [zeros(size(shZ,1),left_pad) shZ zeros(size(shZ,1),right_pad)];
+    
+    for i = 1:fhZ_size(y)
+        %keep running count of numbers
+        fhZNum = fhZNum + 1;
+        fhZAll{fhZNum} = fhZ(i,:);
+    end
+    for i = 1:shZ_size(y)
+        %keep running count of numbers
+        shZNum = shZNum + 1;
+        shZAll{shZNum} = shZ(i,:);
+    end
+end
+
+
+%Make new models
+fprintf('Making first harmonic model');
+%grab samples, center, and pad
+%first harmonic
+n_samples = numfhZ;
+max_length = max(cellfun(@length,fhZAll));
+total_length = 2* max_length;
+fhZ = zeros(n_samples,total_length );
+parfor n=1:n_samples;
+    X = fhZAll{n}';
+    T = length(X);
+    [~,C] = max(X);%get position of max power
+    
+    %center on max power
+    left_pad = max_length - C;  %i.e. ((total_length/2) - C)
+    right_pad = total_length - T - left_pad;
+    fhZ(n,:) = [zeros(left_pad,1); X ;zeros((right_pad),1)];
+end
+
+[fhZ,fhM] = alignpulses(fhZ,20);
+
+%second harmonic
+fprintf('Making second harmonic model');
+n_samples = numshZ;
+max_length = max(cellfun(@length,shZAll));
+total_length = 2* max_length;
+shZ = zeros(n_samples,total_length );
+parfor n=1:n_samples;
+    X = shZAll{n}';
+    T = length(X);
+    [~,C] = max(X);%get position of max power
+    
+    %center on max power
+    left_pad = max_length - C;  %i.e. ((total_length/2) - C)
+    right_pad = total_length - T - left_pad;
+    shZ(n,:) = [zeros(left_pad,1); X ;zeros((right_pad),1)];
+end
+
+[shZ,shM] = alignpulses(shZ,20);
+
+combined_pulse_model.fhM = fhM;
+combined_pulse_model.shM = shM;
+combined_pulse_model.fhZ = fhZ;
+combined_pulse_model.shZ = shZ;
+

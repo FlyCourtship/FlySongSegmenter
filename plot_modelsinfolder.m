@@ -23,7 +23,8 @@ for y = 1:file_num
     
     
     if TG == 1
-        if strfind(root,'pm') ~= 0
+        if isempty(strfind(root,'pm'))
+        else
             plotnum = plotnum + 1;
             axes(ax(plotnum));
             
@@ -50,6 +51,8 @@ for y = 1:file_num
     end
 end
 [pathstr,name,~]=fileparts(folder);
-outfile = [pathstr name '_pulsemodels.png'];
+r=regexp(pathstr,'/','split');
+folder_name = char(r(end));
+outfile = [pathstr sep folder_name '_pulsemodels.png'];
 warning('off','MATLAB:LargeImage');
 export_fig(outfile,'-r300');
