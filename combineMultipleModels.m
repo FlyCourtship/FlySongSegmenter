@@ -1,5 +1,10 @@
 function combined_pulse_model = combineMultipleModels(folder)
 %USAGE combined_pulse_model = combinedMultipleModels(folder)
+%build a pulse model from the data present in a pulsemodel structure 
+%from multiple individuals
+
+[poolavail,isOpen] = check_open_pool;
+
 
 %grab models in a folder and put in cell array
 
@@ -54,9 +59,9 @@ for y = 1:file_num
     %pad old data
     %
     
-    delta = length(pulse_model.fhM);
-    left_pad = round(delta/2);
-    right_pad = delta -left_pad;
+%     delta = length(pulse_model.fhM);
+%     left_pad = round(delta/2);
+%     right_pad = delta -left_pad;
     fhZ = pulse_model.fhZ;
     shZ = pulse_model.shZ;
 %     fhZ = [zeros(size(fhZ,1),left_pad) fhZ zeros(size(fhZ,1),right_pad)];
@@ -115,8 +120,35 @@ end
 
 [shZ,shM] = alignpulses(shZ,20);
 
+%Trim models to useful lengths
+
+%compare SE at each point (from front and back) with deviation of fh model
+%start and stop when deviation exceeds SE of data
+%for first harmonic
+S_Z = std(fhZ(fhZ ~= 0));%take only data that are not 0 (i.e. padding)
+SE_Z = S_Z/sqrt(numfhZ);
+start = find((abs(fhM)>SE_Z),1,'first');
+finish = find((abs(fhM)>SE_Z),1,'last');
+fhM  = fhM(start:finish);
+fhZ = fhZ(:,start:finish);
+fhS = std(fhZ);
+
+%for second harmonic
+S_Z = std(shZ(shZ ~= 0));%take only data that are not 0 (i.e. padding)
+SE_Z = S_Z/sqrt(numshZ);
+start = find((abs(shM)>SE_Z),1,'first');
+finish = find((abs(shM)>SE_Z),1,'last');
+shM  = shM(start:finish);
+shZ = shZ(:,start:finish);
+shS = std(shZ);
+
+
 combined_pulse_model.fhM = fhM;
 combined_pulse_model.shM = shM;
 combined_pulse_model.fhZ = fhZ;
 combined_pulse_model.shZ = shZ;
+combined_pulse_model.fhS = fhS;
+combined_pulse_model.shS = shS;
 
+
+check_close_pool(poolavail,isOpen);

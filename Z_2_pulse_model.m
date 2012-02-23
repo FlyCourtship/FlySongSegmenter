@@ -31,11 +31,17 @@ function [pulse_model,Lik_pulse] = Z_2_pulse_model(pulse_model,new_pulses,sample
 
 fhM = pulse_model.fhM;
 shM = pulse_model.shM;
-% thM = pulse_model.thM;
+lengthfhM = length(fhM);
+shM  = length(shM);
 
-fhZ = pulse_model.fhZ;
-shZ = pulse_model.shZ;
-% thZ = pulse_model.thZ;
+if isfield(pulse_model,'fhS')
+    fhS = pulse_model.fhS;
+    shS = pulse_model.shS;
+else
+    fhZ = pulse_model.fhZ;
+    shZ = pulse_model.shZ;
+end
+
 
 
 %resample model and data to coordinate sample frequencies with new data
@@ -48,8 +54,13 @@ if nargin == 3 %if user provides sampling frequencies
     new_length = length(fhM) * ratio;
     fhM = interpft(fhM,new_length);
     shM = interpft(shM,new_length);
-    fhZ = interpft(fhZ,new_length,2);
-    shZ = interpft(shZ,new_length,2);
+    if isfield(pulse_model,'fhS')
+        fhS = interpft(fhS,new_length);
+        shS = interpft(shS,new_length);
+    else
+        fhZ = interpft(fhZ,new_length,2);
+        shZ = interpft(shZ,new_length,2);
+    end
 end
 
 d = new_pulses;
@@ -75,18 +86,27 @@ end
 %
 %pad models to accomodate length of new data
 %
-delta = abs(total_length - length(fhM));
+delta = abs(total_length - lengthfhM);
 left_pad = round(delta/2);
 right_pad = delta -left_pad;
-%if new data is longer than model
-if total_length > length(fhM)
-    fhZ = [zeros(size(fhZ,1),left_pad) fhZ zeros(size(fhZ,1),right_pad)];
-    shZ = [zeros(size(shZ,1),left_pad) shZ zeros(size(shZ,1),right_pad)];
+if total_length > lengthfhM
+    %if new data is longer than model
+    %pad model
     fhM = [zeros(left_pad,1)',fhM,zeros((right_pad),1)'];
     shM = [zeros(left_pad,1)',shM,zeros((right_pad),1)'];
-end
-if length(fhM) > total_length
-    Z = [zeros(size(Z,1),left_pad) Z zeros(size(Z,1),right_pad)];   
+    if isfield(pulse_model,'fhS')
+        fhS = [zeros(left_pad,1)',fhS,zeros((right_pad),1)'];
+        shS = [zeros(left_pad,1)',shS,zeros((right_pad),1)'];
+    else
+        fhZ = [zeros(size(fhZ,1),left_pad) fhZ zeros(size(fhZ,1),right_pad)];
+        shZ = [zeros(size(shZ,1),left_pad) shZ zeros(size(shZ,1),right_pad)];
+    end
+
+    
+elseif lengthfhM > total_length
+    %if model is longer than data
+    %pad data
+    Z = [zeros(size(Z,1),left_pad) Z zeros(size(Z,1),right_pad)];
 end
         
 
@@ -147,27 +167,47 @@ Z2shM = alignpulses2model(Z,shM);
 Z2shM = scaleZ2M(Z2shM,shM);
 
 
-%trim data to length of original models
+%If length of original data is longer than model
+%then trim data to length of original models
 %compare SE at each point (from front and back) with deviation of fh model
 %start and stop when deviation exceeds SE of data
-
-start = find(abs(fhM>0),1,'first');
-finish = find(abs(fhM>0),1,'last');
-
-fhM = fhM(start:finish);
-shM = shM(start:finish);
-
-fhZ = fhZ(:,start:finish);
-shZ = shZ(:,start:finish);
-
-Z2fhM = Z2fhM(:,start:finish);
-Z2shM = Z2shM(:,start:finish);
-
+if max_length > lengthfhM
+    startM = find(abs(fhM>0),1,'first');
+    finishM = find(abs(fhM>0),1,'last');
+        
+    Z2fhM = Z2fhM(:,startM:finishM);
+    Z2shM = Z2shM(:,startM:finishM);
+elseif max_length < lengthfhM
+    %if model is longer than data, then trim model
+    %compare SE at each point (from front and back) with deviation of fh model
+    %start and stop when deviation exceeds SE of data
+%     S_Z = std(Z2fhM(Z2fhM ~= 0));%take only data that are not 0 (i.e. padding)
+%     SE_Z = S_Z/sqrt(n_samples);
+%     
+    [~,peakZidx] = max(mean(Z2fhM));
+    [~,peakMidx] = max(fhM);
+%     start = find(abs(Z2fhM>SE_Z),1,'first');
+%     finish = find(abs(Z2fhM>SE_Z),1,'last');
+    
+    left = peakZidx - peakMidx;
+    right = left + lengthfhM;
+    if left > 0
+        
+        Z2fhM  = Z2fhM(left:right);
+        Z2shM  = Z2shM(left:right);
+    else
+        
+    end
+end
 
 %Get standard deviation at each point
-
-S_fhM = std(fhZ);
-S_shM = std(shZ);
+if isfield(pulse_model,'fhS')
+    S_fhM = fhS;
+    S_shM = shS;
+else
+    S_fhM = std(fhZ);
+    S_shM = std(shZ);
+end
 
 S_ar_fh = repmat(S_fhM,size(Z2fhM,1),1);
 S_ar_sh = repmat(S_shM,size(Z2shM,1),1);

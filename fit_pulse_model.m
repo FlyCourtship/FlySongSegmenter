@@ -39,9 +39,7 @@ if n_samples >1
     
     
     [fhZ,fhM] = alignpulses(Z,20);
-    %fhZ = realign_abberant_peaks(fhZ,fhM);
-    
-    
+        
     %Generate second harmonic model
     fprintf('Fitting second harmonic model\n')
     
@@ -54,22 +52,7 @@ if n_samples >1
     shZ = alignpulses2model(fhZ,shM);
     shZ = scaleZ2M(shZ,fhM);
     
-    % %Generate third harmonic model
-    % 1 Jan 2011 - After further exploration, I find no evidence that the third
-    % harmonic provides a suitable model for any real pulses. Fits only some
-    % noise better. Delete all third harmonic modeling from code
-    %
-    % fprintf('Fitting third harmonic model\n')
-    %
-    % thM = decimate(fhM,3);
-    % delta = abs(length(thM) - length(fhM));
-    % left_pad = round(delta/2);
-    % right_pad = delta -left_pad;
-    % thM = [zeros(left_pad,1)',thM,zeros((right_pad),1)'];
-    %
-    % thZ = alignpulses2model(fhZ,thM);
-    % thZ = scaleZ2M(thZ,fhM);
-    
+   
     %Generate phase reversed model
     fprintf('Fitting phase reversed model\n')
     
@@ -86,13 +69,6 @@ if n_samples >1
     shRZ = alignpulses2model(Z,shRM);
     shRZ  = scaleZ2M(shRZ,shRM);
     
-    % %Generate phase reversed third harmonic model
-    % fprintf('Fitting phase reversed third harmonic model\n')
-    %
-    % thRM = -thM;
-    %
-    % thRZ = alignpulses2model(Z,thRM);
-    % thRZ  = scaleZ2M(thRZ,thRM);
     
     chisq=zeros(n_samples,4);
     for n=1:n_samples;
@@ -102,19 +78,13 @@ if n_samples >1
         %calc chi-square for second harmonic model
         chisq(n,2) = ...
             mean((shZ(n,:) - shM).^2./var(shZ(n,:)));
-        % %calc chi-square for third harmonic model
-        %     chisq(n,3) = ...
-        %         mean((thZ(n,:) - thM).^2./var(thZ(n,:)));
-        %calc chi-square for reversed model
+         %calc chi-square for reversed model
         chisq(n,3) = ...
             mean((fhRZ(n,:) - fhRM).^2./var(fhRZ(n,:)));
         %calc chi-square for reversed second harmonic model
         chisq(n,4) = ...
             mean((shRZ(n,:) - shRM).^2./var(shRZ(n,:)));
-        % %calc chi-square for reversed third harmonic model
-        %     chisq(n,6) = ...
-        %         mean((thRZ(n,:) - thRM).^2./var(thRZ(n,:)));
-        
+         
     end
     
     [best_chisqr,best_chisqr_idx] = min(chisq,[],2);
@@ -126,22 +96,13 @@ if n_samples >1
         end
     end
     
-    %use rem(number,2) to determine if even (false =0) or odd (true = 1)
     
-    %%
-    %%This redefines fhZ to be only those data that fit fhM best
-    %%
     
     %grab events that are reasonable fits (chisq < 1.5) and fit first harmonic model better
     fhZ4M = fhZ(best_chisqr <1.5 & best_chisqr_idx == 1 | best_chisqr_idx == 3,:);
     %grab events that fit second harmonic model better
-    %shZ = Z(best_chisqr_idx == 2 | best_chisqr_idx == 5,:);
     shZ4M = fhZ(best_chisqr <1.5 & best_chisqr_idx == 2 | best_chisqr_idx == 4,:);
-    %grab events that fit second harmonic model better
-    %thZ = Z(best_chisqr_idx == 3 | best_chisqr_idx == 6,:);
-    %thZ4M = fhZ(best_chisqr <1.5 & best_chisqr_idx == 3 | best_chisqr_idx == 6,:);
-    
-    %%
+     
     
     %compare models with Lik analysis
     %first make  de novo models from presumptive first harmonic data
@@ -167,8 +128,8 @@ if n_samples >1
         S_Z = std(Z2nfhM(Z2nfhM ~= 0));%take only data that are not 0 (i.e. padding)
         SE_Z = S_Z/sqrt(n_samples);
         
-        start = find(abs(fhM>SE_Z),1,'first');
-        finish = find(abs(fhM>SE_Z),1,'last');
+        start = find((abs(fhM)>SE_Z),1,'first');
+        finish = find((abs(fhM)>SE_Z),1,'last');
         
         nfhM  = nfhM(start:finish);
         

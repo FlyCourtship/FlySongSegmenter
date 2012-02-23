@@ -1,4 +1,4 @@
-function [data, winnowed_sine, pulseInfo, pulseInfo2, pps, pcndInfo] = Process_Song(xsong)
+function [data, winnowed_sine, pulseInfo, pulseInfo2, pps, pcndInfo] = Process_Song(xsong,xempty)
 
 %USAGE [data, winnowed_sine, pulseInfo, pulseInfo2, pps, pcndInfo] = Process_Song(xsong)
 
@@ -13,9 +13,9 @@ fprintf('Running multitaper analysis on signal.\n')
 data.d = ssf.d;
 data.fs = ssf.fs;
 fprintf('Finding noise.\n')
-% if nargin == 1 %if user provides only xsong
-noise = findnoise(ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
-% end %if user provides both xsong and xempty
+if nargin == 1 %if user provides only xsong
+    noise = findnoise(ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
+end %if user provides both xsong and xempty
 
 %Run lengthfinder4 on ssf, where:
 fprintf('Finding sine.\n')
