@@ -19,12 +19,8 @@ xn = xempty;
 noise = f*mean(abs(xn));                         
 segParams.wnwMinAbsVoltage = noise; 
 
-<<<<<<< HEAD
-segParams.IPI = i; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
-=======
 %2nd winnow
 segParams.IPI = g; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
->>>>>>> recent changes
 
 segParams.frequency = h; %if pulseInfo.fcmx is greater than this frequency, then don't include pulse
 
@@ -58,13 +54,6 @@ for i = 1:numel(wvlt)
     sc(i,:) = scales_for_freqs(fc,1/fs,wvlt{i});
 end
 fprintf('DONE.\n');
-<<<<<<< HEAD
-
-
-
-
-=======
->>>>>>> recent changes
 %% Perform CWT on Signal
 fprintf('PERFORMING CWT SUITE.\n');
 
@@ -165,11 +154,8 @@ sig4Test = smooth(sig4Test,(Fs/1000)+pWid);
 nDat = smooth(nDat,(Fs/1000)+pWid);
 nDat = abs(nDat); %don't want negatives
 
-<<<<<<< HEAD
-=======
 %for debugging
 %figure(1); hold on; plot(xs,'k'); plot(sig4Test,'b');
->>>>>>> recent changes
 %% 
 %Take signal, subtract noise, calculate the mean value of region lowIPI/2
 %either side of pulse and take the maximum of this value (to be used as
@@ -194,12 +180,9 @@ smthThresh = smthSide;
 % smthThresh = max([smthMid smthSide*1.1], [], 2); 
 
 smthThresh(smthThresh < mean(nDat)) = mean(nDat);
-<<<<<<< HEAD
-=======
 
 %for debugging
 %figure(1); hold on; plot(smthThresh,'m');
->>>>>>> recent changes
 %% 
 %Perform Threshold Matching
 thresh = sp.thresh;
@@ -219,11 +202,7 @@ cPnts(i) = cPnts(i) + srtIdx(i) -1;
 end
 
 %for debugging:
-<<<<<<< HEAD
-%figure; plot(xs, 'k'); hold on; plot(cPnts,0.4,'.r'); plot(smthThresh,'b'); plot(sig4Test,'m');
-=======
 %figure(1); hold on; plot(cPnts,1,'.b'); 
->>>>>>> recent changes
 %% Use output of putativepulse2 (pps) to identify regions of song that may contain pulses (and do not contain sines)
 
 tic;
