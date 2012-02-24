@@ -19,8 +19,6 @@ xn = xempty;
 noise = f*mean(abs(xn));                         
 segParams.wnwMinAbsVoltage = noise; 
 
-segParams.IPI = i; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
-
 %for 2nd winnow
 segParams.IPI = g; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
 
