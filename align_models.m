@@ -1,4 +1,4 @@
-function aligned_models = align_models(folder)
+function [aligned_models,file_names] = align_models(folder);
 %USAGE aligned_models = align_models(folder)
 
 %grab models in a folder and put in cell array
