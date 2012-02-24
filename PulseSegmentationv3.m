@@ -496,5 +496,11 @@ if pulseInfo2.w0==0;
     return
 end
 
+%collect together pcnd.x
+pcnd.x = cell(length(pcndInfo.w0),1);
+for i =1:length(pcndInfo.w0)
+    pcnd.x{i} = data.d(pcndInfo.w0(i):pcndInfo.w1(i));
+end
+
 fprintf('%d/%d (%2.1f %%) pulses passed second stage of winnowing.\n',nOk,np,nOk*100/np)
 fprintf('DONE.\n');
