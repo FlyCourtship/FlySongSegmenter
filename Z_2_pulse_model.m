@@ -17,22 +17,17 @@ function [pulse_model,Lik_pulse] = Z_2_pulse_model(pulse_model,new_pulses,sample
 %e.g.
 % pulse_model = 
 % 
-%       fhM: [1x150 double]
-%       shM: [1x150 double]
-%       thM: [1x150 double]
-%       fhZ: [503x150 double]
-%       shZ: [79x150 double]
-%       thZ: [30x150 double]
-%     Z2fhM: [634x150 double]
-%     Z2shM: [634x150 double]
-%     Z2thM: [634x150 double]
+%     fhM: [1x183 double]
+%     shM: [1x168 double]
+%     fhS: [1x183 double]
+%     shS: [1x168 double]
 %
 % new_pulses = pulseInfo.x
 
 fhM = pulse_model.fhM;
 shM = pulse_model.shM;
 lengthfhM = length(fhM);
-shM  = length(shM);
+lengthshM = length(shM);
 
 if isfield(pulse_model,'fhS')
     fhS = pulse_model.fhS;
@@ -82,33 +77,48 @@ for n=1:n_samples;
     Z(n,:) = [zeros(left_pad,1); X ;zeros((right_pad),1)];
 end
 
+%pad models
 
-%
-%pad models to accomodate length of new data
-%
-delta = abs(total_length - lengthfhM);
-left_pad = round(delta/2);
-right_pad = delta -left_pad;
-if total_length > lengthfhM
-    %if new data is longer than model
-    %pad model
-    fhM = [zeros(left_pad,1)',fhM,zeros((right_pad),1)'];
-    shM = [zeros(left_pad,1)',shM,zeros((right_pad),1)'];
-    if isfield(pulse_model,'fhS')
-        fhS = [zeros(left_pad,1)',fhS,zeros((right_pad),1)'];
-        shS = [zeros(left_pad,1)',shS,zeros((right_pad),1)'];
-    else
-        fhZ = [zeros(size(fhZ,1),left_pad) fhZ zeros(size(fhZ,1),right_pad)];
-        shZ = [zeros(size(shZ,1),left_pad) shZ zeros(size(shZ,1),right_pad)];
+fhPad = round(lengthfhM /2);
+shPad = round(lengthshM /2);
+
+fhM = [zeros(fhPad,1)', fhM , zeros(fhPad,1)'];
+fhS = [zeros(fhPad,1)', fhS , zeros(fhPad,1)'];
+shM = [zeros(shPad,1)', shM , zeros(shPad,1)'];
+shS = [zeros(shPad,1)', shS , zeros(shPad,1)'];
+
+
+%double check to ensure lengths of model and data are equal
+%first harmonic first
+if ~isequal(total_length,length(fhM))
+    diff = total_length - length(fhM);
+    if diff > 1 %if data longer than model, add zeros(diff,1) to end of model
+        fhM = [fhM, zeros(diff,1)'];
+        fhS = [fhS, zeros(diff,1)'];
+    else %add zeros to end of data
+        Z = [Z,zeros(size(Z,1),-diff)];%take neg diff, because is neg
     end
-
-    
-elseif lengthfhM > total_length
-    %if model is longer than data
-    %pad data
-    Z = [zeros(size(Z,1),left_pad) Z zeros(size(Z,1),right_pad)];
 end
-        
+%then second harmonic
+if ~isequal(size(Z,2),length(shM))
+    diff = size(Z,2) - length(shM);
+    if diff > 1 %if data longer than model
+        shM = [shM, zeros(diff,1)'];
+        shS = [shS, zeros(diff,1)'];
+    else %this is a very unlikely scenario, go ahead and trim second harmonic model is somehow longer than data
+        if mod(diff,2)%if diff is odd 
+            left_trim =round(diff/2);
+            right_trim = left_trim - 1 ;
+            shM = shM(left_trim:end-right_trim);
+            shS = shS(left_trim:end-right_trim);
+        else
+            trim = diff/2;
+            shM= shM(trim:end-trim);
+            shS= shS(trim:end-trim);
+        end
+    end
+end
+
 
 %align new data to old models
 
@@ -167,38 +177,78 @@ Z2shM = alignpulses2model(Z,shM);
 Z2shM = scaleZ2M(Z2shM,shM);
 
 
+%trim data and model down to relevant parts (no padding) for first harmonic
+
 %If length of original data is longer than model
 %then trim data to length of original models
-%compare SE at each point (from front and back) with deviation of fh model
-%start and stop when deviation exceeds SE of data
-if max_length > lengthfhM
+
+%if data longer than model, just trim to model
+if max_length > lengthfhM %max_length is from data (Z)
     startM = find(abs(fhM>0),1,'first');
     finishM = find(abs(fhM>0),1,'last');
-        
+    fhM = fhM(startM:finishM);
+    if isfield(pulse_model,'fhS')
+        fhS = fhS(startM:finishM);
+    else
+        fhZ = fhZ(:,startM:finishM);
+    end    
+
     Z2fhM = Z2fhM(:,startM:finishM);
-    Z2shM = Z2shM(:,startM:finishM);
+
+%if model longer than data, trim as follows
+%compare SE of Z at each point (from front and back) with deviation of fh model
+%start and stop when deviation exceeds SE of data
 elseif max_length < lengthfhM
     %if model is longer than data, then trim model
     %compare SE at each point (from front and back) with deviation of fh model
     %start and stop when deviation exceeds SE of data
-%     S_Z = std(Z2fhM(Z2fhM ~= 0));%take only data that are not 0 (i.e. padding)
-%     SE_Z = S_Z/sqrt(n_samples);
-%     
-    [~,peakZidx] = max(mean(Z2fhM));
-    [~,peakMidx] = max(fhM);
-%     start = find(abs(Z2fhM>SE_Z),1,'first');
-%     finish = find(abs(Z2fhM>SE_Z),1,'last');
-    
-    left = peakZidx - peakMidx;
-    right = left + lengthfhM;
-    if left > 0
-        
-        Z2fhM  = Z2fhM(left:right);
-        Z2shM  = Z2shM(left:right);
+    S_Z = std(Z2fhM(Z2fhM ~= 0));%take only data that are not 0 (i.e. padding)
+    SE_Z = S_Z/sqrt(n_samples);
+    startZ = find((abs(mean(Z2fhM))>SE_Z),1,'first');
+    finishZ = find((abs(mean(Z2fhM))>SE_Z),1,'last');
+    fhM = fhM(startZ:finishZ);
+    if isfield(pulse_model,'fhS')
+        fhS = fhS(startZ:finishZ);
     else
-        
+        fhZ = fhZ(:,startZ:finishZ);
     end
+    Z2fhM = Z2fhM(:,startZ:finishZ);
 end
+
+%trim data and model down to relevant parts (no padding) for second harmonic
+
+if max_length > lengthshM %max_length is from data (Z)
+    startM = find(abs(shM>0),1,'first');
+    finishM = find(abs(shM>0),1,'last');
+    shM = shM(startM:finishM);
+    if isfield(pulse_model,'fhS')
+        shS = shS(startM:finishM);
+    else
+        shZ = shZ(:,startM:finishM);
+    end    
+    Z2shM = Z2shM(:,startM:finishM);
+
+%if model longer than data, trim as follows
+%compare SE of Z at each point (from front and back) with deviation of fh model
+%start and stop when deviation exceeds SE of data
+elseif max_length < lengthshM
+    %if model is longer than data, then trim model
+    %compare SE at each point (from front and back) with deviation of fh model
+    %start and stop when deviation exceeds SE of data
+    S_Z = std(Z2shM(Z2shM ~= 0));%take only data that are not 0 (i.e. padding)
+    SE_Z = S_Z/sqrt(n_samples);
+    startZ = find((abs(mean(Z2shM))>SE_Z),1,'first');
+    finishZ = find((abs(mean(Z2shM))>SE_Z),1,'last');
+    shM = shM(startZ:finishZ);
+    if isfield(pulse_model,'fhS')
+        shS = shS(startZ:finishZ);
+    else
+        shZ = shZ(:,startZ:finishZ);
+    end
+    Z2shM = Z2shM(:,startZ:finishZ);
+end
+
+
 
 %Get standard deviation at each point
 if isfield(pulse_model,'fhS')

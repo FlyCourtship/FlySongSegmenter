@@ -169,6 +169,14 @@ if n_samples >1
         Z2nshM = alignpulses2model(fhZ,nshM);
         Z2nshM  = scaleZ2M(Z2nshM,nshM);
                 
+        %compare SE at each point (from front and back) with deviation of fh model
+        %start and stop when deviation exceeds SE of data
+        S_Z = std(Z2nshM(Z2nshM ~= 0));%take only data that are not 0 (i.e. padding)
+        SE_Z = S_Z/sqrt(n_samples);
+        
+        start = find((abs(shM)>SE_Z),1,'first');
+        finish = find((abs(shM)>SE_Z),1,'last');
+  
         nshM  = nshM(start:finish);
         shZ4M = shZ4M(:,start:finish);
         
