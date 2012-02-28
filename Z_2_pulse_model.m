@@ -88,6 +88,9 @@ shM = [zeros(shPad,1)', shM , zeros(shPad,1)'];
 if isfield(pulse_model,'fhS')
     fhS = [zeros(fhPad,1)', fhS , zeros(fhPad,1)'];
     shS = [zeros(shPad,1)', shS , zeros(shPad,1)']; 
+else
+    fhZ = [zeros(size(fhZ,1),fhPad,1), fhZ , zeros(size(fhZ,1),fhPad,1)];
+    shZ = [zeros(size(shZ,1),shPad,1), shZ , zeros(size(shZ,1),shPad,1)];
 end
 
 
