@@ -8,16 +8,15 @@ for i = 1:size(winnowed_sine.clips);
     ym = winnowed_sine.clips{i};
     r = length(ym);
     sec = r/10000;
-    wnd = 22050*sec;
+    wnd = round(22050*sec);
     z = resample(ym,22050,10000);
     
-    M=[];
+    voltage=[];
     [Sn,F] = spectrogram(z,wnd,[],nfft,Fs);
     a = find(F>80 & F<250);
     freq2 = F(a);
     voltage = abs(Sn(a,:));
-    M = mean(voltage,2);
 
-    [C,I] = max(M); %I = index of max of of the signal between 80-250Hz
+    [C,I] = max(voltage); %I = index of max of of the signal between 80-250Hz
     maxFFTFreq(i) = freq2(I); %the frequency with this index
 end
