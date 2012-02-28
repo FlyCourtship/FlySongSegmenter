@@ -83,9 +83,13 @@ fhPad = round(lengthfhM /2);
 shPad = round(lengthshM /2);
 
 fhM = [zeros(fhPad,1)', fhM , zeros(fhPad,1)'];
-fhS = [zeros(fhPad,1)', fhS , zeros(fhPad,1)'];
 shM = [zeros(shPad,1)', shM , zeros(shPad,1)'];
-shS = [zeros(shPad,1)', shS , zeros(shPad,1)'];
+
+if isfield(pulse_model,'fhS')
+    fhS = [zeros(fhPad,1)', fhS , zeros(fhPad,1)'];
+    shS = [zeros(shPad,1)', shS , zeros(shPad,1)']; 
+end
+
 
 
 %double check to ensure lengths of model and data are equal
