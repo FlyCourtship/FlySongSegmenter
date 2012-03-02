@@ -23,8 +23,8 @@ for y = 1:file_num
     
     
     if TG == 1
-        if isempty(strfind(root,'pm'))
-        else
+%         if isempty(strfind(root,'pm'))
+%         else
             plotnum = plotnum + 1;
             axes(ax(plotnum));
             
@@ -47,7 +47,9 @@ for y = 1:file_num
                 text(1,bottom+ std(min(pulse_model.fhZ)),ch,'FontSize',10);
                 hold off
             end
-        end
+            text(1,bottom+ std(min(pulse_model.fhZ)),ch,'FontSize',10);
+
+            %         end
     end
 end
 [pathstr,name,~]=fileparts(folder);

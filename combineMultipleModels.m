@@ -1,7 +1,18 @@
-function combined_pulse_model = combineMultipleModels(folder)
-%USAGE combined_pulse_model = combinedMultipleModels(folder)
+function combined_pulse_model = combineMultipleModels(folder,pulse_model_name)
+%USAGE combined_pulse_model = combineMultipleModels(folder,pulse_model_name)
 %build a pulse model from the data present in a pulsemodel structure 
 %from multiple individuals
+
+%pulse_model_name is a string indicating pulse_model to pool
+% 'pulse_model' or 'culled_pulse_model'
+
+if nargin <2
+    fprintf('You must also enter the pulse_model to analyze as a string. e.g. "culled_pulse_model"\n')
+    return
+else
+    pm_name = char(pulse_model_name);
+end
+
 
 [poolavail,isOpen] = check_open_pool;
 
@@ -27,13 +38,14 @@ for y = 1:file_num
     
     if TG == 1
         i = i+1;
-        if strfind(root,'pm') ~= 0
+%         if strfind(root,'pm') ~= 0
             %get plot data and limits
-            load(path_file,'pulse_model');
+            pM = load(path_file,pm_name);
             file_names{i} = file;
-            fhZ_size(i) = size(pulse_model.fhZ,1);
-            shZ_size(i) = size(pulse_model.shZ,1);
-        end
+            
+            fhZ_size(i) = size(pM.(pm_name).fhZ,1);
+            shZ_size(i) = size(pM.(pm_name).shZ,1);
+%         end
     end
 end
 
@@ -54,7 +66,7 @@ shZNum = 0;
 for y = 1:file_num
     %reload each file
     path_file = [folder file_names{y}];
-    load(path_file,'pulse_model')
+    pM = load(path_file,pm_name);
     %
     %pad old data
     %
@@ -62,8 +74,8 @@ for y = 1:file_num
 %     delta = length(pulse_model.fhM);
 %     left_pad = round(delta/2);
 %     right_pad = delta -left_pad;
-    fhZ = pulse_model.fhZ;
-    shZ = pulse_model.shZ;
+    fhZ = pM.(pm_name).fhZ;
+    shZ = pM.(pm_name).shZ;
 %     fhZ = [zeros(size(fhZ,1),left_pad) fhZ zeros(size(fhZ,1),right_pad)];
 %     shZ = [zeros(size(shZ,1),left_pad) shZ zeros(size(shZ,1),right_pad)];
     
@@ -81,7 +93,7 @@ end
 
 
 %Make new models
-fprintf('Making first harmonic model');
+fprintf('Making first harmonic model\n');
 %grab samples, center, and pad
 %first harmonic
 n_samples = numfhZ;
@@ -102,7 +114,7 @@ end
 [fhZ,fhM] = alignpulses(fhZ,20);
 
 %second harmonic
-fprintf('Making second harmonic model');
+fprintf('Making second harmonic model\n');
 n_samples = numshZ;
 max_length = max(cellfun(@length,shZAll));
 total_length = 2* max_length;

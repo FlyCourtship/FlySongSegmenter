@@ -23,16 +23,20 @@ for y = 1:file_num
     
     if TG == 1
         i = i+1;
-        if strfind(root,'_ipi_ipiStatsLomb') ~= 0
+%         if strfind(root,'_ipi_ipiStatsLomb') ~= 0
             %get plot data and limits
-            load(path_file,'ipiStats','culled_ipi');
+            load(path_file,'ipiStatsLomb');
             file_names{i} = file;
+          
+            ipiStats = ipiStatsLomb.ipiStats;
+            culled_ipi = ipiStatsLomb.culled_ipi;
+            
             mu1(i) = ipiStats.mu1;
             mu2(i) = ipiStats.mu2;
             Sigma1(i) = ipiStats.S1;
             Sigma2(i) = ipiStats.S2;
             N(i) = numel(culled_ipi.d);
-        end
+%         end
     end
 end
 
@@ -42,3 +46,4 @@ ipiStatsAll.Sigma1 = Sigma1(Sigma1~=0);
 ipiStatsAll.Sigma2 = Sigma2(Sigma2~=0);
 ipiStatsAll.N = N(Sigma2~=0);
 file_names(cellfun('isempty',file_names))=[];
+    

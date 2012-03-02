@@ -1,12 +1,15 @@
-function ipi = fit_ipi_model(pulseInfo,fs)
-%ipi = fit_ipi_model(pulseInfo,fs)
+function ipi = fit_ipi_model(pulseInfo,numComponents)
+%ipi = fit_ipi_model(pulseInfo)
 %provide pulses
-%return info about ipis
+%return info about ipis, time in second (not samples)
 
 %p are pulses (=pulseInfo2.wc)
 fprintf('fitting ipi model\n')
-p = pulseInfo.wc ./ fs;
+p = pulseInfo.wc;
 
+if nargin <2
+    numComponents = 6;
+end
 
 %fit mixture model, take fit capturing most data
 %first, grab all ipis
@@ -14,10 +17,10 @@ p = pulseInfo.wc ./ fs;
 p_shift_one = circshift(p,[0 -1]);
 ipi_d=p_shift_one(1:end-1)-p(1:end-1);
 %Test range of gmdistribution.fit parameters
-AIC=zeros(1,6);
-obj=cell(1,6);
+AIC=zeros(1,numComponents);
+obj=cell(1,numComponents);
 options = statset('MaxIter',500);
-for k=1:6
+for k=1:numComponents
     try
 %        fprintf('iter\n')
         obj{k}=gmdistribution.fit(ipi_d',k,'options',options);
@@ -51,5 +54,5 @@ catch
     obj{1} = original_ipi.fit;
 end
 
-ipi_time = pulseInfo.wc(1:end-1);
+ipi_time = p(1:end-1);
 ipi = struct('u',ipi_mean,'S',ipi_SD,'d',ipi_d,'t',ipi_time,'fit',obj{numComponents});%results in units of samples

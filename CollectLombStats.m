@@ -20,14 +20,15 @@ for y = 1:file_num
     
     if TG == 1
         i = i+1;
-        if strfind(root,'_ipi_ipiStatsLomb') ~= 0
+%         if strfind(root,'_ipi_ipiStatsLomb') ~= 0
             %get plot data and limits
-            load(path_file,'lomb');
+            load(path_file,'ipiStatsLomb');
+            lomb = ipiStatsLomb.lomb;
             file_names{i} = file;
             F{i} = lomb.F;
             Alpha{i} = lomb.Alpha;
             Peaks{i} = lomb.Peaks;
-        end
+%         end
     end
 end
 

@@ -1,8 +1,12 @@
-function [fileNames, periodsMulti] = findPeriodMulti(folder)
+function [fileNames, periodsMulti] = findPeriodMulti(folder,pulseModel_name)
 %USAGE maxfreqMulti = fftpmMulti(folder)
 %calculate dominant frequency in each pulse model in a folder
+%pulseModel_name = e.g. 'pulse_model'
+
 
 %grab models in a folder and put in cell array
+
+pM_name = char(pulseModel_name);
 
 sep = filesep;
 dir_list = dir(folder);
@@ -22,12 +26,16 @@ for y = 1:file_num
     
     if TG == 1
         i = i+1;
-        if strfind(root,'pm') ~= 0
+%         if strfind(root,'pm') ~= 0
             %get plot data and limits
-            load(path_file,'pulse_model');
+            
+            pMData = load(path_file,pM_name);
+            pulse_model = pMData.(pM_name);
+
+%             load(path_file,'pulse_model');
             fileNames{i} = file;
             periodsMulti(i) = findPeriod(pulse_model.fhM);
-        end
+%         end
     end
 end
 

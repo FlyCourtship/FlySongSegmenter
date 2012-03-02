@@ -1,37 +1,47 @@
-function fit_pulse_model_multi(folder,pulseInfo_ver)
-%
-%pulseInfo_ver can take '1', '2', 'pcnd'
+function fit_pulse_model_multi(folder,pulseInfo_name)
+%USAGE fit_pulse_model_multi(folder,pulseInfo_name)
+%pulseInfo_name can take 'pulseInfo', 'pulseInfo2', etc.
 
-%Indicate here which version of pulseInfo to use
-if nargin <2
-    pulseInfo_ver = '1';
-end
+pI_name = char(pulseInfo_name);
 
 [poolavail,isOpen] = check_open_pool;
 
-sep = filesep;
+%sep = filesep;
 dir_list = dir(folder);
 file_num = length(dir_list);
 
 for y = 1:file_num
     file = dir_list(y).name; %pull out the file name
     [~,root,ext] = fileparts(file);
-    path_file = [folder sep file];
+    path_file = [folder file];
     TG = strcmp(ext,'.mat');
     
     
     if TG == 1
+        
+        pIData = load(path_file,pI_name);
+        pI_data = pIData.(pI_name);
+        [pulse_model,Lik_pulse] = fit_pulse_model(pI_data.x);
+        
+        
+        W = who('-file',path_file);
+        varstruc =struct;
         load(path_file);
-        if pulseInfo_ver == '1'
-            [pulse_model,Lik_pulse] = fit_pulse_model(pulseInfo.x);
-        elseif pulseInfo_ver == '2'
-            [pulse_model,Lik_pulse] = fit_pulse_model(pulseInfo2.x);
-        elseif pulseInfo_ver == 'pcnd'
-            [pulse_model,Lik_pulse] = fit_pulse_model(pcndInfo.x);
+    
+        for ii = 1:numel(W)
+            varstruc.(W{ii}) = eval(W{ii});
         end
-        out_file = [folder sep root '_pm.mat'];
-        save(out_file,'pulse_model','Lik_pulse','-mat')
+        varstruc.pulse_model = pulse_model;
+        varstruc.Lik_pulse = Lik_pulse;
+        
+        varstruc.pulse_model.variables.pulseInfo_ver = pI_name;
+        varstruc.pulse_model.variables.date = date;
+        varstruc.pulse_model.variables.time = clock;
+        save(path_file,'-struct','varstruc','-mat')%save all variables in original file
+       
     end
 end
 
 check_close_pool(poolavail,isOpen)
+
+
