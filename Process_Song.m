@@ -63,6 +63,15 @@ else
     winnowed_sine = sine;
 end
 
+
+%sine sone is calculated in seconds. Some day, I should go back and change
+%to sample units. For now, just backconvert the times to sample units.
+winnowed_sine.start = winnowed_sine.start .* data.fs;
+winnowed_sine.stop = winnowed_sine.stop .* data.fs;
+for i=1:numel(winnowed_sine.events)
+    winnowed_sine.events{i} = winnowed_sine.events{i} .* data.fs;
+end
+
 clear pm_ssf pm_sine
 check_close_pool(poolavail,isOpen);
 
