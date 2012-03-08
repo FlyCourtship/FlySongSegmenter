@@ -37,7 +37,7 @@ zoom xon;
 num_events=length(winnowed_sine.start);
 if num_events>0
     for n = 1:size(winnowed_sine.start,1)
-        x_start = round(winnowed_sine.start(n)*ssf.fs);
+        x_start = round(winnowed_sine.start(n));
         x_stop = round(x_start + size(winnowed_sine.clips{n},1));
         time = (x_start:x_stop-1);
         y = winnowed_sine.clips{n};

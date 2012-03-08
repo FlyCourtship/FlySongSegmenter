@@ -60,7 +60,7 @@ param.high_freq_cutoff = 200;
 param.cutoff_sd = 3;
 plotnum = 0;
 clf;
-figure('OuterPosition',[0 0 ncolumns*200 nchannels*100]);
+h = figure('OuterPosition',[0 0 ncolumns*200 nchannels*100]);
 ax = tight_subplot(nchannels,ncolumns+1,[.005 .01],[.01 .01],[.01 .01]);
 
 for y = channels
@@ -201,10 +201,11 @@ fprintf('Saving figure.\n')
 [pathstr, name, ~] = fileparts(daqfile);
 if nchannels ~= length(daqinfo.ObjInfo.Channel);
     fileName_channels = sprintf('_%d',channels);
-    outfile = [pathstr name '_ch' fileName_channels '.png'];
+    outfile = [pathstr filesep name '_ch' fileName_channels '.png'];
 else
-    outfile = [pathstr name '.png'];
+    outfile = [pathstr filesep name '.png'];
 end
 warning('off','MATLAB:LargeImage')
 export_fig(outfile,'-r300');
+close(h);
     

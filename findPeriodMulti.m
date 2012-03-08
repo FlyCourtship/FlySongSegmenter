@@ -1,5 +1,5 @@
 function [fileNames, periodsMulti] = findPeriodMulti(folder,pulseModel_name)
-%USAGE maxfreqMulti = fftpmMulti(folder)
+%USAGE maxfreqMulti = fftpmMulti(folder,pulseModel_name)
 %calculate dominant frequency in each pulse model in a folder
 %pulseModel_name = e.g. 'pulse_model'
 

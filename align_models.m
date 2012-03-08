@@ -1,5 +1,12 @@
-function [aligned_models,file_names] = align_models(folder)
-%USAGE aligned_models = align_models(folder)
+function [aligned_models,file_names] = align_models(folder,pulse_model_name)
+%USAGE aligned_models = align_models(folder,pulse_model_name)
+
+if nargin <2 
+    pM_name = 'pulse_model';
+else
+    pM_name = char(pulse_model_name);
+end
+
 
 %grab models in a folder and put in cell array
 
@@ -19,12 +26,12 @@ for y = 1:file_num
     
     if TG == 1
         i = i+1;
-%         if strfind(root,'pm') ~= 0
             %get plot data and limits
-            load(path_file,'pulse_model');
+%             load(path_file,pM_name);
+            pMData = load(path_file,pM_name);
+            pM_data = pMData.(pM_name);
             file_names{i} = file;
-            model_array{i} = pulse_model.fhM';
-%         end
+            model_array{i} = pM_data.fhM';
     end
 end
 
@@ -81,6 +88,7 @@ aligned_models = Z;
 [pathstr,name,~]=fileparts(folder);
 r=regexp(pathstr,'/','split');
 folder_name = char(r(end));
+variables.pulse_model_name = pM_name;
 variables.date = date;
 variables.time = clock;
     

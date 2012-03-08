@@ -1,5 +1,5 @@
-function [file_names F FMat Alpha AlphaMat Peaks PeaksMat] = CollectLombStats(folder)
-%USAGE [file_names F FMat Alpha AlphaMat Peaks PeaksMat] = CollectLombStats(folder)
+function [file_names LombStats LombStatsMat] = CollectLombStats(folder)
+%USAGE [file_names LombStats LombStatsMat] = CollectLombStats(folder)
 sep = filesep;
 dir_list = dir(folder);
 file_num = length(dir_list);
@@ -40,3 +40,10 @@ file_names(cellfun('isempty',file_names))=[];
 FMat=cat(1,F{:});
 AlphaMat = cat(1,Alpha{:});
 PeaksMat = cat(1,Peaks{:});
+
+LombStats.F = F;
+LombStats.Alpha = Alpha;
+LombStats.Peaks = Peaks;
+LombStatsMat.F = FMat;
+LombStatsMat.Alpha = AlphaMat;
+LombStatsMat.Peaks = PeaksMat;

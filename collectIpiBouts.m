@@ -35,7 +35,7 @@ for y = 1:file_num
         
         x = [];
         for i = 2:numel(t);
-            if t(i) - t(i-1) ~= d(i-1)
+            if t(i) - t(i-1) ~= d(i-1)%collect ipis where the ipi matches the distance between pulses
                 stopIdx(j) = i-1;
                 j=j+1;
                 startIdx(j) = i;
