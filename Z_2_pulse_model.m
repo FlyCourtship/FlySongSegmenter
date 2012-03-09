@@ -3,6 +3,9 @@ function [pulse_model,Lik_pulse] = Z_2_pulse_model(pulse_model,new_pulses,sample
 %[pulse_model,Lik_pulse] = Z_2_pulse_model(pulse_model,new_pulses)
 %[pulse_model,Lik_pulse] = Z_2_pulse_model(pulse_model,new_pulses,sample_freqs)
 %USAGE
+%If the model and data were sampled at different sampling frequnecies, then
+%enter this in sample_freqs
+%sample_freqs e.g. [1e4 4e4] as the freqs for the model and new_pulses
 %
 %provide sample of pulses
 %return pulse model & std etc and Lik of individual pulses given the model

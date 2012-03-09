@@ -1,5 +1,5 @@
 function [file_names Bouts] = CollectBouts(folder)
-%USAGE  [file_names Pauses PausesMat] = CollectBouts(folder)
+%USAGE  [file_names Bouts] = CollectBouts(folder)
 
 sep = filesep;
 dir_list = dir(folder);

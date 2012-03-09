@@ -10,7 +10,7 @@ p = pulseInfo.wc;
 if nargin <2
     numComponents = 6;
 end
-
+numComponents
 %fit mixture model, take fit capturing most data
 %first, grab all ipis
 
