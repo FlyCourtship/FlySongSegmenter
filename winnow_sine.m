@@ -105,7 +105,7 @@ end
 %MeanFundFreq=zeros(NumBouts,1);
 %MedianFundFreq=zeros(NumBouts,1);
 sine_bout_events=cell(NumBouts,1);
-
+sine_bout_power = cell(NumBouts,1);
 for i = 1:NumBouts
     sine_bout = sine_start(i):1/ssf.fs:sine_stop(i);
     
@@ -118,14 +118,23 @@ for i = 1:NumBouts
 
     
     %values = [];
-    
     values = ssf.events(event_times,2);
-    
+    times = ssf.events(event_times,1);
+    times = times(values>=min);
+    times = times(values<=max);
     values = values(values>=min);%take only values that fall between min and max
     values = values(values<=max);
+    
     %MeanFundFreq(i) = mean(values);
     %MedianFundFreq(i) = median(values);
     sine_bout_events{i} = values;
+    times = round(times * 10^sigdig)./(10^sigdig);
+    power = zeros(numel(times),1);
+    for j = 1:numel(times)
+        power(j) = ssf.A(ssf.f == values(j),ssf.t == times(j));
+    end
+    sine_bout_power{i} = power;
+    
 end
     
     
@@ -137,6 +146,8 @@ winnowed_sine.stop = sine_stop';
 %winnowed_sine.MedianFundFreq=MedianFundFreq';
 winnowed_sine.clips = sine_clips;
 winnowed_sine.events = sine_bout_events;
+winnowed_sine.power = sine_bout_power;
+winnowed_sine.powerMat = cell2mat(sine_bout_power);
 
 %winnowed_sine.all_sine = all_sine;
 %winnowed_sine.winnowed_sine1 = winnowed_sine_1;
