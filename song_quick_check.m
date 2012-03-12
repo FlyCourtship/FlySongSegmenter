@@ -82,19 +82,24 @@ for y = channels
     
     %grab short snip of song to find noise
     fprintf('Finding noise.\n')
-    [ssf] = sinesongfinder(snip,fs,10,6,.1,.05,.05); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
+    [ssf] = sinesongfinder(snip,fs,12,20,.1,.05,.05); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
     
     %find noise
-    try%sometimes may fail to generate noise file. Then, just abort plot
-        xempty = segnspp(ssf,param);
-        noise = 'noise';
-        cutoff = 5 * std(xempty);
-    catch
-        noise = 'nonoise';
-        cutoff = 5*5e-3;
-    end
-    %fprintf('Running multitaper analysis on noise.\n')
-    %[noise_ssf] = sinesongfinder(xempty,fs,20,12,.1,.01,.05); %returns noise_ssf
+     try%sometimes may fail to generate noise file. Then, just abort plot
+        xempty = findnoise(ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
+     catch
+         fprintf('findnoise failed')
+     end
+     if isfield(xempty,'sigma')
+         % noise.sigma = std(xempty);
+         noise = 'noise';
+         cutoff = 5 * xempty.sigma;
+     else
+         noise = 'nonoise';
+         cutoff = 5*5e-3;
+     end
+     %fprintf('Running multitaper analysis on noise.\n')
+     %[noise_ssf] = sinesongfinder(xempty,fs,20,12,.1,.01,.05); %returns noise_ssf
         
     if strcmp(noise,'noise') == 1
         
