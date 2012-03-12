@@ -90,7 +90,7 @@ for y = channels
      catch
          fprintf('findnoise failed')
      end
-     if isfield(xempty,'sigma')
+     if exist('xempty','var')
          % noise.sigma = std(xempty);
          noise = 'noise';
          cutoff = 5 * xempty.sigma;
