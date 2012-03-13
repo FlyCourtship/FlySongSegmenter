@@ -120,10 +120,8 @@ for i = 1:NumBouts
     %values = [];
     values = ssf.events(event_times,2);
     times = ssf.events(event_times,1);
-    times = times(values>=min);
-    times = times(values<=max);
-    values = values(values>=min);%take only values that fall between min and max
-    values = values(values<=max);
+    times= times(values>=min & values <= max);
+    values = values(values>=min & values <=max);%take only values that fall between min and max
     
     %MeanFundFreq(i) = mean(values);
     %MedianFundFreq(i) = median(values);
