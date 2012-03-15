@@ -40,7 +40,7 @@ if numel(pps.start) > 0
         pm_ssf = sinesongfinder(pm_xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,1); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
         
         fprintf('Finding sine in pulse-masked signal.\n')
-        pm_sine = lengthfinder4(pm_ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps); %returns sine, which is a structure containing the following fields:
+        pm_sine = findsine(pm_ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps); %returns sine, which is a structure containing the following fields:
         
         % Use results of PulseSegmentation to winnow sine song (remove sine that overlaps pulse)
         %Run only if there is any sine
@@ -66,10 +66,10 @@ end
 
 %sine sone is calculated in seconds. Some day, I should go back and change
 %to sample units. For now, just backconvert the times to sample units.
-winnowed_sine.start = winnowed_sine.start .* data.fs;
-winnowed_sine.stop = winnowed_sine.stop .* data.fs;
+winnowed_sine.start = round(winnowed_sine.start .* data.fs);
+winnowed_sine.stop = round(winnowed_sine.stop .* data.fs);
 for i=1:numel(winnowed_sine.events)
-    winnowed_sine.events{i} = winnowed_sine.events{i} .* data.fs;
+    winnowed_sine.events{i} = round(winnowed_sine.events{i} .* data.fs);
 end
 
 clear pm_ssf pm_sine
