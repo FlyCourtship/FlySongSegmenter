@@ -95,8 +95,8 @@ Cs = zeros(length(fc),length(xs),numel(wvlt));Cn = zeros(length(fc),length(xn),n
         fprintf('\t%s\n',wvlt{i});
         fprintf('\t\t...on Signal\n');
         Cs(:,:,i) = cwt(xs,sc(i,:),wvlt{i}); %wavelet transformation on signal for that scale and that wavelet
-        fprintf('\t\t...on Noise\n');
-        Cn(:,:,i) = cwt(xn,sc(i,:),wvlt{i}); %wavelet transformation on noise for that scale and that wavelet
+%         fprintf('\t\t...on Noise\n');
+%         Cn(:,:,i) = cwt(xn,sc(i,:),wvlt{i}); %wavelet transformation on noise for that scale and that wavelet
 %         fprintf('\t\tComputing power.\n');
 %         Ps = Cs(:,:,i).*conj(Cs(:,:,i));
 %         Pn = Cn(:,:,i).*conj(Cn(:,:,i));
@@ -194,8 +194,8 @@ endIdx = find(diff(hiTest) == -1);%Find end points above thresh
 % threshold. 
 
 for i = 1:length(srtIdx)
-[~, cPnts(i)] = max(sig4Test(srtIdx(i):endIdx(i)));
-cPnts(i) = cPnts(i) + srtIdx(i) -1;
+    [~, cPnts(i)] = max(sig4Test(srtIdx(i):endIdx(i)));
+    cPnts(i) = cPnts(i) + srtIdx(i) -1;
 end
 
 %for debugging:

@@ -21,15 +21,13 @@
 
 function SSF=sinesongfinder(d,fs,NW,K,dT,dS,pval,reduced_memory)
 
-pool = exist('matlabpool','file');
-
 if nargin == 7
     reduced_memory = 0;
 end
 
 dT2=round(dT*fs);
 dS2=round(dS*fs);
-plotit=0;  % plot it, or don't plot it, there is no try
+% plotit=0;  % plot it, or don't plot it, there is no try
 
 % [d t]=daqread(filename);  % do it this way when pipelined
 % d=d(:,chan);
@@ -53,47 +51,41 @@ dim1 = length(f);
 Fval=zeros(dim1,kk);A=zeros(dim1,kk); 
 [~,~,f,sig,~] = ftestc(d(1:(1+dT2-1)),params,pval/dT2,'n');
 
-if pool~=0%if multicore capability exists, then use
-%     fprintf('ftestc in pool')
-    parfor(k=1:kk)
-        [Fval(:,k),A(:,k),~,~,~] = ftestc(d(pos(k):(pos(k)+dT2-1)),params,pval/dT2,'n');
-    end
-else
-    for(k=1:kk)
-        [Fval(:,k),A(:,k),~,~,~] = ftestc(d(pos(k):(pos(k)+dT2-1)),params,pval/dT2,'n');
-    end
+parfor k=1:kk
+    [Fval(:,k),A(:,k),~,~,~] = ftestc(d(pos(k):(pos(k)+dT2-1)),params,pval/dT2,'n');
 end
 t=(0:(size(Fval,2)-1))*dS2/fs;
+% t=(1:(size(Fval,2)))*dS2/fs;
 
-
-if pool~=0%if multicore capability exists, then use
+events_cell = cell(size(Fval,2),1);
+% if pool~=0%if multicore capability exists, then use
 %     fprintf('findpeaks in pool')
-    events_cell = cell(size(Fval,2),1);
-    parfor i=1:size(Fval,2)
-        fmax=crx_findpeaks(Fval(:,i),sig); %this function name is a hack. chronux 'findpeaks' conflicts with Matlab 'findpeaks'.
-        %I have renamed the chronux function as crx_findpeaks and changed this line too.
-        %This means this code is incompatible with the public version of chronux.
-        %Users must use our version. Future versions of chronux are expected to
-        %fix this namespace conflict, which will require rewrite of this line.
-        events_cell{i}=[repmat(t(i)+dT/2,length(fmax(1).loc),1) f(fmax(1).loc)'];
-    end
-    events = [];
-    for i=1:size(Fval,2)
-        events=[events; events_cell{i}];
-    end
-else
-    events=[];
-    for i=1:size(Fval,2)
-        fmax=crx_findpeaks(Fval(:,i),sig); %this function name is a hack. chronux 'findpeaks' conflicts with Matlab 'findpeaks'.
-        %I have renamed the chronux function as crx_findpeaks and changed this line too.
-        %This means this code is incompatible with the public version of chronux.
-        %Users must use our version. Future versions of chronux are expected to
-        %fix this namespace conflict, which will require rewrite of this line.
-        events=[events; ...
-            repmat(t(i)+dT/2,length(fmax(1).loc),1) f(fmax(1).loc)'];
-        
-    end
+
+parfor i=1:size(Fval,2)
+    fmax=crx_findpeaks(Fval(:,i),sig); %this function name is a hack. chronux 'findpeaks' conflicts with Matlab 'findpeaks'.
+    %I have renamed the chronux function as crx_findpeaks and changed this line too.
+    %This means this code is incompatible with the public version of chronux.
+    %Users must use our version. Future versions of chronux are expected to
+    %fix this namespace conflict, which will require rewrite of this line.
+    events_cell{i}=[repmat(t(i)+dT/2,length(fmax(1).loc),1) f(fmax(1).loc)'];
 end
+
+t = t +dT/2;
+
+% else
+%     for i=1:size(Fval,2)
+%         fmax=crx_findpeaks(Fval(:,i),sig); %this function name is a hack. chronux 'findpeaks' conflicts with Matlab 'findpeaks'.
+%         %I have renamed the chronux function as crx_findpeaks and changed this line too.
+%         %This means this code is incompatible with the public version of chronux.
+%         %Users must use our version. Future versions of chronux are expected to
+%         %fix this namespace conflict, which will require rewrite of this line.
+%         events_cell{i}=[repmat(t(i)+dT/2,length(fmax(1).loc),1) f(fmax(1).loc)'];
+%         
+%     end
+% end
+events = cell2mat(events_cell);
+
+
 
 SSF.d=d;
 SSF.fs=fs;

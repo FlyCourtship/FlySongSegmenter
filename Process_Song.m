@@ -47,10 +47,18 @@ if numel(pps.start) > 0
         
         if sine.num_events == 0;
             winnowed_sine = pm_sine;
+            winnowed_sine.events = {};
+            winnowed_sine.eventTimes = {};
+            winnowed_sine.power = {};
+            winnowed_sine.powerMat = [];
         elseif pulseInfo2.w0 == 0;
             winnowed_sine = pm_sine;
+            winnowed_sine.events = {};
+            winnowed_sine.eventTimes = {};
+            winnowed_sine.power = {};
+            winnowed_sine.powerMat = [];
         else
-            winnowed_sine = winnow_sine(pm_sine,pulseInfo2,pm_ssf,param.max_pulse_pause,param.sine_low_freq,param.sine_high_freq);
+            winnowed_sine = winnow_sine2(pm_sine,pulseInfo2,pm_ssf,param.max_pulse_pause,param.sine_low_freq,param.sine_high_freq);
         end
     else
         pulseInfo2 = {};
