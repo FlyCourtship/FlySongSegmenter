@@ -74,11 +74,11 @@ end
 
 %sine sone is calculated in seconds. Some day, I should go back and change
 %to sample units. For now, just backconvert the times to sample units.
-winnowed_sine.start = round(winnowed_sine.start .* data.fs);
-winnowed_sine.stop = round(winnowed_sine.stop .* data.fs);
-for i=1:numel(winnowed_sine.events)
-    winnowed_sine.events{i} = round(winnowed_sine.events{i} .* data.fs);
-end
+%winnowed_sine.start = round(winnowed_sine.start .* data.fs);
+%winnowed_sine.stop = round(winnowed_sine.stop .* data.fs);
+%for i=1:numel(winnowed_sine.events)
+%    winnowed_sine.events{i} = round(winnowed_sine.events{i} .* data.fs);
+%end
 
 clear pm_ssf pm_sine
 check_close_pool(poolavail,isOpen);
