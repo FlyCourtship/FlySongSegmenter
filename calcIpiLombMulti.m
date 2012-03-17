@@ -56,7 +56,7 @@ MP2 = b(2);
 C1 = find(a == MP1);%components
 C2 = find(a == MP2);
 
-[culled_ipi,~] = cullByCdf(ipi,[C1 C2],.01);
+culled_ipi = cullByCdf(ipi,[C1 C2],.01);
 
 %re-estimate mixing proportions
 options = statset('MaxIter',500);
@@ -69,7 +69,7 @@ MP2 = b(2);
 
 %reduce to one fit if one fit explains most of the data
 if MP1 > 0.9%if the top fit explains most of the data, then take just these data
-    [culled_ipi,~] = cullByCdf(ipi,C1,.01);
+    culled_ipi = cullByCdf(ipi,C1,.01);
     obj=gmdistribution.fit(culled_ipi.d',1,'options',options);
     mu = obj.mu;
     sig = obj.Sigma;
