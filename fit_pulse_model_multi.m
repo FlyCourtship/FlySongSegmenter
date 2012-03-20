@@ -1,5 +1,8 @@
 function fit_pulse_model_multi(folder,pulseInfo_name)
 %USAGE fit_pulse_model_multi(folder,pulseInfo_name)
+%e.g.
+%fit_pulse_model_multi('/Users/sternd/Documents/Projects/courtship_song_analysis.w.t.-forpaper/WT_species/mel-all-6Mar/','culled_pulseInfo')
+%
 %pulseInfo_name can take 'pulseInfo', 'pulseInfo2', 'culled_pulseInfo',etc.
 %If enter 'culled_pulseInfo', then model and Lik are saved with new name
 %(with prefix 'culled_'
