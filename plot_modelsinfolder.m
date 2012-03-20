@@ -1,8 +1,10 @@
 function plot_modelsinfolder(folder)
 addpath(genpath('./export_fig'))
 addpath(genpath('./tight_subplot'))
+if strcmp(folder(end),'/') == 0
+    folder = [folder '/'];
+end
 
-sep = filesep;
 dir_list = dir(folder);
 file_num = length(dir_list);
 
@@ -18,7 +20,7 @@ plotnum = 0;
 for y = 1:file_num
     file = dir_list(y).name; %pull out the file name
     [~,root,ext] = fileparts(file);
-    path_file = [folder sep file];
+    path_file = [folder file];
     TG = strcmp(ext,'.mat');
     
     

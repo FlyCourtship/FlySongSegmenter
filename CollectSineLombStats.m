@@ -1,6 +1,8 @@
 function [file_names LombStats LombStatsMat] = CollectSineLombStats(folder)
 %USAGE [file_names LombStats LombStatsMat] = CollectLombStats(folder)
-sep = filesep;
+if strcmp(folder(end),'/') == 0
+    folder = [folder '/'];
+end
 dir_list = dir(folder);
 file_num = length(dir_list);
 i= 0;

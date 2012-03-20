@@ -17,7 +17,9 @@ else
     culled = 0;
 end
 
-%sep = filesep;
+if strcmp(folder(end),'/') == 0
+    folder = [folder '/'];
+end
 dir_list = dir(folder);
 file_num = length(dir_list);
 

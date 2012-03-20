@@ -18,6 +18,9 @@ end
 
 LLR_type=char(LLR_type);
 
+if strcmp(folder(end),'/') == 0
+    folder = [folder '/'];
+end
 
 
 fprintf(['Analyzing folder' folder  '\r'])

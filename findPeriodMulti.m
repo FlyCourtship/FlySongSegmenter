@@ -8,7 +8,9 @@ function [fileNames, periodsMulti] = findPeriodMulti(folder,pulseModel_name)
 
 pM_name = char(pulseModel_name);
 
-sep = filesep;
+if strcmp(folder(end),'/') == 0
+    folder = [folder '/'];
+end
 dir_list = dir(folder);
 file_num = length(dir_list);
 i= 0;

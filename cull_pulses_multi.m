@@ -10,7 +10,9 @@ pI_name = char(pulseInfo_name);
 Lik_name = char(Lik_name);
 Lik_type = char(Lik_type);
 
-%sep = filesep;
+if strcmp(folder(end),'/') == 0
+    folder = [folder '/'];
+end
 dir_list = dir(folder);
 file_num = length(dir_list);
 

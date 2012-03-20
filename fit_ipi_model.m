@@ -10,7 +10,7 @@ p = pulseInfo.wc;
 if nargin <2
     numComponents = 6;
 end
-numComponents
+% numComponents
 %fit mixture model, take fit capturing most data
 %first, grab all ipis
 
@@ -41,18 +41,21 @@ try
     ipi_mean = obj{numComponents}.mu(ipi_index);
     ipi_var = obj{numComponents}.Sigma(ipi_index);
     ipi_SD = sqrt(ipi_var);
+
+    ipi_time = p(1:end-1);
+    ipi = struct('u',ipi_mean,'S',ipi_SD,'d',ipi_d,'t',ipi_time,'fit',obj{numComponents});%results in units of samples
 %
 catch
-    fprintf('Could not fit mixture model with winnowed ipis.\nI will use the estimates from the full data set.\n')
-    %numComponents = length(ipi.fit.PComponents);
-    obj = original_ipi.fit;
-    ipi_index = find(obj.PComponents == max(obj.PComponents));%find the model in the mixture model with the highest mixture proportion
-    ipi_mean = obj.mu(ipi_index);
-    ipi_var = obj.Sigma(ipi_index);
-    ipi_SD = sqrt(ipi_var);
-    obj = {};
-    obj{1} = original_ipi.fit;
+    fprintf('Could not fit mixture model with winnowed ipis.\n')
+%     %numComponents = length(ipi.fit.PComponents);
+%     obj = original_ipi.fit;
+%     ipi_index = find(obj.PComponents == max(obj.PComponents));%find the model in the mixture model with the highest mixture proportion
+%     ipi_mean = obj.mu(ipi_index);
+%     ipi_var = obj.Sigma(ipi_index);
+%     ipi_SD = sqrt(ipi_var);
+%     obj = {};
+%     obj{1} = original_ipi.fit;
+    
+    ipi =struct('u',[],'S',[],'d',[],'t',[],'fit',{});
 end
 
-ipi_time = p(1:end-1);
-ipi = struct('u',ipi_mean,'S',ipi_SD,'d',ipi_d,'t',ipi_time,'fit',obj{numComponents});%results in units of samples
