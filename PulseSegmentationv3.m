@@ -42,10 +42,12 @@ fs  = Fs;
 
 wvlt = cell(1,ngw);
 % wvlt{1} = 'morl'; %kept the morlet here in case it ends up being useful later
+%#function morlet
 
 for i = 1:ngw
     wvlt{i} = ['gaus' num2str(sp.DoGwvlt(i))];
 end
+%#function gauswavf
 
 sc = zeros(ngw,numel(fc));
 

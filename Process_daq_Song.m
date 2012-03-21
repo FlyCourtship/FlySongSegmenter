@@ -1,4 +1,4 @@
-function Process_daq_Song(song_daq_file,song_range)
+function Process_daq_Song(song_daq_file,song_range,params_path)
 
 %old - when require noise file
 %function Process_daq_Song(song_daq_file,song_range)
@@ -44,7 +44,7 @@ for y = 1:nchannels_song
  
         %run Process_Song on selected channel
         fprintf('Processing song.\n')
-        [data, winnowed_sine, pcndInfo, pulseInfo, pulseInfo2] = Process_Song(song);
+        [data, winnowed_sine, pcndInfo, pulseInfo, pulseInfo2] = Process_Song(song,params_path);
         %save data
         
         save(outfile, 'data','winnowed_sine', 'pcndInfo','pulseInfo2','pulseInfo','-v7.3')

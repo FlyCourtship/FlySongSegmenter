@@ -1,4 +1,6 @@
-function [data, winnowed_sine, pulseInfo, pulseInfo2, pps, pcndInfo] = Process_Song(xsong,xempty)
+function [data, winnowed_sine, pulseInfo, pulseInfo2, pps, pcndInfo] = Process_Song(xsong,xempty,params_path)
+
+%BUG:  crashes out when xempty is supplied
 
 %USAGE [data, winnowed_sine, pulseInfo, pulseInfo2, pps, pcndInfo] = Process_Song(xsong)
 
@@ -6,6 +8,9 @@ addpath(genpath('./chronux'))
 
 [poolavail,isOpen] = check_open_pool;
 
+if nargin < 3
+    params_path = '';
+end
 fetch_song_params
 
 fprintf('Running multitaper analysis on signal.\n')
