@@ -24,9 +24,9 @@ high_freq_index = find(ssf.f<high_freq_cutoff,1,'last');
 noise_power = noise.A_noise_power;
 
 %get # time intervals
-step_size = ssf.dS;
-window_size = ssf.dT;
-song_length = numel(ssf.d)/ssf.fs;
+step_size = round(ssf.dS * ssf.fs);
+window_size = round(ssf.dT);
+song_length = numel(ssf.d);
 
 %get sample size of ssf
 data_N = size(ssf.A,2);
@@ -56,10 +56,10 @@ if sine.num_events ~= 0;%if there is sine song
 
     end
     %get non sine song, also convert to sample rate
-    putative_pulse_t=setdiff(round(signal_t*ssf.fs),round(sine_times*ssf.fs));
+    putative_pulse_t=setdiff(signal_t,sine_times);
     
 else
-    putative_pulse_t=round(signal_t*ssf.fs);
+    putative_pulse_t=signal_t;
 end
 
 
@@ -71,21 +71,21 @@ stop =[];
 num_clips = 0;
 
 if numel(putative_pulse_t) > 0
-    [put_start,put_stop] = contiguous_sequence(putative_pulse_t,step_size*ssf.fs);
-    [put_start,put_stop] = combine_briefly_interrupted_pulses(put_start,put_stop,step_size*ssf.fs,combine_time);
+    [put_start,put_stop] = contiguous_sequence(putative_pulse_t,step_size);
+    [put_start,put_stop] = combine_briefly_interrupted_pulses(put_start,put_stop,step_size,combine_time);
 
     for y = 1:numel(put_start)
         if put_start(y) ~= put_stop(y);
             num_clips = num_clips+1;
 
-            if put_start(y) < 2*step_size*ssf.fs;
+            if put_start(y) < 2*step_size;
                 start_t = 1;
             else
-                start_t = round(put_start(y)-step_size*ssf.fs*range);
+                start_t = round(put_start(y)-step_size*range);
             end
-            stop_t=round(put_stop(y)+step_size*ssf.fs*range);
-            start(num_clips) = start_t./ssf.fs;
-            stop(num_clips) = stop_t./ssf.fs;
+            stop_t=round(put_stop(y)+step_size*range);
+            start(num_clips) = start_t;
+            stop(num_clips) = stop_t;
             clips{num_clips} = ssf.d(start_t:stop_t);
         end
     end
@@ -93,9 +93,9 @@ if numel(putative_pulse_t) > 0
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %if first start time is < window_size, then make first start time = 0
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if start(1)/ssf.fs < window_size
-        start(1) = 1/ssf.fs;
-        end_of_first = round(stop(1)*ssf.fs);
+    if start(1) < window_size
+        start(1) = 1;
+        end_of_first = stop(1);
         clips{1} = ssf.d(1:end_of_first);
     end
     
@@ -107,7 +107,7 @@ if numel(putative_pulse_t) > 0
     if song_length - stop(numel(stop)) < window_size
         last_clip = numel(start);
         stop(last_clip) = song_length;
-        clips{last_clip} = ssf.d(start(last_clip)*ssf.fs:stop(last_clip)*ssf.fs);
+        clips{last_clip} = ssf.d(start(last_clip):stop(last_clip));
     end
     
     

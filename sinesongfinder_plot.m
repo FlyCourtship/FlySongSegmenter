@@ -3,6 +3,7 @@ function sinesongfinder_plot(ssf,range)
 global SSF
 
 SSF=ssf;
+SSF.t = SSF.f ./ SSF.fs;
 
 if(~isfield(SSF,'h'))
   SSF.h=figure;

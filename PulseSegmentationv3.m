@@ -206,9 +206,9 @@ tic;
 for i=1:numel(pps.clips); %for each putative pulse segment
     a = pps.clips(i);
     b = size(a{1},1);
-    pps.stop2(1,i) = round(pps.start(i)*Fs) + round(b) - 1;
+    pps.stop2(1,i) = pps.start(i) + round(b) - 1;
 end
-putpul = struct('i0',round(pps.start*Fs), 'i1', pps.stop2);
+putpul = struct('i0',pps.start, 'i1', pps.stop2);
 number = numel(pps.start);
 
 %cPnts has all of the times where pulse peaks occur

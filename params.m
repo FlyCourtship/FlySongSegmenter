@@ -11,7 +11,7 @@ K = 20;%K = num independent tapers to average over, must be < 2*NW
 dT = 0.1;%dT = window length
 dS = 0.01;%dS = window step size
 pval = 0.05;%pval = criterion for F-test
-
+fwindow = [0 1000];%[0 fs/2] if want up to Nyquist freq
 
 %SET THE PARAMETERS FOR lengthfinder3
 %freq1 and freq2 define the bounds between which the fundamental frequency 
