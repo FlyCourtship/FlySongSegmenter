@@ -5,7 +5,9 @@ function convert_winnowed_sine_values(folder)
 
 fs = 1e4;
 
-sep = filesep;
+if strcmp(folder(end),'/') == 0
+    folder = [folder '/'];
+end
 dir_list = dir(folder);
 file_num = length(dir_list);
 

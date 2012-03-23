@@ -6,7 +6,9 @@ function Process_multi_daq_Song(folder,song_range)
 
 [poolavail,isOpen] = check_open_pool;
 
-sep = filesep;
+if strcmp(folder(end),'/') == 0
+    folder = [folder '/'];
+end
 dir_list = dir(folder);
 file_num = length(dir_list);
 

@@ -1,7 +1,9 @@
 function [file_names Bouts] = CollectBouts(folder)
 %USAGE  [file_names Bouts] = CollectBouts(folder)
 
-sep = filesep;
+if strcmp(folder(end),'/') == 0
+    folder = [folder '/'];
+end
 dir_list = dir(folder);
 file_num = length(dir_list);
 i= 0;

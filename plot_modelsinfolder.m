@@ -1,8 +1,10 @@
 function plot_modelsinfolder(folder)
 addpath(genpath('./export_fig'))
 addpath(genpath('./tight_subplot'))
+if strcmp(folder(end),'/') == 0
+    folder = [folder '/'];
+end
 
-sep = filesep;
 dir_list = dir(folder);
 file_num = length(dir_list);
 
@@ -18,7 +20,7 @@ plotnum = 0;
 for y = 1:file_num
     file = dir_list(y).name; %pull out the file name
     [~,root,ext] = fileparts(file);
-    path_file = [folder sep file];
+    path_file = [folder file];
     TG = strcmp(ext,'.mat');
     
     
@@ -31,10 +33,10 @@ for y = 1:file_num
             %get plot data and limits
             load(path_file,'pulse_model');
             right = size(pulse_model.fhM,2); 
-            bottom_value = min(min(pulse_model.fhZ));
-            top_value =  max(max(pulse_model.fhZ));
-            bottom = bottom_value - std(min(pulse_model.fhZ));
-            top = top_value + std(max(pulse_model.fhZ));
+            bottom_value = min(min(pulse_model.Z2fhM));
+            top_value =  max(max(pulse_model.Z2fhM));
+            bottom = bottom_value - std(min(pulse_model.Z2fhM));
+            top = top_value + std(max(pulse_model.Z2fhM));
             parsed_filename = textscan(root,'%s','Delimiter','_');
             ch = strcat(parsed_filename{1}(2),parsed_filename{1}(3));
             
@@ -42,12 +44,12 @@ for y = 1:file_num
                 %plot data
                 hold on
                 axis([1 right bottom top])
-                plot(pulse_model.fhZ','g');
+                plot(pulse_model.Z2fhM','g');
                 plot(pulse_model.fhM,'k');
-                text(1,bottom+ std(min(pulse_model.fhZ)),ch,'FontSize',10);
+                text(1,bottom+ std(min(pulse_model.Z2fhM)),ch,'FontSize',10);
                 hold off
             end
-            text(1,bottom+ std(min(pulse_model.fhZ)),ch,'FontSize',10);
+            text(1,bottom+ std(min(pulse_model.Z2fhM)),ch,'FontSize',10);
 
             %         end
     end

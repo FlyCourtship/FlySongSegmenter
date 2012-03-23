@@ -1,13 +1,15 @@
 function sineSongAnalyze_multi(folder)
 [poolavail,isOpen] = check_open_pool;
-sep = filesep;
+if strcmp(folder(end),'/') == 0
+    folder = [folder '/'];
+end
 dir_list = dir(folder);
 file_num = length(dir_list);
 
 for y = 1:file_num
     file = dir_list(y).name; %pull out the file name
     [~,root,ext] = fileparts(file);
-    path_file = [folder sep file];
+    path_file = [folder file];
     TG = strcmp(ext,'.mat');
     if TG == 1
             W = who('-file',path_file);

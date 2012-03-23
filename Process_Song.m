@@ -20,6 +20,8 @@ data.fs = ssf.fs;
 fprintf('Finding noise.\n')
 if nargin == 1 %if user provides only xsong
     noise = findnoise(ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
+else
+    noise = xempty;
 end %if user provides both xsong and xempty
 
 %Run lengthfinder4 on ssf, where:

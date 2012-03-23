@@ -1,6 +1,9 @@
 function [file_names Pauses PausesMat] = CollectPauses(folder)
 %USAGE [file_names Pauses PausesMat] = CollectPauses(folder)
-sep = filesep;
+if strcmp(folder(end),'/') == 0
+    folder = [folder '/'];
+end
+
 dir_list = dir(folder);
 file_num = length(dir_list);
 i= 0;
