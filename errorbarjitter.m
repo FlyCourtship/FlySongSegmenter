@@ -96,7 +96,7 @@ if nargin < 9 || isempty(Xsep)
     Xsep = 1;
 end
 
-addpath('./jitter')
+if(~isdeployed)  addpath('./jitter');  end
 
 figure(1)
 clf

@@ -14,7 +14,7 @@ function [pulse_model,Lik_pulse] = fit_pulse_model(pulses)
 %to build the second and third harmonic models for likelihood testing
 
 %d will often = pulseInfo2.x
-[poolavail,isOpen] = check_open_pool;
+%[poolavail,isOpen] = check_open_pool;
 
 fprintf('Fitting pulse model\n')
 d = pulses;
@@ -253,4 +253,4 @@ else
 end
 
     
-check_close_pool(poolavail,isOpen);
+%check_close_pool(poolavail,isOpen);

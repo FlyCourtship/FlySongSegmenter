@@ -7,7 +7,7 @@ function [data, winnowed_sine, pcndInfo, pulseInfo, pulseInfo2] = Process_Song_p
 %This code modified for analyzing song of species with mel-like pulses and
 %no sine song. 
 
-addpath(genpath('./chronux'))
+if(~isdeployed)  addpath(genpath('./chronux'));  end
 
 [poolavail,isOpen] = check_open_pool;
 

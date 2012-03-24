@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deployment-project plugin="plugin.deploytool" plugin-version="1.0">
-  <configuration target="target.standalone" target-name="Standalone Application" name="find_fly_song" location="/home/arthurb/projects/stern/Fly_Song_Segmenter" file="/home/arthurb/projects/stern/Fly_Song_Segmenter/find_fly_song.prj" build-checksum="256025011">
+  <configuration target="target.standalone" target-name="Standalone Application" name="find_fly_song" location="/home/arthurb/projects/stern/Fly_Song_Segmenter" file="/home/arthurb/projects/stern/Fly_Song_Segmenter/find_fly_song.prj" build-checksum="1609996057">
     <param.project.name>/home/arthurb/projects/stern/Fly_Song_Segmenter/find_fly_song.prj</param.project.name>
     <param.target.type>Standalone Application</param.target.type>
     <param.appname>find_fly_song</param.appname>
@@ -58,7 +58,7 @@
       <param.user.defined.mcr.options />
     </unset>
     <fileset.main>
-      <file>${PROJECT_ROOT}/Process_daq_Song.m</file>
+      <file>${PROJECT_ROOT}/find_fly_song.m</file>
     </fileset.main>
     <fileset.resources>
       <file>${PROJECT_ROOT}/params.m</file>
@@ -73,6 +73,7 @@
     <matlab>
       <root>/misc/local/matlab-2012a</root>
       <path>
+        <directory>${PROJECT_ROOT}/./chronux</directory>
         <directory>/home/arthurb/Documents/MATLAB</directory>
         <directory>${MATLAB_ROOT}/toolbox/matlab/optimfun</directory>
         <directory>${MATLAB_ROOT}/toolbox/local</directory>

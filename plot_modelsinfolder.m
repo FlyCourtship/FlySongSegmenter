@@ -1,6 +1,8 @@
 function plot_modelsinfolder(folder)
-addpath(genpath('./export_fig'))
-addpath(genpath('./tight_subplot'))
+if(~isdeployed)
+addpath(genpath('./export_fig'));
+addpath(genpath('./tight_subplot'));
+end
 if strcmp(folder(end),'/') == 0
     folder = [folder '/'];
 end

@@ -1,12 +1,10 @@
 function [data, winnowed_sine, pulseInfo, pulseInfo2, pps, pcndInfo] = Process_Song(xsong,xempty,params_path)
 
-%BUG:  crashes out when xempty is supplied
-
 %USAGE [data, winnowed_sine, pulseInfo, pulseInfo2, pps, pcndInfo] = Process_Song(xsong)
 
-addpath(genpath('./chronux'))
+if(~isdeployed)  addpath(genpath('./chronux'));  end
 
-[poolavail,isOpen] = check_open_pool;
+%[poolavail,isOpen] = check_open_pool;
 
 if nargin < 3
     params_path = '';
@@ -18,7 +16,8 @@ fprintf('Running multitaper analysis on signal.\n')
 data.d = ssf.d;
 data.fs = ssf.fs;
 fprintf('Finding noise.\n')
-if nargin == 1 %if user provides only xsong
+%if nargin == 1 %if user provides only xsong
+if isempty(xempty) %if user provides only xsong
     noise = findnoise(ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
 else
     noise = xempty;
@@ -88,5 +87,5 @@ end
 %end
 
 clear pm_ssf pm_sine
-check_close_pool(poolavail,isOpen);
+%check_close_pool(poolavail,isOpen);
 
