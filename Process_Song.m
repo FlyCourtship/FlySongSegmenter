@@ -12,15 +12,13 @@ end
 fetch_song_params
 
 fprintf('Running multitaper analysis on signal.\n')
-[ssf] = sinesongfinder(xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,1); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
+[ssf] = sinesongfinder(xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow,1); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
 data.d = ssf.d;
 data.fs = ssf.fs;
 fprintf('Finding noise.\n')
 %if nargin == 1 %if user provides only xsong
 if isempty(xempty) %if user provides only xsong
     noise = findnoise(ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
-else
-    noise = xempty;
 end %if user provides both xsong and xempty
 
 %Run lengthfinder4 on ssf, where:
@@ -43,7 +41,7 @@ if numel(pps.start) > 0
         % Mask putative pulses in xsong. Use pulseInfo pulses.
         pm_xsong = pulse_mask(xsong,pulseInfo);
         fprintf('Running multitaper analysis on pulse-masked signal.\n')
-        pm_ssf = sinesongfinder(pm_xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,1); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
+        pm_ssf = sinesongfinder(pm_xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow,1); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
         
         fprintf('Finding sine in pulse-masked signal.\n')
         pm_sine = findsine(pm_ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps); %returns sine, which is a structure containing the following fields:
@@ -80,11 +78,11 @@ end
 
 %sine sone is calculated in seconds. Some day, I should go back and change
 %to sample units. For now, just backconvert the times to sample units.
-%winnowed_sine.start = round(winnowed_sine.start .* data.fs);
-%winnowed_sine.stop = round(winnowed_sine.stop .* data.fs);
-%for i=1:numel(winnowed_sine.events)
-%    winnowed_sine.events{i} = round(winnowed_sine.events{i} .* data.fs);
-%end
+% winnowed_sine.start = round(winnowed_sine.start .* data.fs);
+% winnowed_sine.stop = round(winnowed_sine.stop .* data.fs);
+% for i=1:numel(winnowed_sine.events)
+%     winnowed_sine.events{i} = round(winnowed_sine.events{i} .* data.fs);
+% end
 
 clear pm_ssf pm_sine
 %check_close_pool(poolavail,isOpen);

@@ -79,7 +79,7 @@ A_noise_power = sum(abs(ssf.A(low_freq_index:high_freq_index,A_noise_indices)));
 
 noise.d = xempty;
 noise.sigma = std(xempty);
-noise.starts = noise_starts./ssf.fs;
-noise.stops = noise_stops./ssf.fs;
+noise.starts = noise_starts;
+noise.stops = noise_stops;
 noise.A_indices = A_noise_indices;
 noise.A_noise_power = A_noise_power;

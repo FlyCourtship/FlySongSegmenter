@@ -25,8 +25,9 @@ function sinesong = findsine(ssf, min, max,sine_range_percent,discard_less_n_ste
 sinemin=min;
 sinemax=max;
 allevents=ssf.events;%column 1 = time in sec, column 2 is freq in Hz
-stepsize=ssf.dS;
-fs=ssf.fs;
+allevents(:,1) = round(allevents(:,1) .* ssf.fs);
+% fs=ssf.fs;
+stepsize=round(ssf.dS * ssf.fs);
 data = ssf.d;
 inRangeEvents=[];
 
@@ -60,31 +61,6 @@ for x  = 2:numel(inRangeEvents(:,1))
     end
 end
    
-
-% %%eliminate singleton time points - this assumes that sine must be >
-% %%stepsize
-% 
-% RunsEvents = [];
-% NumEvents = numel(UnqInRangeEvents(:,1));
-% %first deal with first time point
-% if UnqInRangeEvents(2,1) - UnqInRangeEvents(1,1) < 2*stepsize %if only one time step
-%     RunsEvents(1,:) = UnqInRangeEvents(1,:);
-% end
-% %then deal with all but last time point
-% y = 2;
-% for x  = 2:NumEvents-1   
-%     if UnqInRangeEvents(x+1,1) - UnqInRangeEvents(x,1) < 2*stepsize || UnqInRangeEvents(x,1) - UnqInRangeEvents(x-1,1) < 2*stepsize %if neighboring at least one next step
-%         RunsEvents(y,:) = UnqInRangeEvents(x,:);
-%         y = y + 1;
-%     end
-% end
-% %then deal with last time point
-% if UnqInRangeEvents(NumEvents,1) - UnqInRangeEvents(NumEvents-1,1) < 2*stepsize %if only one time step
-%     RunsEvents(y,:) = UnqInRangeEvents(NumEvents,:);
-% end
-
-
-%sinesong = RunsEvents;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%create chains of sine song
@@ -178,17 +154,17 @@ end
 rdcdNumBouts = numel(sine_start);
 NumBouts=rdcdNumBouts;
 
-length=zeros(NumBouts,1);
-MeanFundFreq=zeros(NumBouts,1);
-MedianFundFreq=zeros(NumBouts,1);
+% length=zeros(NumBouts,1);
+% MeanFundFreq=zeros(NumBouts,1);
+% MedianFundFreq=zeros(NumBouts,1);
 sine_clips = cell(NumBouts,1);
-statevents =[];
+% statevents =[];
 
 
 length = sine_stop - sine_start;
 
 for x = 1:NumBouts;
-    sine_clips{x} = data((int32(sine_start(x)*fs)):int32(sine_stop(x)*fs));
+    sine_clips{x} = data(sine_start(x):sine_stop(x));
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
