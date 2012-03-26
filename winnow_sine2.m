@@ -25,12 +25,19 @@ function winnowed_sine = winnow_sine2(sine,pulseInfo2,ssf,max_pulse_pause,min,ma
 %that are not in units of 10
 % sigdig = abs(order(1/ssf.fs))+1;
 
-%convert to integer
-%this is a hack until all the code is converted to integer
-sineStart = round(sine.start .* ssf.fs);
-sineStop = round(sine.stop .* ssf.fs);
-sineTime = round(ssf.t .* ssf.fs);
-ssfeventTimes = round(ssf.events(:,1) .* ssf.fs);
+% %convert to integer
+% %this is a hack until all the code is converted to integer
+% sineStart = round(sine.start .* ssf.fs);
+% sineStop = round(sine.stop .* ssf.fs);
+% sineTime = round(ssf.t .* ssf.fs);
+% ssfeventTimes = round(ssf.events(:,1) .* ssf.fs);
+
+sineStart = sine.start ;
+sineStop = sine.stop;
+sineTime = ssf.t;
+ssfeventTimes = ssf.events(:,1);
+
+
 %get all time points of sine song
 % sample_sine=[];
 all_sine=cell(numel(sine.num_events),1);
