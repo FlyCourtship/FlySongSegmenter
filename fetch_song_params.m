@@ -4,12 +4,13 @@
 %%DEFAULT PARAMATERS
 %%%%%%%%%%%
 
+Fs = 10000;
 NW = 12;%NW = time-bandwidth product for tapers
 K = 20;%K = num independent tapers to average over, must be < 2*NW
 dT = 0.1;%dT = window length
 dS = 0.01;%dS = window step size
 pval = 0.05;%pval = criterion for F-test
-fwindow = [0 1000];%[0 fs/2] if want up to Nyquist freq
+fwindow = [0 Fs];%[0 1000] if want up to Nyquist freq
 
 %SET THE PARAMETERS FOR lengthfinder3
 %freq1 and freq2 define the bounds between which the fundamental frequency 
@@ -34,7 +35,6 @@ high_freq_cutoff = 1000;
 %SET THE PARAMETERS FOR PulseSegmentation
 
 %general parameters:
-Fs = 10000;
 a = [100:25:900]; %wavelet scales: frequencies examined. 
 b = Fs; %sampling frequency
 c = [2:4]; %Derivative of Gaussian wavelets examined

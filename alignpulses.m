@@ -1,6 +1,6 @@
 function [Aligned_pulses,Model] = alignpulses(array,reps)
 %[Model,Aligned_pulses] = alignpulses(array,reps)
-%[poolavail,isOpen] = check_open_pool;
+[poolavail,isOpen] = check_open_pool;
 %take mean of columns
 Z = array;
 M = mean(Z);
@@ -39,4 +39,4 @@ M = M/scale;
 Z = Z/scale;
 Model = M;
 Aligned_pulses = Z;
-%check_close_pool(poolavail,isOpen);
+check_close_pool(poolavail,isOpen);

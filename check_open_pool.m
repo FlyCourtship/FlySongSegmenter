@@ -1,6 +1,12 @@
 function [poolavail,isOpen] = check_open_pool
 %[poolavail,isOpen] = check_open_pool
 
+if(isdeployed)
+  poolavail=0;
+  isOpen=0;
+  return;
+end
+
 poolavail = exist('matlabpool','file');
 if poolavail~=0
     isOpen = matlabpool('size') > 0;%check if pools open (as might occur, for eg if called from Process_multi_daq_Song

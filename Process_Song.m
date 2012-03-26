@@ -4,7 +4,7 @@ function [data, winnowed_sine, pulseInfo, pulseInfo2, pps, pcndInfo] = Process_S
 
 if(~isdeployed)  addpath(genpath('./chronux'));  end
 
-%[poolavail,isOpen] = check_open_pool;
+[poolavail,isOpen] = check_open_pool;
 
 if nargin < 3
     params_path = '';
@@ -85,5 +85,5 @@ end
 % end
 
 clear pm_ssf pm_sine
-%check_close_pool(poolavail,isOpen);
+check_close_pool(poolavail,isOpen);
 

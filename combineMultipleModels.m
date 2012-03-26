@@ -14,7 +14,7 @@ else
 end
 
 
-%[poolavail,isOpen] = check_open_pool;
+[poolavail,isOpen] = check_open_pool;
 
 
 %grab models in a folder and put in cell array
@@ -164,4 +164,4 @@ combined_pulse_model.fhS = fhS;
 combined_pulse_model.shS = shS;
 
 
-%check_close_pool(poolavail,isOpen);
+check_close_pool(poolavail,isOpen);

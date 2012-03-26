@@ -15,7 +15,7 @@ else
 end
 TG =0;
 
-% [poolavail,isOpen] = check_open_pool;
+[poolavail,isOpen] = check_open_pool;
 
 if strcmp(folder(end),'/') == 0
     folder = [folder '/'];
@@ -67,6 +67,6 @@ for y = 1:file_num
     end
 end
 
-% check_close_pool(poolavail,isOpen)
+check_close_pool(poolavail,isOpen)
 
 

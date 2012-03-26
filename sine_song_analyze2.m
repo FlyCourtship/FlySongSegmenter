@@ -5,7 +5,7 @@ nfft = 100000;
 NumSine = size(winnowed_sine.clips,1);
 maxFFTFreq = cell(NumSine,1);
 maxFFTFreqTime = cell(NumSine,1);
-%[poolavail,isOpen] = check_open_pool;
+[poolavail,isOpen] = check_open_pool;
 parfor i = 1:NumSine ;
 
     ym = winnowed_sine.clips{i};
@@ -46,7 +46,7 @@ maxFFT.time = maxFFTFreqTime;
 maxFFT.freqAll = cell2mat(maxFFTFreq);
 maxFFT.timeAll = cell2mat(maxFFTFreqTime');
 
-%check_close_pool(poolavail,isOpen);
+check_close_pool(poolavail,isOpen);
 
  % plot(data.d.*100,'k'); hold on;
 % for i=1:length(winnowed_sine.start);

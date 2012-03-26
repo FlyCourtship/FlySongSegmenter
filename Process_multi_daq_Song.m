@@ -4,7 +4,7 @@ function Process_multi_daq_Song(folder,song_range)
 %This function allows you to analyze mutiple daqs in a folder and gives you
 %outputs in separate folders.
 
-%[poolavail,isOpen] = check_open_pool;
+[poolavail,isOpen] = check_open_pool;
 
 if strcmp(folder(end),'/') == 0
     folder = [folder '/'];
@@ -28,5 +28,5 @@ for y = 1:file_num
     end
 end
 
-%check_close_pool(poolavail,isOpen);
+check_close_pool(poolavail,isOpen);
 

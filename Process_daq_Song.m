@@ -2,10 +2,7 @@ function Process_daq_Song(song_daq_file,channel_num,song_range,params_path)
 
 %old - when require noise file
 %function Process_daq_Song(song_daq_file,song_range)
-%[poolavail,isOpen] = check_open_pool;
-
-matlabpool close force
-matlabpool open
+[poolavail,isOpen] = check_open_pool;
 
 song_daqinfo = daqread(song_daq_file,'info');
 %noise_daqinfo = daqread(noise_daq_file,'info');
@@ -61,5 +58,4 @@ for y = yy
         fprintf(['File %s exists. Skipping.\n'], outfile)
     end
 end
-%check_close_pool(poolavail,isOpen);
-matlabpool close
+check_close_pool(poolavail,isOpen);
