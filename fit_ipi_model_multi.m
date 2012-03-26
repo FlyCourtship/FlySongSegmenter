@@ -47,7 +47,7 @@ for y = 1:file_num
             fprintf([root '\n']);
             %cull pulses using pulse_model
 %             culled_pulseInfo = cull_pulses(pI_data,Lik_data,[LLR_cutoff max(Lik_data)+1]);
-            ipi = fit_ipi_model(pI_data);
+            ipi = fit_ipi_model(pI_data.wc);
             
             varstruc.ipi = ipi;
             varstruc.ipi.variables.pulseInfo_ver = pI_name;

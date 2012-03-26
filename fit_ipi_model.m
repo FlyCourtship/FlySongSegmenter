@@ -1,11 +1,12 @@
-function ipi = fit_ipi_model(pulseInfo,numComponents)
+function ipi = fit_ipi_model(pulseTimes,numComponents)
 %ipi = fit_ipi_model(pulseInfo)
 %provide pulses
 %return info about ipis, time in second (not samples)
 
 %p are pulses (=pulseInfo2.wc)
 fprintf('fitting ipi model\n')
-p = pulseInfo.wc;
+%e.g. pulseTimes = pulseInfo.wc;
+p = pulseTimes;
 
 if nargin <2
     numComponents = 6;
