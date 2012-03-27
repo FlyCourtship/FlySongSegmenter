@@ -1,4 +1,28 @@
-To Run FLYSONG_SEGMENTER:
+RUNNING ON YOUR LOCAL MACHINE
+
+use Process_Song() to analyze data already loaded into the matlab
+workspace and Process_daq_Song() to analyze .daq files on disk without
+first loading them.  either way, the returned results are viewed with
+Plot_PulseSegmentation_Results().  all parameters are contained in params.m.
+
+
+BATCHING JOBS TO THE JANELIA CLUSTER
+
+first "ssh login" from the unix command line to access the scheduler node.
+then use cluster_file.sh to analyze a single .daq file, or cluster_folder.sh
+for a whole folder of .daq files.  these are both schell scripts that use
+qsub to call a compiled version of Process_daq_Song().  look inside cluster_f*
+for syntax and details.
+
+to compile changes to the matlab code, first login to the scheduler node.
+it's best to do this with openNX (see our wiki) instead of ssh as above.
+from there login to a real node using "qlogin -l interactive=true,matlab=1"
+from which you can then run matlab with "/usr/bin/matlab-2012a/bin/matlab &".
+on the matlab command line use "deploytool -build find_fly_song.prj" to
+update the executable in find_fly_song/distrib/*.
+
+
+MORE DETAILS (perhaps a bit dated)
 
 load 1mintestsong.mat to your workspace
 There are three test songs (easy, medium, difficult) and one sample of noise
