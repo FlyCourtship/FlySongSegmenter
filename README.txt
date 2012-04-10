@@ -20,7 +20,7 @@ Alternatively, if, for example, you put the code in the subfolder /song/code, yo
 
 Alternatively, you can do this with openNX (see our wiki: http://wiki/wiki/display/ScientificComputing/NX+Client+Setup)
 instead of ssh as above. from there login to a real node using "qlogin -l interactive=true,matlab=1"
-from which you can then run matlab with "/usr/bin/matlab-2012a/bin/matlab &".
+from which you can then run matlab with "/usr/local/matlab-2012a/bin/matlab &".
 on the matlab command line use "deploytool -build find_fly_song.prj" to
 update the executable in find_fly_song/distrib/*.
 
