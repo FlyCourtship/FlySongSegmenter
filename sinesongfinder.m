@@ -89,7 +89,7 @@ events_cell = cell(size(Fval,2),1);
 t = t +dT/2;
 
 events = cell2mat(events_cell);
-
+events(:,1) = round(events(:,1)*fs);
 
 
 SSF.d=d;
