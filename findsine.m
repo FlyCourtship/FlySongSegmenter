@@ -25,7 +25,7 @@ function sinesong = findsine(ssf, min, max,sine_range_percent,discard_less_n_ste
 sinemin=min;
 sinemax=max;
 allevents=ssf.events;%column 1 = time in sec, column 2 is freq in Hz
-allevents(:,1) = round(allevents(:,1) .* ssf.fs);
+allevents(:,1) = allevents(:,1);
 % fs=ssf.fs;
 stepsize=round(ssf.dS * ssf.fs);
 data = ssf.d;

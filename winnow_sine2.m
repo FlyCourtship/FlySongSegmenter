@@ -116,10 +116,9 @@ for i = 1:NumBouts
     sine_bout = sine_start(i):1:sine_stop(i);
         
     %get indices of values in events that are also found in sine_bout
-    event_times = ismember(ssfeventTimes,sine_bout');
-
-    values = ssf.events(event_times,2);
-    times = ssfeventTimes(event_times);
+    event_idx = ismember(ssfeventTimes,sine_bout');
+    values = ssf.events(event_idx,2);
+    times = ssfeventTimes(event_idx);
     times= times(values>=min & values <= max);
     values = values(values>=min & values <=max);%take only values that fall between min and max
     

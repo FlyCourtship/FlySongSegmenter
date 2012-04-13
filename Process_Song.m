@@ -49,7 +49,7 @@ if numel(pps.start) > 0
         % Use results of PulseSegmentation to winnow sine song (remove sine that overlaps pulse)
         %Run only if there is any sine
         
-        if sine.num_events == 0;
+        if pm_sine.num_events == 0;
             winnowed_sine = pm_sine;
             winnowed_sine.events = {};
             winnowed_sine.eventTimes = {};

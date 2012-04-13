@@ -3,7 +3,7 @@ function sinesongfinder_plot(ssf,range)
 global SSF
 
 SSF=ssf;
-SSF.t = SSF.f ./ SSF.fs;
+SSF.t = SSF.t ./ SSF.fs;
 
 if(~isfield(SSF,'h'))
   SSF.h=figure;
@@ -49,8 +49,8 @@ colormap(flipud(gray));
 ylabel('frequency (Hz)');
 
 ax3=subplot(5,1,[4 5]);
-idx=find((SSF.events(:,1)>=SSF.left) & (SSF.events(:,1)<=SSF.right));
-plot(SSF.events(idx,1),SSF.events(idx,2),'k.','markersize',24);
+idx=find((SSF.events(:,1)>=SSF.left*SSF.fs) & (SSF.events(:,1)<=SSF.right*SSF.fs));
+plot(SSF.events(idx,1)./SSF.fs,SSF.events(idx,2),'k.','markersize',24);
 axis([SSF.left SSF.right range]);
 grid on;
 xlabel('time (s)');
