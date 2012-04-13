@@ -36,7 +36,7 @@ if numel(pps.start) > 0
     fprintf('Running wavelet transformation.\n')
     [pcndInfo, pulseInfo, pulseInfo2, cmhSong] = PulseSegmentationv3(xsong,noise.d,pps,param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.Fs);
     
-    if size(pulseInfo2.x,2) > 0
+    if ismember('x',fieldnames(pulseInfo2))
         
         % Mask putative pulses in xsong. Use pulseInfo pulses.
         pm_xsong = pulse_mask(xsong,pulseInfo);
