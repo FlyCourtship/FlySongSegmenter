@@ -45,11 +45,21 @@ interactive=true,matlab=1" from which you can then run matlab with
 "deploytool -build find_fly_song.prj" to update the executable in
 find_fly_song/distrib/*.
 
-To run the compiled code first "ssh login" from the unix command line to
-access the scheduler node.  then use cluster_file.sh to analyze a single .daq
-file, or cluster_folder.sh for a whole folder of .daq files.  these are both
-shell scripts that use qsub to call a compiled version of Process_daq_Song().
-look inside cluster_f* for syntax and details.
+To run the compiled code, first login to the cluster's scheduler node.
+
+$ ssh login
+
+then "cd" to the directory cluster.sh lives in.  this will depend on where
+you put it in your home directory.
+
+$ cd /home/username/bin
+
+then batch jobs to the cluser.
+
+$ ./cluster.sh  full_path_to_folder_of_.daqs  full_path_to_params.m  number_of_channels
+
+cluster.sh is a shell script that use qsub to call a compiled version of
+Process_daq_Song().
 
 
 MORE DETAILS (dated)
