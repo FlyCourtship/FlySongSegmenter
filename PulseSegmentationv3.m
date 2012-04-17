@@ -82,7 +82,8 @@ cmh_dog = zeros(1,numel(xs));            % Storage for the order of the
 cmh_sc = zeros(1,numel(xs));             % Storage for the scale at which the
                           % highest mexican hat coefficient occured.
                           
-Cs = zeros(length(fc),length(xs),numel(wvlt));Cn = zeros(length(fc),length(xn),numel(wvlt));
+Cs = single(zeros(length(fc),length(xs),numel(wvlt)));
+Cn = single(zeros(length(fc),length(xn),numel(wvlt)));
 % if pool ~=0;%if multicore capability, then use
 %     parfor i= 1:numel(wvlt)
 %         fprintf('\t%s\n',wvlt{i});
@@ -96,7 +97,7 @@ Cs = zeros(length(fc),length(xs),numel(wvlt));Cn = zeros(length(fc),length(xn),n
     for i= 1:numel(wvlt)
         fprintf('\t%s\n',wvlt{i});
         fprintf('\t\t...on Signal\n');
-        Cs(:,:,i) = cwt(xs,sc(i,:),wvlt{i}); %wavelet transformation on signal for that scale and that wavelet
+        Cs(:,:,i) = single(cwt(xs,sc(i,:),wvlt{i})); %wavelet transformation on signal for that scale and that wavelet
 %         fprintf('\t\t...on Noise\n');
 %         Cn(:,:,i) = cwt(xn,sc(i,:),wvlt{i}); %wavelet transformation on noise for that scale and that wavelet
 %         fprintf('\t\tComputing power.\n');

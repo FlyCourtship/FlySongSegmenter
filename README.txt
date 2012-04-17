@@ -1,20 +1,25 @@
 RUNNING ON YOUR LOCAL MACHINE
 
-use Process_Song() to analyze data already loaded into the matlab
-workspace and Process_daq_Song() to analyze .daq files on disk without
-first loading them.  either way, the returned results are viewed with
+start matlab and use Process_Song() to analyze data already loaded into
+the matlab workspace or Process_daq_Song() to analyze .daq files on disk
+without first loading them.  either way, the returned results are viewed with
 Plot_PulseSegmentation_Results().  all parameters are contained in params.m.
 
 
 BATCHING JOBS TO THE JANELIA CLUSTER
 
-to compile the matlab code, first login to the scheduler node.
+(1) compile the matlab code
 
->> qlogin -l interactive=true,matlab=1
+first login to the cluster's scheduler node, either directly with openNX
+(see our wiki: http://wiki/wiki/display/ScientificComputing/NX+Client+Setup)
+or indirectly via SSH ("ssh login" on a mac using terminal.app or on a PC
+using putty.exe).  once there, login to a real compute node:
+
+$ qlogin -l interactive=true,matlab=1
 
 Then start matlab
 
->> /usr/local/matlab-2012a/bin/matlab
+$ /usr/local/matlab-2012a/bin/matlab
 
 Then issue the command to compile. You need to provide the full path to the
 code.  For example, assuming your code is in your home directory (and not
@@ -27,7 +32,7 @@ you would issue this command.
 
 >> deploytool -build song/code/find_fly_song.prj
 
-Or, if you don't want to launch matlab, you can compile from the unix command
+If you don't want to launch matlab, you can compile from the unix command
 line using
 
 $ mcc -vm -I chronux -I order find_fly_song.m
@@ -37,20 +42,12 @@ FSS/find_fly_song/.  if you have problems with disk space try
 deleting/moving/renaming find_fly_song.prj, which deploytool uses, but
 somehow seemingly screws up mcc.
 
-Alternatively, you can do this with openNX (see our wiki:
-http://wiki/wiki/display/ScientificComputing/NX+Client+Setup) instead
-of ssh as above. from there login to a real node using "qlogin -l
-interactive=true,matlab=1" from which you can then run matlab with
-"/usr/bin/matlab-2012a/bin/matlab &".  on the matlab command line use
-"deploytool -build find_fly_song.prj" to update the executable in
-find_fly_song/distrib/*.
+(2) run the compiled code
 
-To run the compiled code, first login to the cluster's scheduler node.
-
-$ ssh login
-
-then "cd" to the directory cluster.sh lives in.  this will depend on where
-you put it in your home directory.
+first login to the cluster's scheduler node as before, or exit out of
+the real compute node if you had qlogin'ed to compile.  then "cd" to the
+directory cluster.sh lives in.  this will depend on where you put it in
+your home directory.
 
 $ cd /home/username/bin
 
