@@ -195,7 +195,7 @@ endIdx = find(diff(hiTest) == -1);%Find end points above thresh
 %% 
 %Calculate cPnts by taking the maximum within each region that is above
 % threshold. 
-
+cPnts = zeros(length(srtIdx),1);
 for i = 1:length(srtIdx)
     [~, cPnts(i)] = max(sig4Test(srtIdx(i):endIdx(i)));
     cPnts(i) = cPnts(i) + srtIdx(i) -1;
@@ -203,69 +203,81 @@ end
 
 %for debugging:
 %figure; plot(xs, 'k'); hold on; plot(cPnts,0.4,'.r'); plot(smthThresh,'b'); plot(sig4Test,'m');
+
+
+
 %% Use output of putativepulse2 (pps) to identify regions of song that may contain pulses (and do not contain sines)
+%%This section could be cut
+% tic;
+% for i=1:numel(pps.clips); %for each putative pulse segment
+%     a = pps.clips(i);
+%     b = size(a{1},1);
+%     pps.stop2(1,i) = pps.start(i) + round(b) - 1;
+% end
+% putpul = struct('i0',pps.start, 'i1', pps.stop2);
+% number = numel(pps.start);
+% 
+% %cPnts has all of the times where pulse peaks occur
+% 
+% A = [];
+% A = length(cmhSong);
+% B=[];
+% B = length(double(putpul.i1));
+% if putpul.i0(1) < 1;
+%     putpul.i0(1) = 1;
+% end
+% if putpul.i1(B) > A;
+%     putpul.i1(B) = A;
+% end
+% 
+% fprintf('EXTRACTING CANDIDATE PULSES.\n');
+% 
+% % pulses = {};
+% % pulse_start_times = [];
+% % pulse_lengths = [];
+% 
+% n = 1;
+% for i=1:number; %for each putative pulse segment
+%     if double(putpul.i0(i)) == double(putpul.i1(i));
+%         continue
+%     end    
+%     
+%     start=[];
+%     stop=[];
+%     aa=[];
+%     ii=[];
+%     
+%     start = putpul.i0(i); %putative pulse segmenet start time
+%     stop = putpul.i1(i); %putative pulse segmenet stop time
+%     aa = find(cPnts < stop & cPnts > start); %find those pulse peaks in this segment
+%     ii = cPnts(aa);
+%     s = length(ii); %the number of pulses in this segment
+%     
+%     pulse_peaks(n:n+s-1) = ii; %put the pulse peak times in pulse_peaks
+%     n = n + s;
+% end
+% 
+% 
+% zz = zeros(1,length(pulse_peaks));
+% pcndInfo = struct('wc',double(pulse_peaks),...
+%            'dog',zz,'scmx',zz,'fcmx',zz,'w0',zz,'w1',zz);
 
-tic;
-for i=1:numel(pps.clips); %for each putative pulse segment
-    a = pps.clips(i);
-    b = size(a{1},1);
-    pps.stop2(1,i) = pps.start(i) + round(b) - 1;
-end
-putpul = struct('i0',pps.start, 'i1', pps.stop2);
-number = numel(pps.start);
 
-%cPnts has all of the times where pulse peaks occur
-
-A = [];
-A = length(cmhSong);
-B=[];
-B = length(double(putpul.i1));
-if putpul.i0(1) < 1;
-    putpul.i0(1) = 1;
-end
-if putpul.i1(B) > A;
-    putpul.i1(B) = A;
-end
-
-fprintf('EXTRACTING CANDIDATE PULSES.\n');
-
-% pulses = {};
-% pulse_start_times = [];
-% pulse_lengths = [];
-
-n = 1;
-for i=1:number; %for each putative pulse segment
-    if double(putpul.i0(i)) == double(putpul.i1(i));
-        continue
-    end    
-    
-    start=[];
-    stop=[];
-    aa=[];
-    ii=[];
-    
-    start = putpul.i0(i); %putative pulse segmenet start time
-    stop = putpul.i1(i); %putative pulse segmenet stop time
-    aa = find(cPnts < stop & cPnts > start); %find those pulse peaks in this segment
-    ii = cPnts(aa);
-    s = length(ii); %the number of pulses in this segment
-    
-    pulse_peaks(n:n+s-1) = ii; %put the pulse peak times in pulse_peaks
-    n = n + s;
-end
-     
-zz = zeros(1,length(pulse_peaks));
-pcndInfo = struct('wc',double(pulse_peaks),...
-           'dog',zz,'scmx',zz,'fcmx',zz,'w0',zz,'w1',zz);
+%If cut the above section then add
+pcndInfo.wc = cPnts;
 
 
-
+       
+%% 
+       
+       
 if pcndInfo.wc==0;
     zz = zeros(1,10);
     pulseInfo.w0 = zz;
     pulseInfo2.w0=zz;
     return
 end
+
 %%
 %FIRST WINNOW
 %Collecting pulses in pulseInfo (removing those below the noise threshold):

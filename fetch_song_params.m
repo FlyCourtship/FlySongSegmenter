@@ -12,6 +12,11 @@ dS = 0.01;%dS = window step size
 pval = 0.05;%pval = criterion for F-test
 fwindow = [0 Fs];%[0 1000] if want up to Nyquist freq
 
+%find sine song? Toggle: 1 = yes; 0 = no. Code is MUCH faster if you don't
+%search for sine.
+find_sine = 1;
+
+
 %SET THE PARAMETERS FOR lengthfinder3
 %freq1 and freq2 define the bounds between which the fundamental frequency 
 %of sine song is expected
@@ -82,6 +87,7 @@ param.K = K;
 param.dT = dT;
 param.dS = dS;
 param.pval = pval;
+param.find_sine = find_sine;
 param.sine_low_freq = sine_low_freq;
 param.sine_high_freq = sine_high_freq;
 param.sine_range_percent = sine_range_percent;

@@ -7,6 +7,10 @@ else
     pM_name = char(pulse_model_name);
 end
 
+if strcmp(folder(end),'/') == 0
+    folder = [folder '/'];
+end
+
 
 %grab models in a folder and put in cell array
 
