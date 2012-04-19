@@ -1,5 +1,5 @@
 function Z_2_pulse_model_multi(folder,pulseInfo_name,pulse_model)
-%USAGE Z_2_pulse_model_multi(folder,pulse_model)
+%USAGE Z_2_pulse_model_multi(folder,pulseInfo_name,pulse_model)
 
 pI_name = char(pulseInfo_name);
 pM_name = char(pulse_model);
