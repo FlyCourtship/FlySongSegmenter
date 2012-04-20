@@ -1,5 +1,5 @@
-%function flysong_segmenter_byhand5(file)
-%function flysong_segmenter_byhand5(data,Fs)
+%function flysong_segmenter_byhand(file)
+%function flysong_segmenter_byhand(data,Fs)
 %
 %file is the .daq output filename of array_take
 %data is a matrix containing the data from daqread()
@@ -40,6 +40,10 @@
 %  parfor for F-test
 %  time/frequency resolutions displayed (and NW-K for multi-taper)
 %
+%ver 0.6
+%  brown and puckette (1993) hi-res frequency tracker
+%  spectrogram pixels now centered on frequency value
+%
 %to convert PULSE_MODE=1 _byhand.mat files to PULSE_MODE=2, rename them to
 % _old.mat, load them, and then PULSE=[PULSE PULSE(:,2)+0.001]; and then
 % save() without _old;
@@ -61,15 +65,15 @@ IDXP=[];
 IDXS=[];
 M=[];
 TOGGLE=[];
-XPAN=0;
-XZOOM=0.1;
+XPAN=0;  % sec
+XZOOM=0.1;  % sec
 SHIFT=max(RAW)-min(RAW);
 EDIT=0;
 STEP_SIZE=1;
 DELETE_BUTTON=[];
 CHANNEL=1;
 NARGIN=nargin;
-NFFT=2^9;
+NFFT=2^9;  % tic
 BISPECTRUM=0;
 FTEST=0;
 NW=9;  K=17;
@@ -102,8 +106,8 @@ else
   RAW=DATA(:,CHANNEL);
 end
 
-YPAN=0;
-YZOOM=FS/2;
+YPAN=0;  % Hz
+YZOOM=FS/2;  % Hz
 
 if(XPAN>length(RAW)/FS) XPAN=0; end
 if((XPAN+XZOOM)>(length(RAW)/FS)) XZOOM=(length(RAW)/FS)-XPAN; end
@@ -143,8 +147,11 @@ uicontrol('parent',H,'style','pushbutton',...
    'string','(b)ispectrum','tooltipstring','toggle between spectrum and bispectrum', ...
    'callback', @bispectrum_callback);
 uicontrol('parent',H,'style','pushbutton',...
-   'string','(m)ulti-taper F-test','tooltipstring','toggle between spectrum and multi-taper spectrum with F-test', ...
+   'string','(m)ulti-taper F-test','tooltipstring','toggle between spectrum and multi-taper spectrum with F-test in green', ...
    'callback', @ftest_callback);
+uicontrol('parent',H,'style','pushbutton',...
+   'string','(7) brown & puckette','tooltipstring','track chosen harmonic with high resolution', ...
+   'callback', @brown_puckette_callback);
 uicontrol('parent',H,'style','pushbutton',...
    'string','(p)ulse','tooltipstring','add pulse song', ...
    'callback', @addpulse_callback);
@@ -197,16 +204,18 @@ for(i=1:length(foo))
         set(foo(i),'position',[240,tmp(4)-30,80,20]);
       case('(m)ulti-taper F-test')
         set(foo(i),'position',[320,tmp(4)-30,120,20]);
+      case('(7) brown & puckette')
+        set(foo(i),'position',[440,tmp(4)-30,120,20]);
       case('(p)ulse')
-        set(foo(i),'position',[440,tmp(4)-30,50,20]);
+        set(foo(i),'position',[560,tmp(4)-30,50,20]);
       case('(s)ine')
-        set(foo(i),'position',[490,tmp(4)-30,50,20]);
+        set(foo(i),'position',[610,tmp(4)-30,50,20]);
       case('(d)elete')
-        set(foo(i),'position',[540,tmp(4)-30,50,20]);
+        set(foo(i),'position',[660,tmp(4)-30,50,20]);
       case('(l)isten')
-        set(foo(i),'position',[590,tmp(4)-30,50,20]);
+        set(foo(i),'position',[710,tmp(4)-30,50,20]);
       case('save')
-        set(foo(i),'position',[640,tmp(4)-30,40,20]);
+        set(foo(i),'position',[760,tmp(4)-30,40,20]);
     end
   end
 end
@@ -249,6 +258,8 @@ switch(evt.Key)
     bispectrum_callback;
   case('m')
     ftest_callback;
+  case('7')
+    brown_puckette_callback;
   case('p')
     addpulse_callback;
   case('s')
@@ -469,7 +480,9 @@ update;
 
 function bispectrum_callback(hObject,eventdata)
 
-global BISPECTRUM
+global BISPECTRUM FTEST
+
+if(FTEST)  return;  end
 
 BISPECTRUM=~BISPECTRUM;
 update;
@@ -478,7 +491,9 @@ update;
 
 function ftest_callback(hObject,eventdata)
 
-global FTEST NW K NFFT FS
+global FTEST BISPECTRUM NW K NFFT FS
+
+if(BISPECTRUM)  return;  end
 
 FTEST=~FTEST;
 if(FTEST)
@@ -491,6 +506,24 @@ if(FTEST)
 end
 update;
 
+
+
+function brown_puckette_callback(hObject,eventdata)
+
+global FS RAW XPAN XZOOM NFFT
+
+[t,f]=ginput(1);
+
+foo=RAW((round(t*FS)-NFFT/2):floor((XPAN+XZOOM)*FS));
+[Hr tr]=brown_puckette(foo',NFFT,FS,1,f);
+
+foo2=flipud(RAW((1+ceil(XPAN*FS)):(round(t*FS)+NFFT/2-1)));
+[Hl tl]=brown_puckette(foo2',NFFT,FS,1,f);
+
+H=[fliplr(Hl) Hr];
+t=[t-fliplr(tl)+tl(1) t+tr-tr(1)];
+
+plot3(t,H,ones(size(t)),'r.-');
 
 
 function update
@@ -561,7 +594,7 @@ if(length(foo)>NFFT)
   tmp3=prctile(tmp4,99);
   idx=find(tmp<tmp2);  tmp(idx)=tmp2;
   idx=find(tmp>tmp3);  tmp(idx)=tmp3;
-  surf((t+foo2(1)./FS).*UNITS{1},f(fidx),tmp,'EdgeColor','none');
+  surf((t+foo2(1)./FS).*UNITS{1},f(fidx)-f(2)/2,tmp,'EdgeColor','none');
   if(BISPECTRUM)
     colormap(gray);
   else
@@ -571,7 +604,7 @@ if(length(foo)>NFFT)
       tmp=t(2)-t(1);  tmp2=f(2)-f(1);
       for(k=1:length(i))
         plot((t(j(k))+[0 tmp tmp 0 0]+foo2(1)/FS),...
-            f(i(k))+[0 0 tmp2 tmp2 0],'g-');
+            f(i(k))-f(2)/2+[0 0 tmp2 tmp2 0],'g-');
       end
     end
   end
