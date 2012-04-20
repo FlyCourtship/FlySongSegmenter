@@ -1,3 +1,12 @@
+%function Process_daq_Song(song_daq_file,channel_num,song_range,params_path)
+%
+%e.g. Process_daq_Song('/misc/public/Troy/20120302081902.daq',3,[1 1000000],'./params.m');
+%processes the first million tics of channel #3
+%
+%e.g. Process_daq_Song('20120302081902.daq',[],[],'./params.m');
+%processes all of the tics of all of the channels.
+%w/o a full path the file must be in the current directory.
+
 function Process_daq_Song(song_daq_file,channel_num,song_range,params_path)
 
 %old - when require noise file
