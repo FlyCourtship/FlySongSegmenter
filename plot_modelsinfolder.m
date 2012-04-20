@@ -56,9 +56,9 @@ for y = 1:file_num
             %         end
     end
 end
-[pathstr,name,~]=fileparts(folder);
-r=regexp(pathstr,'/','split');
-folder_name = char(r(end));
-outfile = [pathstr sep folder_name '_pulsemodels.png'];
+% [pathstr,name,~]=fileparts(folder);
+r=regexp(folder,'/','split');
+folder_name = char(r(end-1));
+outfile = [folder folder_name '_pulsemodels.png'];
 warning('off','MATLAB:LargeImage');
 export_fig(outfile,'-r300');

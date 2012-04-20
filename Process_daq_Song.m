@@ -57,7 +57,7 @@ for y = yy
  
         %run Process_Song on selected channel
         fprintf('Processing song.\n')
-        [data, winnowed_sine, pulseInfo, pulseInfo2, pps, pcndInfo] = Process_Song(song,[],params_path);
+        [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = Process_Song(song,[],params_path);
         %save data
         
         save(outfile, 'data','winnowed_sine', 'pcndInfo','pulseInfo2','pulseInfo','-v7.3')
