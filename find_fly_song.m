@@ -55,7 +55,7 @@ function process_song_data(song_path, song_data, Fs, sample_range, params_path)
         if ~isempty(sample_range)
             song_data = song_data(sample_range(1):sample_range(2));
         end
-        [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(song_data, Fs, [], params_path); %#ok<NASGU,ASGLU>
+        [data, winnowed_sine, pulseInfo2, pulseInfo] = Process_Song(song_data, [], params_path); %#ok<NASGU,ASGLU>
         save(outfile, 'data','winnowed_sine','pulseInfo2','pulseInfo','-v7.3')
         clear song data winnowed_sine pulseInfo2 pulseInfo;
     else
