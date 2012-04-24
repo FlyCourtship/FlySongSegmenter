@@ -12,7 +12,7 @@ low_freq_index = find(ssf.f>param.low_freq_cutoff,1,'first');
 high_freq_index = find(ssf.f<param.high_freq_cutoff,1,'last');
 
 %Test range of gmdistribution.fit parameters
-AIC=zeros(1,6);
+AIC=inf*zeros(1,6);
 obj=cell(1,6);
 A_sums = sum(abs(ssf.A(low_freq_index:high_freq_index,:)));
 if pool ~=0
