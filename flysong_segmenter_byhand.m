@@ -50,6 +50,9 @@
 
 function flysong_segmenter_byhand5(varargin)
 
+[p n e]=fileparts(which('flysong_segmenter_byhand'));
+addpath(fullfile(p,'chronux'));
+
 global RAW IDXP IDXS XPAN XZOOM YPAN YZOOM UNITS
 global CHANNEL FILE DATA PULSE SINE PULSE_MODE NFFT
 global FS NARGIN H BISPECTRUM FTEST PARAMS NW K TEXT
@@ -76,6 +79,7 @@ NARGIN=nargin;
 NFFT=2^9;  % tic
 BISPECTRUM=0;
 FTEST=0;
+PARAMS=[];
 NW=9;  K=17;
 
 if(NARGIN==1)
@@ -147,7 +151,7 @@ uicontrol('parent',H,'style','pushbutton',...
    'string','(b)ispectrum','tooltipstring','toggle between spectrum and bispectrum', ...
    'callback', @bispectrum_callback);
 uicontrol('parent',H,'style','pushbutton',...
-   'string','(m)ulti-taper F-test','tooltipstring','toggle between spectrum and multi-taper spectrum with F-test in green', ...
+   'string','(m)ulti-taper F-test','tooltipstring','toggle between spectrum and multi-taper spectrum with F-test in green;  use N/n and K/k to change bandwidth and # tapers respectively', ...
    'callback', @ftest_callback);
 uicontrol('parent',H,'style','pushbutton',...
    'string','(7) brown & puckette','tooltipstring','track chosen harmonic with high resolution', ...
@@ -549,7 +553,7 @@ if(length(foo)>NFFT)
       PARAMS.NW=NW;
       PARAMS.K=K;
       PARAMS.NFFT=NFFT;
-      [PARAMS.tapers,bar]=dpsschk([NW K],NFFT,FS);
+      [PARAMS.tapers,~]=dpsschk([NW K],NFFT,FS);
       PARAMS.Fs=FS;
       PARAMS.pad=0;
       PARAMS.fpass=[0 FS/2];
