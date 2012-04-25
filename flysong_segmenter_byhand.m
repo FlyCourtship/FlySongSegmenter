@@ -50,7 +50,7 @@
 
 function flysong_segmenter_byhand5(varargin)
 
-global RAW IDXP IDXS XPAN XZOOM YPAN YZOOM UNITS
+global RAW IDXP IDXS XPAN XZOOM YPAN YZOOM UNITS TYPE
 global CHANNEL FILE DATA PULSE SINE PULSE_MODE NFFT
 global FS NARGIN H BISPECTRUM FTEST PARAMS NW K TEXT
 
@@ -86,10 +86,10 @@ NW=9;  K=17;
 
 if(NARGIN==1)
   VARARGOUT=[];
-  if(strcmp(varargin{1}(end-3:end),'.daq'))
-    FILE=varargin{1}(1:end-4);
-  else
-    FILE=varargin{1};
+  FILE=varargin{1};
+  [foo foo TYPE]=fileparts(varargin{1});
+  if(~ismember(TYPE,{'.daq','.ch1'}))
+    error('only .daq and .ch1 filetypes supported, or matrices in the workspace');
   end
 
   if(exist([FILE '_byhand.mat'],'file'))
@@ -99,10 +99,21 @@ if(NARGIN==1)
     SINE=[];
   end
 
-  dinfo=daqread(FILE,'info');
-  NCHAN=length(dinfo.ObjInfo.Channel);
-  FS=dinfo.ObjInfo.SampleRate;
-  RAW=daqread(FILE,'Channel',CHANNEL);
+  switch(TYPE)
+    case('.daq')
+      dinfo=daqread(FILE,'info');
+      NCHAN=length(dinfo.ObjInfo.Channel);
+      FS=dinfo.ObjInfo.SampleRate;
+      RAW=daqread(FILE,'Channel',CHANNEL);
+    case('.ch1')
+      fid=fopen(FILE,'r');
+      fseek(fid,0,1);
+      NCHAN=ceil(ftell(fid)/1e8);
+      FS=200e3;
+      fseek(fid,0,-1);
+      RAW=fread(fid,1e8/4,'float32');
+      fclose(fid);
+  end
 else
   PULSE=[];
   SINE=[];
@@ -296,13 +307,21 @@ end
 
 function changechannel_callback(hObject,eventdata)
 
-global FILE DATA RAW CHANNEL NARGIN
+global FILE DATA RAW CHANNEL NARGIN TYPE
 
 foo=CHANNEL;
 CHANNEL=get(hObject,'value');
 if(foo==CHANNEL)  beep;  return;  end
 if(NARGIN==1)
-  RAW=daqread(FILE,'Channel',CHANNEL);
+  switch(TYPE)
+    case('.daq');
+      RAW=daqread(FILE,'Channel',CHANNEL);
+    case('.ch1');
+      fid=fopen(FILE,'r');
+      fseek(fid,(CHANNEL-1)*length(RAW),-1);
+      RAW=fread(fid,length(RAW),'float32');
+      fclose(fid);
+  end
 else
   RAW=DATA(:,CHANNEL);
 end
