@@ -50,12 +50,14 @@
 
 function flysong_segmenter_byhand5(varargin)
 
-[p n e]=fileparts(which('flysong_segmenter_byhand'));
-addpath(fullfile(p,'chronux'));
-
 global RAW IDXP IDXS XPAN XZOOM YPAN YZOOM UNITS
 global CHANNEL FILE DATA PULSE SINE PULSE_MODE NFFT
 global FS NARGIN H BISPECTRUM FTEST PARAMS NW K TEXT
+
+[p n e]=fileparts(which('flysong_segmenter_byhand'));
+addpath(fullfile(p,'chronux'));
+
+if(exist('matlabpool','file') && matlabpool('size')==0)  matlabpool('open');  end
 
 %UNITS{1}=1000;
 %UNITS{2}='ms';
@@ -296,7 +298,9 @@ function changechannel_callback(hObject,eventdata)
 
 global FILE DATA RAW CHANNEL NARGIN
 
+foo=CHANNEL;
 CHANNEL=get(hObject,'value');
+if(foo==CHANNEL)  beep;  return;  end
 if(NARGIN==1)
   RAW=daqread(FILE,'Channel',CHANNEL);
 else
@@ -310,8 +314,9 @@ function panleft_callback(hObject,eventdata)
 
 global XPAN XZOOM;
 
+foo=XPAN;
 XPAN=max(0,XPAN-XZOOM/2);
-update;
+if(foo~=XPAN)  update;  else  beep;  end
 
 
 
@@ -319,8 +324,9 @@ function panright_callback(hObject,eventdata)
 
 global XPAN XZOOM RAW FS;
 
+foo=XPAN;
 XPAN=min(length(RAW)/FS-XZOOM,XPAN+XZOOM/2);
-update;
+if(foo~=XPAN)  update;  else  beep;  end
 
 
 
@@ -328,8 +334,9 @@ function panup_callback(hObject,eventdata)
 
 global YPAN YZOOM RAW FS;
 
+foo=YPAN;
 YPAN=min(FS/2-YZOOM,YPAN+YZOOM/2);
-update;
+if(foo~=YPAN)  update;  else  beep;  end
 
 
 
@@ -337,30 +344,33 @@ function pandown_callback(hObject,eventdata)
 
 global YPAN YZOOM RAW FS;
 
+foo=YPAN;
 YPAN=max(0,YPAN-YZOOM/2);
-update;
+if(foo~=YPAN)  update;  else  beep;  end
 
 
 
 function xzoomin_callback(hObject,eventdata)
 
-global XPAN XZOOM;
+global XPAN XZOOM FS NFFT; 
 
-if(XZOOM<0.01)  return;  end;
+%if(XZOOM*FS<10*NFFT)  return;  end;
+foo=XPAN;  bar=XZOOM;
 XZOOM=XZOOM/2;
 XPAN=XPAN+XZOOM/2;
-update;
+if((foo~=XPAN)||(bar~=XZOOM))  update;  else  beep;  end
 
 
 
 function yzoomin_callback(hObject,eventdata)
 
-global YPAN YZOOM;
+global YPAN YZOOM FS NFFT;
 
-if(YZOOM<10)  return;  end;
+if(YZOOM<10*FS/NFFT)  return;  end;
+foo=YPAN;  bar=YZOOM;
 YZOOM=YZOOM/2;
 YPAN=YPAN+YZOOM/2;
-update;
+if((foo~=YPAN)||(bar~=YZOOM))  update;  else  beep;  end
 
 
 
@@ -368,12 +378,13 @@ function xzoomout_callback(hObject,eventdata)
 
 global XPAN XZOOM RAW FS;
 
+foo=XPAN;  bar=XZOOM;
 XPAN=max(0,XPAN-XZOOM/2);
 XZOOM=XZOOM*2;
 if((XPAN+XZOOM)>(length(RAW)/FS))
   XZOOM=(length(RAW)/FS)-XPAN;
 end
-update;
+if((foo~=XPAN)||(bar~=XZOOM))  update;  else  beep;  end
 
 
 
@@ -381,12 +392,13 @@ function yzoomout_callback(hObject,eventdata)
 
 global YPAN YZOOM RAW FS;
 
+foo=YPAN;  bar=YZOOM;
 YPAN=max(0,YPAN-YZOOM/2);
 YZOOM=YZOOM*2;
 if((YPAN+YZOOM)>(FS/2))
   YZOOM=FS/2-YPAN;
 end
-update;
+if((foo~=YPAN)||(bar~=YZOOM))  update;  else  beep;  end
 
 
 
@@ -458,8 +470,9 @@ end
 
 function nfftup_callback(hObject,eventdata)
 
-global NFFT NW K FTEST FS
+global NFFT NW K FTEST FS XZOOM
 
+if(XZOOM*FS<10*NFFT)  return;  end;
 NFFT=NFFT*2;
 update;
 
@@ -467,9 +480,11 @@ update;
 
 function nfftdown_callback(hObject,eventdata)
 
-global NFFT NW K FTEST FS
+global NFFT NW K FTEST FS YZOOM
 
-NFFT=NFFT/2;
+if(YZOOM<10*FS/NFFT)  return;  end;
+foo=NFFT;
+NFFT=max(8,NFFT/2);
 if(FTEST)
   while(NW>=(NFFT/2))
     NW=NW-1;
@@ -478,7 +493,7 @@ if(FTEST)
     K=floor(2*NW-1);
   end
 end
-update;
+if(foo~=NFFT)  update;  else  beep;  end
 
 
 
@@ -546,6 +561,7 @@ foo2=(1+ceil(XPAN*FS)):floor((XPAN+XZOOM)*FS);
 foo=RAW(foo2);
 
 subplot(2,1,1);  cla;  hold on;
+if(XZOOM*FS>10*NFFT)
 if(length(foo)>NFFT)
   if(FTEST)
     if(isempty(PARAMS)||(PARAMS.NW~=NW)||(PARAMS.K~=K)||(PARAMS.NFFT~=NFFT))
@@ -567,7 +583,7 @@ if(length(foo)>NFFT)
     sig=zeros(kk);
     sd=zeros(tmp,kk);
     t=(0:(kk-1))*NFFT/2/FS+NFFT/2/FS;
-    for k=1:kk
+    parfor k=1:kk
       i=1+(k-1)*NFFT/2;
       [F(:,k),p(:,k),f(:,k),sig(k),sd(:,k)] = ftestc(foo(i:(i+NFFT-1)),PARAMS,0.01/NFFT,'n');
     end
@@ -614,6 +630,7 @@ if(length(foo)>NFFT)
   end
   axis tight;
   ylabel('frequency (Hz)');
+end
 end
 
 subplot(2,1,2);  cla;  hold on;
