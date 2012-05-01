@@ -480,7 +480,7 @@ function listen_callback(hObject,eventdata)
 
 global RAW XPAN XZOOM FS;
 
-sound(RAW((1+ceil(XPAN*FS)):floor((XPAN+XZOOM)*FS)),FS);
+sound(RAW((1+ceil(XPAN*FS)):floor((XPAN+XZOOM)*FS)),min(48000,FS));
 
 
 
