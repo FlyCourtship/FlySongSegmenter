@@ -85,10 +85,9 @@ PARAMS=[];
 NW=9;  K=17;
 
 if(NARGIN==1)
-  VARARGOUT=[];
   FILE=varargin{1};
   [foo foo TYPE]=fileparts(varargin{1});
-  if(~ismember(TYPE,{'.daq','.ch1'}))
+  if(~ismember(TYPE,{'.daq'}))
     error('only .daq and .ch1 filetypes supported, or matrices in the workspace');
   end
 
@@ -105,22 +104,32 @@ if(NARGIN==1)
       NCHAN=length(dinfo.ObjInfo.Channel);
       FS=dinfo.ObjInfo.SampleRate;
       RAW=daqread(FILE,'Channel',CHANNEL);
-    case('.ch1')
-      fid=fopen(FILE,'r');
-      fseek(fid,0,1);
-      NCHAN=ceil(ftell(fid)/1e8);
-      FS=200e3;
-      fseek(fid,0,-1);
-      RAW=fread(fid,1e8/4,'float32');
-      fclose(fid);
   end
 else
-  PULSE=[];
-  SINE=[];
-  DATA=varargin{1};
-  NCHAN=size(DATA,2);
-  FS=varargin{2};
-  RAW=DATA(:,CHANNEL);
+  if(ischar(varargin{1}))
+    FILE=varargin{1};
+    [foo foo TYPE]=fileparts(varargin{1});
+    if(~ismember(TYPE,{'.ch1'}))
+      error('only .daq and .ch1 filetypes supported, or matrices in the workspace');
+    end
+    switch(TYPE)
+      case('.ch1')
+        fid=fopen(FILE,'r');
+        fseek(fid,0,1);
+        NCHAN=ceil(ftell(fid)/1e8);
+        FS=varargin{2};
+        fseek(fid,0,-1);
+        RAW=fread(fid,1e8/4,'float32');
+        fclose(fid);
+    end
+  else
+    PULSE=[];
+    SINE=[];
+    DATA=varargin{1};
+    NCHAN=size(DATA,2);
+    FS=varargin{2};
+    RAW=DATA(:,CHANNEL);
+  end
 end
 
 YPAN=0;  % Hz
@@ -477,7 +486,7 @@ sound(RAW((1+ceil(XPAN*FS)):floor((XPAN+XZOOM)*FS)),FS);
 
 function save_callback(hObject,eventdata)
 
-global FILE PULSE SINE NARGIN VARARGOUT;
+global FILE PULSE SINE NARGIN
 
 if(NARGIN==1)
   save([FILE '_byhand.mat'],'PULSE','SINE');
