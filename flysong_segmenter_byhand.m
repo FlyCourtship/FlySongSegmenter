@@ -1,5 +1,6 @@
-%function flysong_segmenter_byhand(file)
+%function flysong_segmenter_byhand(daq_file)
 %function flysong_segmenter_byhand(data,Fs)
+%function flysong_segmenter_byhand(ch*_file,Fs)
 %
 %file is the .daq output filename of array_take
 %data is a matrix containing the data from daqread()
@@ -105,16 +106,21 @@ else
   if(ischar(varargin{1}))
     FILE=varargin{1};
     [foo foo TYPE]=fileparts(varargin{1});
-    if(isempty(regexp(TYPE,'\.ch[0-9]*')))
+    if(isempty(regexp(TYPE,'\.ch[0-9*]')))
       error('only .daq and .ch* filetypes supported, or matrices in the workspace');
     end
     TYPE='.ch';
-    fid=fopen(FILE,'r');
-    fseek(fid,0,1);
-    NCHAN=ceil(ftell(fid)/1e8);
+    tmp=dir(FILE);
+    NCHAN=length(tmp);
+    FILE={1,NCHAN};
+    [FILE{1:NCHAN}]=deal(tmp.name);
     FS=varargin{2};
-    fseek(fid,0,-1);
-    RAW=fread(fid,1e8/4,'float32');
+    fid=fopen(FILE{CHANNEL},'r');
+    %fseek(fid,0,1);
+    %NCHAN=ceil(ftell(fid)/1e8);
+    %fseek(fid,0,-1);
+    %RAW=fread(fid,1e8/4,'float32');
+    RAW=fread(fid,inf,'float32');
     fclose(fid);
   else
     TYPE=[];
@@ -320,9 +326,9 @@ switch(TYPE)
   case('.daq');
     RAW=daqread(FILE,'Channel',CHANNEL);
   case('.ch');
-    fid=fopen(FILE,'r');
-    fseek(fid,(CHANNEL-1)*length(RAW),-1);
-    RAW=fread(fid,length(RAW),'float32');
+    fid=fopen(FILE{CHANNEL},'r');
+    %fseek(fid,(CHANNEL-1)*length(RAW),-1);
+    RAW=fread(fid,inf,'float32');
     fclose(fid);
   case([]);
     RAW=DATA(:,CHANNEL);
