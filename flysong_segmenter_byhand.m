@@ -88,7 +88,7 @@ if(NARGIN==1)
   FILE=varargin{1};
   [foo foo TYPE]=fileparts(varargin{1});
   if(~ismember(TYPE,{'.daq'}))
-    error('only .daq and .ch1 filetypes supported, or matrices in the workspace');
+    error('only .daq and .ch* filetypes supported, or matrices in the workspace');
   end
 
   if(exist([FILE '_byhand.mat'],'file'))
@@ -97,32 +97,27 @@ if(NARGIN==1)
     PULSE=[];
     SINE=[];
   end
-
-  switch(TYPE)
-    case('.daq')
-      dinfo=daqread(FILE,'info');
-      NCHAN=length(dinfo.ObjInfo.Channel);
-      FS=dinfo.ObjInfo.SampleRate;
-      RAW=daqread(FILE,'Channel',CHANNEL);
-  end
+  dinfo=daqread(FILE,'info');
+  NCHAN=length(dinfo.ObjInfo.Channel);
+  FS=dinfo.ObjInfo.SampleRate;
+  RAW=daqread(FILE,'Channel',CHANNEL);
 else
   if(ischar(varargin{1}))
     FILE=varargin{1};
     [foo foo TYPE]=fileparts(varargin{1});
-    if(~ismember(TYPE,{'.ch1'}))
-      error('only .daq and .ch1 filetypes supported, or matrices in the workspace');
+    if(isempty(regexp(TYPE,'\.ch[0-9]*')))
+      error('only .daq and .ch* filetypes supported, or matrices in the workspace');
     end
-    switch(TYPE)
-      case('.ch1')
-        fid=fopen(FILE,'r');
-        fseek(fid,0,1);
-        NCHAN=ceil(ftell(fid)/1e8);
-        FS=varargin{2};
-        fseek(fid,0,-1);
-        RAW=fread(fid,1e8/4,'float32');
-        fclose(fid);
-    end
+    TYPE='.ch';
+    fid=fopen(FILE,'r');
+    fseek(fid,0,1);
+    NCHAN=ceil(ftell(fid)/1e8);
+    FS=varargin{2};
+    fseek(fid,0,-1);
+    RAW=fread(fid,1e8/4,'float32');
+    fclose(fid);
   else
+    TYPE=[];
     PULSE=[];
     SINE=[];
     DATA=varargin{1};
@@ -321,18 +316,16 @@ global FILE DATA RAW CHANNEL NARGIN TYPE
 foo=CHANNEL;
 CHANNEL=get(hObject,'value');
 if(foo==CHANNEL)  beep;  return;  end
-if(NARGIN==1)
-  switch(TYPE)
-    case('.daq');
-      RAW=daqread(FILE,'Channel',CHANNEL);
-    case('.ch1');
-      fid=fopen(FILE,'r');
-      fseek(fid,(CHANNEL-1)*length(RAW),-1);
-      RAW=fread(fid,length(RAW),'float32');
-      fclose(fid);
-  end
-else
-  RAW=DATA(:,CHANNEL);
+switch(TYPE)
+  case('.daq');
+    RAW=daqread(FILE,'Channel',CHANNEL);
+  case('.ch');
+    fid=fopen(FILE,'r');
+    fseek(fid,(CHANNEL-1)*length(RAW),-1);
+    RAW=fread(fid,length(RAW),'float32');
+    fclose(fid);
+  case([]);
+    RAW=DATA(:,CHANNEL);
 end
 update;
 
