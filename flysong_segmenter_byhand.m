@@ -58,7 +58,9 @@ global FS NARGIN H BISPECTRUM FTEST PARAMS NW K TEXT
 [p n e]=fileparts(which('flysong_segmenter_byhand'));
 addpath(fullfile(p,'chronux'));
 
-if(exist('matlabpool','file') && matlabpool('size')==0)  matlabpool('open');  end
+if(exist('matlabpool','file') && matlabpool('size')==0)
+  matlabpool('open');
+end
 
 %UNITS{1}=1000;
 %UNITS{2}='ms';
@@ -636,7 +638,8 @@ if(length(foo)>NFFT)
       PARAMS.fpass=[0 FS/2];
     end
     kk=ceil((length(foo)-NFFT+1)/(NFFT/2));
-    %tmp=max(256,2^nextpow2(NFFT))/2+1;
+    t=(0:(kk-1))*NFFT/2/FS+NFFT/2/FS;
+
     tmp=2^nextpow2(NFFT)/2+1;
     p=zeros(tmp,kk);
     F=zeros(tmp,kk);
@@ -649,6 +652,7 @@ if(length(foo)>NFFT)
       [F(:,k),p(:,k),f(:,k),sig(k),sd(:,k)] = ftestc(foo(i:(i+NFFT-1)),PARAMS,0.01/NFFT,'n');
     end
     f=f(:,1);  sig=sig(1);  sd=sd(:,1);
+
   else
     [s,f,t,p]=spectrogram(foo',NFFT,[],[],FS,'yaxis');
     if(BISPECTRUM)
