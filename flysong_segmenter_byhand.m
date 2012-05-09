@@ -141,13 +141,16 @@ if((XPAN+XZOOM)>(length(RAW)/FS)) XZOOM=(length(RAW)/FS)-XPAN; end
 
 figure;
 tmp=get(gcf,'position');
-set(gcf,'position',[0 0 1.5*tmp(3) 1.5*tmp(4)]);
+set(gcf,'position',[0 0 2*tmp(3) 1.5*tmp(4)]);
 set(gcf,'menubar','none','ResizeFcn',@resizeFcn,'WindowKeyPressFcn',@windowkeypressFcn);
 
 H=uipanel();
 uicontrol('parent',H,'style','popupmenu','value',CHANNEL,...
    'string',1:NCHAN, ...
    'callback', @changechannel_callback);
+uicontrol('parent',H,'style','pushbutton',...
+   'string','-','tooltipstring','pan X left 10x', ...
+   'callback', @panleft10x_callback);
 uicontrol('parent',H,'style','pushbutton',...
    'string','<','tooltipstring','pan X left; right click is zoom Y out', ...
    'callback', @panleft_callback, ...
@@ -164,6 +167,9 @@ uicontrol('parent',H,'style','pushbutton',...
    'string','>','tooltipstring','pan X right;  right click is zoom Y in', ...
    'callback', @panright_callback,...
    'buttondownfcn', @yzoomin_callback);
+uicontrol('parent',H,'style','pushbutton',...
+   'string','+','tooltipstring','pan X right 10x', ...
+   'callback', @panright10x_callback);
 uicontrol('parent',H,'style','pushbutton',...
    'string','(f)req','tooltipstring','increase frequency resolution', ...
    'callback', @nfftup_callback);
@@ -212,37 +218,41 @@ for(i=1:length(foo))
   if(strcmp(get(foo(i),'style'),'popupmenu'))
     set(foo(i),'position',[10,tmp(4)-30,70,20]);
   elseif(strcmp(get(foo(i),'style'),'text'))
-    set(foo(i),'position',[10,10,300,15]);
+    set(foo(i),'position',[10,10,350,15]);
   else
     switch(get(foo(i),'string'))
-      case('<')
+      case('-')
         set(foo(i),'position',[80,tmp(4)-30,20,20]);
-      case('^')
+      case('<')
         set(foo(i),'position',[100,tmp(4)-30,20,20]);
-      case('v')
+      case('^')
         set(foo(i),'position',[120,tmp(4)-30,20,20]);
-      case('>')
+      case('v')
         set(foo(i),'position',[140,tmp(4)-30,20,20]);
+      case('>')
+        set(foo(i),'position',[160,tmp(4)-30,20,20]);
+      case('+')
+        set(foo(i),'position',[180,tmp(4)-30,20,20]);
       case('(f)req')
-        set(foo(i),'position',[160,tmp(4)-30,40,20]);
-      case('(t)ime')
         set(foo(i),'position',[200,tmp(4)-30,40,20]);
+      case('(t)ime')
+        set(foo(i),'position',[240,tmp(4)-30,40,20]);
       case('(b)ispectrum')
-        set(foo(i),'position',[240,tmp(4)-30,80,20]);
+        set(foo(i),'position',[280,tmp(4)-30,80,20]);
       case('(m)ulti-taper F-test')
-        set(foo(i),'position',[320,tmp(4)-30,120,20]);
+        set(foo(i),'position',[360,tmp(4)-30,120,20]);
       case('(7) brown & puckette')
-        set(foo(i),'position',[440,tmp(4)-30,120,20]);
+        set(foo(i),'position',[480,tmp(4)-30,120,20]);
       case('(p)ulse')
-        set(foo(i),'position',[560,tmp(4)-30,50,20]);
+        set(foo(i),'position',[600,tmp(4)-30,50,20]);
       case('(s)ine')
-        set(foo(i),'position',[610,tmp(4)-30,50,20]);
+        set(foo(i),'position',[650,tmp(4)-30,50,20]);
       case('(d)elete')
-        set(foo(i),'position',[660,tmp(4)-30,50,20]);
+        set(foo(i),'position',[700,tmp(4)-30,50,20]);
       case('(l)isten')
-        set(foo(i),'position',[710,tmp(4)-30,50,20]);
+        set(foo(i),'position',[750,tmp(4)-30,50,20]);
       case('save')
-        set(foo(i),'position',[760,tmp(4)-30,40,20]);
+        set(foo(i),'position',[800,tmp(4)-30,40,20]);
     end
   end
 end
@@ -253,6 +263,8 @@ function windowkeypressFcn(src,evt)
 global NW K NFFT FS
 
 switch(evt.Key)
+  case('hyphen')
+    panleft10x_callback;
   case('leftarrow')
     if(strcmp(evt.Modifier,'shift'))
       yzoomout_callback;
@@ -277,6 +289,8 @@ switch(evt.Key)
     else
       panright_callback;
     end
+  case('equal')
+    panright10x_callback;
   case('f')
     nfftup_callback;
   case('t')
@@ -353,6 +367,26 @@ global XPAN XZOOM RAW FS;
 
 foo=XPAN;
 XPAN=min(length(RAW)/FS-XZOOM,XPAN+XZOOM/2);
+if(foo~=XPAN)  update;  else  beep;  end
+
+
+
+function panleft10x_callback(hObject,eventdata)
+
+global XPAN XZOOM;
+
+foo=XPAN;
+XPAN=max(0,XPAN-5*XZOOM);
+if(foo~=XPAN)  update;  else  beep;  end
+
+
+
+function panright10x_callback(hObject,eventdata)
+
+global XPAN XZOOM RAW FS;
+
+foo=XPAN;
+XPAN=min(length(RAW)/FS-XZOOM,XPAN+5*XZOOM);
 if(foo~=XPAN)  update;  else  beep;  end
 
 
