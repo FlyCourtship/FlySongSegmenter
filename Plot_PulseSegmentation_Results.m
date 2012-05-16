@@ -6,7 +6,7 @@ plot((1:size(data.d,1))./data.fs,data.d,'Color',[.742 .742 .742])
 hold on; 
 
 %plot sine data
-if numel(winnowed_sine.start) > 0 
+if ~isempty(winnowed_sine) && numel(winnowed_sine.start) > 0 
     if winnowed_sine.start>0
         for n = 1:size(winnowed_sine.start,1)
             x_start = round(winnowed_sine.start(n));
