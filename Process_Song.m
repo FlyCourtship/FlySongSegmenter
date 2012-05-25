@@ -10,10 +10,10 @@ if nargin < 3
     params_path = '';
 end
 fetch_song_params
-
-if param.find_sine == 1%use matlabpool only if looking for sine song
-    [poolavail,isOpen] = check_open_pool;
-end
+% 
+% if param.find_sine == 1%use matlabpool only if looking for sine song
+%     [poolavail,isOpen] = check_open_pool;
+% end
 
 
 fprintf('Running multitaper analysis on signal.\n')
@@ -112,8 +112,8 @@ clear ssf noise_ssf
 % end
 
 clear pm_ssf pm_sine
-if param.find_sine == 1%use matlabpool only if looking for sine song
-    check_close_pool(poolavail,isOpen);
-end
+% if param.find_sine == 1%use matlabpool only if looking for sine song
+%     check_close_pool(poolavail,isOpen);
+% end
 
 
