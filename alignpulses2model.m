@@ -1,5 +1,5 @@
 function fZ = alignpulses2model(Z,M)
-[poolavail,isOpen] = check_open_pool;
+% [poolavail,isOpen] = check_open_pool;
 [n_samples,total_length] = size(Z);
 
 for n = 1:n_samples;
@@ -30,4 +30,4 @@ end
 % fZ = Z/scale;
 
 fZ = Z;
-check_close_pool(poolavail,isOpen);
+% check_close_pool(poolavail,isOpen);
