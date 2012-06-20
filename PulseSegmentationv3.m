@@ -506,7 +506,7 @@ if (nOk)
   %pulseInfo2.mxv = pulseInfo2.mxv(1:nOk);
 end
 
-if pulseInfo2.w0==0;
+if isempty(pulseInfo2.w0) | (pulseInfo2.w0==0)
     fprintf('no pulses made it through second round of winnowing and into pulseInfo2.\n');
     return
 end
