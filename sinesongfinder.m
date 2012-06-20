@@ -56,7 +56,7 @@ dim1 = length(f);
 Fval=zeros(dim1,kk);A=zeros(dim1,kk); 
 [~,~,f,sig,~] = ftestc(d(1:(1+dT2-1)),params,pval/dT2,'n');
 
-for k=1:kk
+parfor k=1:kk
     [Fval(:,k),A(:,k),~,~,~] = ftestc(d(pos(k):(pos(k)+dT2-1)),params,pval/dT2,'n');
 end
 t=(0:(size(Fval,2)-1))*dS2/fs;
