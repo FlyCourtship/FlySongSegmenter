@@ -59,6 +59,15 @@ cluster.sh is a shell script that use qsub to call a compiled version of
 Process_daq_Song().
 
 
+LIGHTSPEED TOOLBOX
+
+depending on your machine architecture, you might see dramatic speed
+improvements with:
+
+http://research.microsoft.com/en-us/um/people/minka/software/lightspeed/
+
+
+
 MORE DETAILS (dated)
 
 load 1mintestsong.mat to your workspace
