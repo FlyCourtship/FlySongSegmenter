@@ -3,9 +3,10 @@ function [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = Process_Song(x
 
 %USAGE [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = Process_Song(xsong)
 
+tstart=tic;
+
 if(~isdeployed)  addpath(genpath('./chronux'));  end
 
-    
 if nargin < 3
     params_path = '';
 end
@@ -15,6 +16,7 @@ fetch_song_params
 %     [poolavail,isOpen] = check_open_pool;
 % end
 
+disp(['Song length is ' num2str(length(xsong)/param.Fs/60,3) ' minutes.']);
 
 fprintf('Running multitaper analysis on signal.\n')
 if param.find_sine == 1
@@ -116,4 +118,5 @@ clear pm_ssf pm_sine
 %     check_close_pool(poolavail,isOpen);
 % end
 
-
+tstop=toc(tstart);
+disp(['Run time was ' num2str(tstop/60,3) ' minutes.']);
