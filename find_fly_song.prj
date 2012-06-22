@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deployment-project plugin="plugin.deploytool" plugin-version="1.0">
-  <configuration target="target.standalone" target-name="Standalone Application" name="find_fly_song" location="/home/arthurb/projects/stern/Fly_Song_Segmenter" file="/home/arthurb/projects/stern/Fly_Song_Segmenter/find_fly_song.prj" build-checksum="531545409">
+  <configuration target="target.standalone" target-name="Standalone Application" name="find_fly_song" location="/home/arthurb/projects/stern/Fly_Song_Segmenter" file="/home/arthurb/projects/stern/Fly_Song_Segmenter/find_fly_song.prj" build-checksum="362997785">
     <param.project.name>/home/arthurb/projects/stern/Fly_Song_Segmenter/find_fly_song.prj</param.project.name>
     <param.target.type>Standalone Application</param.target.type>
     <param.appname>find_fly_song</param.appname>
@@ -75,6 +75,7 @@
       <root>/home/arthurb/bin/matlab2012a</root>
       <path>
         <directory>/home/arthurb/Documents/MATLAB</directory>
+        <directory>/home/arthurb/matlab</directory>
         <directory>${MATLAB_ROOT}/toolbox/matlab/optimfun</directory>
         <directory>${MATLAB_ROOT}/toolbox/local</directory>
         <directory>${MATLAB_ROOT}/toolbox/matlab/general</directory>
@@ -173,6 +174,12 @@
         <directory>${MATLAB_ROOT}/toolbox/curvefit/sftoolgui</directory>
         <directory>${MATLAB_ROOT}/toolbox/compiler/compilerdemos</directory>
         <directory>${MATLAB_ROOT}/toolbox/compiler</directory>
+        <directory>${MATLAB_ROOT}/toolbox/shared/testmeaslib/simulink</directory>
+        <directory>${MATLAB_ROOT}/toolbox/instrument/instrument</directory>
+        <directory>${MATLAB_ROOT}/toolbox/instrument/instrumentblks/instrumentblks</directory>
+        <directory>${MATLAB_ROOT}/toolbox/instrument/instrumentblks/instrumentmex</directory>
+        <directory>${MATLAB_ROOT}/toolbox/instrument/instrumentblks/instrumentmasks</directory>
+        <directory>${MATLAB_ROOT}/toolbox/instrument/instrumentdemos</directory>
       </path>
     </matlab>
     <platform>
@@ -184,7 +191,7 @@
       <vista>false</vista>
       <linux>true</linux>
       <solaris>false</solaris>
-      <osver>2.6.18-128.el5</osver>
+      <osver>3.2.7-1.fc16.x86_64</osver>
       <os32>false</os32>
       <os64>true</os64>
       <arch>glnxa64</arch>

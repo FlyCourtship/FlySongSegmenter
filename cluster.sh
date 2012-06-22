@@ -12,6 +12,8 @@ nchan="$3"
 params_name=$(basename "$params_path" ".m")
 clean_params_name=$(echo "$params_name" | sed "s/[^a-zA-Z0-9 ]/_/g")
 
+#export MCR_CACHE_VERBOSE=1
+
 IFS=$'\n'
 
 for daq_file in $(ls $daq_folder/*.daq)
@@ -21,6 +23,6 @@ do
   clean_daq_name=$(echo "$daq_name" | sed "s/[^a-zA-Z0-9 ]/_/g")
   for i in $(seq $nchan)
   do
-    qsub -N "FSS-$clean_daq_name-$i-$clean_params_name" -pe batch 8 -b y -j y -cwd -o "$clean_daq_name-$i-$clean_params_name.log" -V ./find_fly_song/distrib/run_find_fly_song.sh /usr/local/matlab-2012a "\"$daq_file\"" -p "\"$params_path\"" -c "$i"
+    qsub -N "FSS-$clean_daq_name-$i-$clean_params_name" -pe batch 4 -b y -j y -cwd -o "$clean_daq_name-$i-$clean_params_name.log" -V ./find_fly_song/distrib/run_find_fly_song.sh /usr/local/matlab-2012a "\"$daq_file\"" -p "\"$params_path\"" -c "$i"
   done
 done
