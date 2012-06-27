@@ -1,7 +1,7 @@
 
 function [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = Process_Song(xsong,xempty,params_path)
 
-%USAGE [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = Process_Song(xsong)
+%USAGE [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = Process_Song(xsong,[])
 
 tstart=tic;
 
