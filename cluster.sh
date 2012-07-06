@@ -3,7 +3,7 @@
 #cd to folder containing cluster.sh and then execute:
 #./cluster.sh  full_path_to_folder_of_.daqs  full_path_to_params.m  number_of_channels
 
-#each channel of each file is sent to it's own whole node.  all files
+#each channel of each file is sent to it's own half node.  all files
 #assumed to have the same number of channels.
 
 daq_folder="$1"
@@ -11,8 +11,6 @@ params_path="$2"
 nchan="$3"
 params_name=$(basename "$params_path" ".m")
 clean_params_name=$(echo "$params_name" | sed "s/[^a-zA-Z0-9 ]/_/g")
-
-#export MCR_CACHE_VERBOSE=1
 
 IFS=$'\n'
 
@@ -23,6 +21,7 @@ do
   clean_daq_name=$(echo "$daq_name" | sed "s/[^a-zA-Z0-9 ]/_/g")
   for i in $(seq $nchan)
   do
-    qsub -N "FSS-$clean_daq_name-$i-$clean_params_name" -pe batch 4 -b y -j y -cwd -o "$clean_daq_name-$i-$clean_params_name.log" -V ./find_fly_song/distrib/run_find_fly_song.sh /usr/local/matlab-2012a "\"$daq_file\"" -p "\"$params_path\"" -c "$i"
+    #qsub -N "FSS-$clean_daq_name-$i-$clean_params_name" -pe batch 4 -b y -j y -cwd -o "$clean_daq_name-$i-$clean_params_name.log" -V ./find_fly_song/distrib/run_find_fly_song.sh /usr/local/matlab-2012a "\"$daq_file\"" -p "\"$params_path\"" -c "$i"
+    qsub -N "FSS-$clean_daq_name-$i-$clean_params_name" -pe batch 4 -b y -j y -cwd -o "$clean_daq_name-$i-$clean_params_name.log" -V ./cluster2.sh "\"$daq_file\"" -p "\"$params_path\"" -c "$i"
   done
 done

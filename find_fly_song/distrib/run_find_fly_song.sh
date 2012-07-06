@@ -12,10 +12,6 @@ if [ "x$1" = "x" ]; then
   echo    $0 \<deployedMCRroot\> args
 else
   echo Setting up environment variables
-  if [ -d /scratch/$USER ]
-    then
-      export MCR_CACHE_ROOT=/scratch/$USER
-  fi
   MCRROOT="$1"
   echo ---
   LD_LIBRARY_PATH=.:${MCRROOT}/runtime/glnxa64 ;

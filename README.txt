@@ -42,31 +42,17 @@ FSS/find_fly_song/.  if you have problems with disk space try
 deleting/moving/renaming find_fly_song.prj, which deploytool uses, but
 somehow seemingly screws up mcc.
 
-(2) edit the bash script
+(2) get a scratch folder
 
-submit a ticket to the help desk asking them to create a scratch directory
-for you on the cluster.
-
-open find_fly_song/distrib/run_find_fly_song.sh.  between line 14:
-
-  echo Setting up environment variables
-
-and line 15:
-
-  MCRROOT="$1"
-
-add these lines:
-
-  if [ -d /scratch/$USER ]
-    then
-      export MCR_CACHE_ROOT=/scratch/$USER
-  fi
-
-jobs on the janelia cluster see your home directory.  matlab normally writes
-temporary files to ~/.mcrCache.  if you run multiple jobs at once these
-files get overwritten, and matlab can't open a pool of workers.  so create
-/scratch, which maps not to your disk share but rather to a local disk on
-each slot of the cluster, and tell matlab to put the temp files there.
+jobs on the janelia cluster see your home directory.  matlab
+normally writes temporary files to ~/.mcrCache.  if you run
+multiple jobs at once these files get overwritten, and matlab
+can't open a pool of workers.  so contact the help desk and ask
+them to create a scratch folder for your account on the cluster.
+this will not be on your disk share but rather on a local disk on
+each slot of the cluster.  if /scratch is present, the scripts
+will automatically tell matlab to put the temp files there, and
+they will hence not be overwritten.
 
 
 (3) run the compiled code
