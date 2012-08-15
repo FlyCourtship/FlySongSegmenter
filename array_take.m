@@ -17,7 +17,6 @@
 %menu: maximum range, in volts, of signal input
 %field: sampling rate in Hz
 %menu: number of channels to record from
-%menu: the NI-DAQ board to use
 %(button): play a calibration sound while acquiring data
 %(button): start / stop data acquisition
 %button: exit this program
@@ -35,66 +34,69 @@
 %array_take.m also specify the characteristics of your particular hardware,
 %as well as customize your default preferences.
 %
-% NOTE: Code has been modified for use with video files great than 2GB in
-% sze. To achieve this, MATLAB calls an external instance of a more recent
-% version of MATLAB which must also be installed on the computer. The exact
-% format of the installed version must be post 2010 and the program ID for
-% that version must be entered into the call for 'actxserver' later in
-% code. See 'help actxserver'. In this version I am using MATLAB 2011a and
-% the program id is: Matlab.Application.7.12. 
-%IMPORTANTLY hte modern version of MATLAB installed must also be 32 bit IF
-%the dcam driver is being used. Other drivers may have 64 bit support.
+%version 0.7
+%  now resizes gracefully
+%  DAQ pull-down menu removed
+%  tool tips added
+%
+%version 7_2
 
-%NOTE2: I am using the 'dcam' driver for my camera and the code has been
-%written accordingly. It could be modified to use other drivers easily but
-%the 'dcam' drive is the most versatile in terms of paramter options for 
-%IEEE 1394 cameras. Details on setting up a computer to use this driver 
-%can be fount at:
-%http://www.mathworks.com/help/toolbox/imaq/f16-75694.html
-
-%NOTE3: Code has also been modified to save files as YYMMDD_HHMM, a
-%personal preference.
-
-%version 0.6_Pip
-
-function array_take_Pip
+function array_take
 
 global scale Fs h1 h2 count
-global running chan in_port out_port calibrate
+global running chan in_port out_port calibrate max_nchan
 global range_settings button_exit button_start_stop button_calib start_stop
 global popupmenu_hygro popupmenu_nchan edit_samplerate popupmenu_range popupmenu_daq
 global button_fft button_timetrace button_equalizer text_realtime
 global button_save text_filedir button_wav edit_filesize text_hygro
-global hygro_period hygro_clock hygro_timeout hygro_datain hygro_dataout 
-global video vifile video_format video_compress matlab11 fps
+global button_scale_bigger button_scale_smaller buttons_chan
+global hygro_clockperiod hygro_timeout hygro_datain hygro_dataout hygro_clock
+global video vifile video_format video_compress max_Fs
+
+clear buttons_chan
 
 %%%% HARDWARE SETTINGS
 
+if(0)  % NI-6211
+
 max_nchan=16;      % maximum number of channels your hardware supports
 max_Fs=250e3;      % maximum aggregate sampling frequency your hardware supports, in Hz
-range_settings=[10 5 1 0.2];   % available scales your hardware supports, in V
-start_stop=-1;     % -1 = use software start/stop button
-                   % >0 = hardware switch on this digital line
-calibrate=1;       % 1 = optionally play calibration sound while recording
-                   % 0 = no such button
-                   % can be broadband noise or a harmonic stack, see line 374
+range_settings=[10 5 2 1 0.2];   % available scales your hardware supports, in V
 hygro_clock=0;     % the digital output line connected to the SHT7x's SCK line
 hygro_dataout=1;   % the digital output line connected to the SHT7x's DATA line
 hygro_datain=1;    % the digital input line(s) connected to the SHT7x's DATA line
 in_port=0;         % which hardware port is used for digital input
 out_port=1;        % which hardware port is used for digital output
-video = 1;           % camera attached?, 1=yes, 0=no
-fps = 30;          %Which framerate should be captured (options will depend on camera)
-video_format='Y8_640x480';  %Which video format should be captured (options will depend on camera)
-video_compress='Motion JPEG AVI'; %Type of video compression - see 'help VideoWriter'
+
+else  % NI-6259
+
+max_nchan=32;      % maximum number of channels your hardware supports
+max_Fs=1e6;     % maximum aggregate sampling frequency your hardware supports, in Hz
+range_settings=[10 5 2 1 0.5 0.2];   % available scales your hardware supports, in V
+hygro_clock=4;     % the digital output line connected to the SHT7x's SCK line
+hygro_dataout=6;   % the digital output line connected to the SHT7x's DATA line
+hygro_datain=[0 1 5 6 7];    % the digital input line(s) connected to the SHT7x's DATA line
+in_port=1;         % which hardware port is used for digital input
+out_port=2;        % which hardware port is used for digital output
+
+end
+
+start_stop=-1;     % -1 = use software start/stop button
+                   % >0 = hardware switch on this digital line
+calibrate=0;       % 1 = optionally play calibration sound while recording
+                   % 0 = no such button
+                   % can be broadband noise or a harmonic stack, see line 374
+video=0;           % camera attached?, 1=yes, 0=no
+video_format='UYVY_720x480';
+video_compress='none';
 
 %%%% SOFTWARE SETTINGS
 
-nchan_init = 9;
-samplerate_init= 10000;   %max_Fs/max_nchan;%10000
-range_init=1;      % i.e. range_settings(range_init)
+nchan_init=32;
+samplerate_init=10e3;
+range_init=2;      % i.e. range_settings(range_init)
 hygro_init=1;      % time btw measurements, 1 = 30s, 2 = 60s, 3 = 120s, etc.
-wav_init=0;        % 1 = save as separated .wav files in addition to .daq
+wav_init=1;        % 1 = save as separated .wav files in addition to .daq
 wav_size_init=2;   % max length in minutes for each .wav file.  0 = unlimited
 window_size=1.5;   % scale factor from default window size, must be >=1.5
 
@@ -112,16 +114,16 @@ h=figure;
 foo=get(h,'Position');
 set(h,'Position',round([400 250 window_size*foo(3) window_size*foo(4)]));
 tmp=get(gcf,'position');  tmp2=get(gcf,'color');
+set(gcf,'ResizeFcn',@resizeFcn);
 
 text_realtime=uicontrol('style','text',...
-   'backgroundColor',tmp2,'position',[5 tmp(4)-24 30 18]);
+   'backgroundColor',tmp2,'tooltip','time in seconds the display lags the acquisition');
 for(i=1:length(hygro_datain))
   text_hygro(i)=uicontrol('style','text',...
-     'backgroundColor',tmp2,'position',[40+65*(i-1) tmp(4)-24 60 18]);
+     'backgroundColor',tmp2,'tooltip',['temperature & humidity from unit #' num2str(i)]);
 end
 button_save=uicontrol('style','radiobutton','value',0,...
-   'backgroundColor',tmp2,...
-   'position',[40+65*length(hygro_datain) tmp(4)-24 20 20],...
+   'backgroundColor',tmp2,'tooltip','save data to specified directory',...
    'callback',['global button_save text_filedir button_wav edit_filesize;'...
                'if(get(button_save,''value''))'...
                '  set(text_filedir,''string'',uigetdir);'...
@@ -138,74 +140,109 @@ button_save=uicontrol('style','radiobutton','value',0,...
                '  set(edit_filesize,''enable'',''off'');'...
                'end']);
 text_filedir=uicontrol('style','text',...
-   'backgroundColor',tmp2,...
-   'position',[60+65*length(hygro_datain) tmp(4)-32 tmp(3)-575 30]);
+   'backgroundColor',tmp2);
 button_wav=uicontrol('style','radiobutton','value',wav_init,'enable','off',...
-   'backgroundColor',tmp2,...
-   'position',[tmp(3)-335-45*(start_stop==-1)-20*calibrate tmp(4)-24 20 20],...
+   'backgroundColor',tmp2,'tooltip','split .daq file into .wav files too, 1 (or more) per channel',...
    'callback',['global button_wav edit_filesize;'...
                'if(get(button_wav,''value''))'...
                '  set(edit_filesize,''enable'',''on'');'...
                'else'...
                '  set(edit_filesize,''enable'',''off'');'...
                'end']);
-edit_filesize=uicontrol('style','edit','string',wav_size_init,...
-   'position',[tmp(3)-315-45*(start_stop==-1)-20*calibrate tmp(4)-24 20 22]);
+edit_filesize=uicontrol('style','edit','tooltip','maximum length in minutes of .wav files.  longer recordings generate multiple .wav files per channel','string',wav_size_init);
 set(edit_filesize,'enable','off');
 popupmenu_hygro=uicontrol('style','popupmenu','value',hygro_init,...
-   'string',60*2.^(-1:4),...
-   'position',[tmp(3)-290-45*(start_stop==-1)-20*calibrate tmp(4)-24 45 22],...
+   'string',60*2.^(-1:4),'tooltip','interval in seconds at which to sample temperature and humidity',...
    'callback', @array_init);
 popupmenu_range=uicontrol('style','popupmenu','value',range_init,...
-   'string',range_settings,...
-   'position',[tmp(3)-240-45*(start_stop==-1)-20*calibrate tmp(4)-24 40 22],...
+   'string',range_settings,'tooltip','range in volts of analog-to-digital conversion',...
    'callback', @array_init);
-edit_samplerate=uicontrol('style','edit','string',samplerate_init,...
-   'position',[tmp(3)-195-45*(start_stop==-1)-20*calibrate tmp(4)-24 50 22]);
+edit_samplerate=uicontrol('style','edit','string',samplerate_init,'tooltip','sampling rate in Hertz'...
+    ,'callback', @array_init);
 popupmenu_nchan=uicontrol('style','popupmenu','value',nchan_init,...
-   'string',[1:max_nchan],...
-   'position',[tmp(3)-140-45*(start_stop==-1)-20*calibrate tmp(4)-24 35 22],...
+   'string',[1:max_nchan],'tooltip','number of channels to record',...
    'callback', @array_init);
-popupmenu_daq=uicontrol('style','popupmenu','value',1,...
-   'string',daqhwinfo('nidaq','InstalledBoardIds'),...
-   'position',[tmp(3)-100-45*(start_stop==-1)-20*calibrate tmp(4)-24 50 22],...
-   'callback', @array_init);
+% popupmenu_daq=uicontrol('style','popupmenu','value',1,...
+%    'string',daqhwinfo('nidaq','InstalledBoardIds'),...
+%    'position',[tmp(3)-100-45*(start_stop==-1)-20*calibrate tmp(4)-24 50 22],...
+%    'callback', @array_init);
 if(calibrate)
   button_calib=uicontrol('style','radiobutton','value',0,...
-     'backgroundColor',tmp2,...
-     'position',[tmp(3)-65-45*(start_stop==-1) tmp(4)-24 20 20],...
+     'backgroundColor',tmp2,'tooltip','play calibration sound while recording',...
      'callback', @array_init);
 end
 if(start_stop==-1)
   button_start_stop=uicontrol('style','pushbutton','backgroundColor',[0 1 0],...
-     'string','start',...
-     'position',[tmp(3)-90 tmp(4)-24 40 22],...
+     'string','start','tooltip',' start or stop the recording',...
      'callback', @array_start_stop_cbk);
 end
 button_exit=uicontrol('style','pushbutton',...
-   'backgroundColor',tmp2,...
+   'backgroundColor',tmp2,'tooltip','exit array_take',...
    'string','exit',...
-   'position',[tmp(3)-45 tmp(4)-24 40 22],...
    'callback',['global ai ao dio vi;'...
                'delete([ai ao]); delete(vi); stop(dio); delete(dio); close all; clear all;']);
 
 button_fft=uicontrol('style','radiobutton',...
-   'backgroundColor',tmp2,'position',[tmp(3)-30 tmp(4)-window_size*80 20 20],...
+   'backgroundColor',tmp2,'tooltip','display spectrum of currently selected channel',...
    'callback', @button_fft_cbk);
 button_timetrace=uicontrol('style','radiobutton',...
-   'backgroundColor',tmp2,'position',[tmp(3)-30 tmp(4)-window_size*210 20 20],...
+   'backgroundColor',tmp2,'tooltip','display time trace of currently selected channel',...
    'callback', @button_timetrace_cbk);
-button_equalizer=uicontrol('style','radiobutton',...
-   'backgroundColor',tmp2,'position',[tmp(3)-30 tmp(4)-window_size*360 20 20]);
+button_equalizer=uicontrol('style','radiobutton','tooltip','relative RMS amplitude of each channel',...
+   'backgroundColor',tmp2);
 
 button_scale_bigger=uicontrol('style','pushbutton','value',scale,...
-   'string','^','backgroundColor',tmp2,'position',[tmp(3)-33 tmp(4)-window_size*190 20 20],...
+   'string','^','backgroundColor',tmp2,'tooltip','increase length of x-axis',...
    'callback', 'global scale h1;  scale=scale*2;  subplot(4,1,3);  cla;  h1=[];');
 button_scale_smaller=uicontrol('style','pushbutton','value',scale,...
-   'string','v','backgroundColor',tmp2,'position',[tmp(3)-33 tmp(4)-window_size*230 20 20],...
+   'string','v','backgroundColor',tmp2,'tooltip','increase length of x-axis',...
    'callback', 'global scale h1;  scale=scale/2;  subplot(4,1,3);  cla;  h1=[];');
 
 array_init;
+
+
+function resizeFcn(src,evt)
+
+global range_settings button_exit button_start_stop button_calib start_stop
+global popupmenu_hygro popupmenu_nchan edit_samplerate popupmenu_range popupmenu_daq
+global button_fft button_timetrace button_equalizer text_realtime
+global button_save text_filedir button_wav edit_filesize text_hygro calibrate
+global button_scale_bigger button_scale_smaller buttons_chan
+
+tmp=get(gcf,'position');
+
+set(text_realtime,'position',[5 tmp(4)-24 30 18]);
+for(i=1:length(text_hygro))
+  set(text_hygro(i),'position',[40+65*(i-1) tmp(4)-24 60 18]);
+end
+set(button_save,'position',[40+65*length(text_hygro) tmp(4)-24 20 20]);
+set(text_filedir,'position',[60+65*length(text_hygro) tmp(4)-32 tmp(3)-575 30]);
+set(button_wav,'position',[tmp(3)-285-45*(start_stop==-1)-20*calibrate tmp(4)-24 20 20]);
+set(edit_filesize,'position',[tmp(3)-265-45*(start_stop==-1)-20*calibrate tmp(4)-24 20 22]);
+set(popupmenu_hygro,'position',[tmp(3)-240-45*(start_stop==-1)-20*calibrate tmp(4)-24 45 22]);
+set(popupmenu_range,'position',[tmp(3)-190-45*(start_stop==-1)-20*calibrate tmp(4)-24 40 22]);
+set(edit_samplerate,'position',[tmp(3)-145-45*(start_stop==-1)-20*calibrate tmp(4)-24 50 22]);
+set(popupmenu_nchan,'position',[tmp(3)-90-45*(start_stop==-1)-20*calibrate tmp(4)-24 35 22]);
+if(calibrate)
+  set(button_calib,'position',[tmp(3)-15-45*(start_stop==-1) tmp(4)-24 20 20]);
+end
+if(start_stop==-1)
+  set(button_start_stop,'position',[tmp(3)-90 tmp(4)-24 40 22]);
+end
+set(button_exit,'position',[tmp(3)-45 tmp(4)-24 40 22]);
+
+set(button_fft,'position',[tmp(3)-30 tmp(4)*0.75 20 20]);
+set(button_timetrace,'position',[tmp(3)-30 tmp(4)*0.5 20 20]);
+set(button_equalizer,'position',[tmp(3)-30 tmp(4)*0.25 20 20]);
+
+set(button_scale_bigger,'position',[tmp(3)-33 tmp(4)*0.5+20 20 20]);
+set(button_scale_smaller,'position',[tmp(3)-33 tmp(4)*0.5-20 20 20]);
+
+tmp2=get(buttons_chan,'children');
+for(i=1:length(tmp2))
+  foo=str2num(get(tmp2(i),'string'));
+  set(tmp2(i),'position',[foo*tmp(3)/(length(tmp2)+1)-20 2 40 20]);
+end
 
 
 
@@ -229,11 +266,11 @@ end;
 
 function array_init(obj,event)
 
-global Fs range_settings count start_stop in_port out_port calibrate video
+global Fs range_settings count start_stop in_port out_port calibrate video max_Fs max_nchan
 global popupmenu_hygro popupmenu_nchan edit_samplerate popupmenu_range 
 global popupmenu_daq button_calib buttons_chan
 global hygro_period hygro_datain hygro_dataout hygro_clock
-global running ai ao dio vi video_format matlab11 fps
+global running ai ao dio vi video_format
 
 if(~isempty(ai))  delete(ai);  end
 if(~isempty(ao))  delete(ao);  end
@@ -242,14 +279,20 @@ if(~isempty(buttons_chan))  delete(buttons_chan);  end
 
 Fs=str2num(get(edit_samplerate,'string'));
 nchan=get(popupmenu_nchan,'value');
+if(Fs*nchan>max_Fs)
+  Fs=floor(max_Fs/nchan);
+  set(edit_samplerate,'string',Fs);
+end
 hygro_period=60*2^(get(popupmenu_hygro,'value')-2);
 range=range_settings(get(popupmenu_range,'value'));
 daq=daqhwinfo('nidaq','InstalledBoardIds');
-daq=char(daq(get(popupmenu_daq,'value')));
+% daq=char(daq(get(popupmenu_daq,'value')));
+daq=char(daq(1));
 
 ai = analoginput('nidaq',daq);
 set(ai,'InputType','NonReferencedSingleEnded');
 for(i=0:nchan-1)
+  %tmp=addchannel(ai,max_nchan-1-i);
   tmp=addchannel(ai,i);
   set(tmp,'InputRange',[-range range]);
 end
@@ -287,30 +330,19 @@ start(dio);
 
 buttons_chan=uibuttongroup('unit','pixels','position',[0 0 1 1],...
    'SelectionChangeFcn',@selcbk);
-tmp=get(gcf,'position');  tmp2=get(gcf,'color');
-for(i=0:nchan-1)
-  uicontrol('parent',buttons_chan,'style','radiobutton','string',i+1,...
-     'backgroundColor',tmp2,...
-     'position',[0.05*tmp(3)+0.9*(i+1)*tmp(3)/(nchan+1) 2 40 20]);
+tmp2=get(gcf,'color');
+for(i=1:nchan)
+  uicontrol('parent',buttons_chan,'style','radiobutton','string',i,...
+     'backgroundColor',tmp2,'tooltip','currently selected channel');
 end
 
 if(video)
-    matlab11 = actxserver('Matlab.Application.7.12');
-    matlab11.PutWorkspaceData('video_format', 'base', video_format);
-    matlab11.PutWorkspaceData('fps', 'base', fps);
-    invoke(matlab11, 'Execute', [...
-        'vi=videoinput(''dcam'',1,video_format);'...
-        'triggerconfig(vi,''manual'');'...
-        'set(vi,''FramesPerTrigger'',Inf);'...
-        'viParam = getselectedsource(vi);'...
-        'viParam.FrameRate = num2str(fps);'...
-        'viParam.shutter = 450;'...
-        'viParam.gain = 1250']);
-    invoke(matlab11, 'Execute', 'preview(vi)');
-%   triggerconfig(vi,'manual');
-%   set(vi,'FramesPerTrigger',Inf);
+  vi=videoinput('winvideo',1,video_format);
+  triggerconfig(vi,'manual');
+  set(vi,'FramesPerTrigger',Inf);
 end
 
+resizeFcn;
 
 
 function selcbk(source,eventdata)
@@ -324,31 +356,24 @@ chan=str2num(get(eventdata.NewValue,'string'));
 
 function array_start_stop_cbk(obj,event)
 
-global Fs range_settings start_stop calibrate video matlab11
+global Fs range_settings start_stop calibrate video
 global running button_exit button_start_stop button_calib
 global popupmenu_hygro popupmenu_nchan edit_samplerate popupmenu_range 
 global popupmenu_daq button_save text_filedir button_wav edit_filesize
-global ai ao dio vi vifile video_compress filename t hygro_period fps
+global ai ao dio vi vifile video_compress filename t hygro_period
 
 if(running && (start_stop==-1 || ~getvalue(dio.StartStop)))
   running=0;
   if(calibrate && get(button_calib,'value'))
-    stop([ai ao]);  if(video) invoke(matlab11, 'Execute', 'stop([vi])'); end
+    stop([ai ao]);  if(video) stop([vi]); end
   else
-    stop([ai]);  if(video) invoke(matlab11, 'Execute', 'stop([vi])'); end
+    stop([ai]);  if(video) stop([vi]); end
   end
   if((video) && get(button_save,'value'))
-    DiskLoggerFrameCount = 1; FramesAcquired = 0;
-    while(DiskLoggerFrameCount~=FramesAcquired)
+    while(vi.DiskLoggerFrameCount~=vi.FramesAcquired)
       pause(1);
-      invoke(matlab11, 'Execute', ['DiskLoggerFrameCount = '...
-          'vi.DiskLoggerFrameCount; FramesAcquired = vi.FramesAcquired;']);
-      FramesAcquired = ...
-          matlab11.GetVariable('FramesAcquired','base');
-      DiskLoggerFrameCount = ...
-          matlab11.GetVariable('DiskLoggerFrameCount','base');
     end
-    invoke(matlab11, 'Execute', 'vifile=close(vi.DiskLogger)');
+    vifile=close(vi.DiskLogger);
   end
   if(get(button_save,'value') && get(button_wav,'value'))
     file=[get(text_filedir,'string') '\' filename];
@@ -375,8 +400,8 @@ if(running && (start_stop==-1 || ~getvalue(dio.StartStop)))
     set(button_start_stop,'string','start','backgroundColor',[0 1 0]);
   end
   if(calibrate)  set(button_calib,'enable','on');  end
-  set(popupmenu_daq,'enable','on');
-  set(popupmenu_nchan,'enable','on');
+%   set(popupmenu_daq,'enable','on');
+%   set(popupmenu_nchan,'enable','on');
   set(edit_samplerate,'enable','on');
   set(popupmenu_range,'enable','on');
   set(popupmenu_hygro,'enable','on');
@@ -394,23 +419,19 @@ if(running && (start_stop==-1 || ~getvalue(dio.StartStop)))
 elseif(~running && (start_stop==-1 || getvalue(dio.StartStop)))
   if(get(button_save,'value'))
     filename=sprintf('%02d',round(clock'));
-    filename = [filename(3:8) '_' filename(9:12)];
     set(ai,'LogFileName',[get(text_filedir,'string') '\' filename '.daq']);
     set(ai,'LoggingMode','Disk&Memory');
     if(video)
-      matlab11.PutWorkspaceData('vidname', 'base', ...
-        [get(text_filedir,'string') '\' filename]);
-      matlab11.PutWorkspaceData('video_compress', 'base', video_compress);
-      invoke(matlab11,'Execute', 'set(vi,''LoggingMode'',''disk'')');
-      invoke(matlab11, 'Execute', ['vifile=VideoWriter(vidname,'...
-          'video_compress); vifile.FrameRate = fps;']);
-      invoke(matlab11,'Execute', 'set(vi,''DiskLogger'', vifile)');
+      set(vi,'LoggingMode','disk');
+      vifile=avifile([get(text_filedir,'string') '\' filename '.avi'],...
+          'compression',video_compress,'fps',29.97);
+      set(vi,'DiskLogger',vifile);
     end
   else
     filename=[];
     set(ai,'LoggingMode','Memory');
     if(video)
-      invoke(matlab11,'Execute', 'set(vi,''DiskLogger'', [])');
+      set(vi,'DiskLogger',[]);
     end
   end
   running=1;
@@ -433,23 +454,19 @@ elseif(~running && (start_stop==-1 || getvalue(dio.StartStop)))
     end
     putdata(ao,[zeros(2,round(isi*Fs)) tmp]');
 
-    start([ai ao]);  
-    if(video) invoke(matlab11, 'Execute', 'start(vi)'); end
-    trigger([ai ao]);  
-    if(video) invoke(matlab11, 'Execute', 'trigger([vi])'); end
+    start([ai ao]);  if(video) start(vi); end
+    trigger([ai ao]);  if(video) trigger([vi]); end
   else
-    start(ai);  
-    if(video) invoke(matlab11, 'Execute', 'start(vi)'); end
-    trigger([ai]);  
-    if(video) invoke(matlab11, 'Execute', 'trigger([vi])'); end
+    start(ai);  if(video) start(vi); end
+    trigger([ai]);  if(video) trigger([vi]); end
   end
   set(button_exit,'enable','off');
   if(start_stop==-1)
     set(button_start_stop,'string','stop','backgroundColor',[1 0 0]);
   end
   if(calibrate)  set(button_calib,'enable','off');  end
-  set(popupmenu_daq,'enable','off');
-  set(popupmenu_nchan,'enable','off');
+%   set(popupmenu_daq,'enable','off');
+%   set(popupmenu_nchan,'enable','off');
   set(edit_samplerate,'enable','off');
   set(popupmenu_range,'enable','off');
   set(popupmenu_hygro,'enable','off');
@@ -513,6 +530,9 @@ for(i=1:nchan)
 end
 bar(1:nchan,tmp);
 %axis off
+xlabel('channel #');
+ylabel('intensity (Vrms)');
+set(gca,'xtick',1:nchan,'xticklabel',1:nchan);
 end
 
 tmp=get(ai,'SamplesAvailable');
