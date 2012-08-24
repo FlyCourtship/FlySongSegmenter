@@ -22,6 +22,6 @@ do
   for i in $(seq $nchan)
   do
     #qsub -N "FSS-$clean_daq_name-$i-$clean_params_name" -pe batch 4 -b y -j y -cwd -o "$clean_daq_name-$i-$clean_params_name.log" -V ./find_fly_song/distrib/run_find_fly_song.sh /usr/local/matlab-2012a "\"$daq_file\"" -p "\"$params_path\"" -c "$i"
-    qsub -N "FSS-$clean_daq_name-$i-$clean_params_name" -pe batch 4 -b y -j y -cwd -o "$clean_daq_name-$i-$clean_params_name.log" -V ./cluster2.sh "\"$daq_file\"" -p "\"$params_path\"" -c "$i"
+    qsub -N "FSS-$clean_daq_name-$i-$clean_params_name" -pe batch 4 -b y -j y -cwd -o "$daq_folder/$clean_daq_name-$i-$clean_params_name.log" -V ./cluster2.sh "\"$daq_file\"" -p "\"$params_path\"" -c "$i"
   done
 done
