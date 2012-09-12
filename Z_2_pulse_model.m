@@ -1,5 +1,6 @@
 function [pulse_model,Lik_pulse] = Z_2_pulse_model(pulse_model,new_pulses,sample_freqs)
 
+%Fit new data to a pulse model
 %[pulse_model,Lik_pulse] = Z_2_pulse_model(pulse_model,new_pulses)
 %[pulse_model,Lik_pulse] = Z_2_pulse_model(pulse_model,new_pulses,sample_freqs)
 %USAGE
@@ -10,12 +11,10 @@ function [pulse_model,Lik_pulse] = Z_2_pulse_model(pulse_model,new_pulses,sample
 %provide sample of pulses
 %return pulse model & std etc and Lik of individual pulses given the model
 
-%fit_pulse_model differs from fit_pulseharm_model in the following way
-%fit_pulseharm_model reestimates the models (and SD) using data that
-%appears to fit each harmonic best
+
 %fit_pulse_model estimates only the fundamental frequency model using data
 %that best fits this model. It then decimates the model and best fit data
-%to build the second and third harmonic models for likelihood testing
+%to build the second harmonic models for likelihood testing
 
 %e.g.
 % pulse_model = 
