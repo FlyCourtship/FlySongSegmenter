@@ -103,5 +103,5 @@ pulseinfo2 is a structure that has all of the information on the pulses and winn
 
 To optimize segmentation for your recordings, you will have to adjust several parameters, many of which are in the m file Process_Song, but some of which are still in the functions called by this m file.  We suggest you do this on a small (~1 min) but representative section of your data.
 
-There is much more information about how the segmented works buried in the code -- please read all of the comments.
+There is much more information about how the segmenter works buried in the code -- please read all of the comments.
 
