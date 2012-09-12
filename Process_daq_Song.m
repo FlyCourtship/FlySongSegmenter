@@ -1,5 +1,6 @@
-%function Process_daq_Song(song_daq_file,channel_num,song_range,params_path)
-%
+function Process_daq_Song(song_daq_file,channel_num,song_range,params_path)
+
+%Perform Process_Song on multiple channels from a single daq file
 %e.g. Process_daq_Song('/misc/public/Troy/20120302081902.daq',3,[1 1000000],'./params.m');
 %processes the first million tics of channel #3
 %
@@ -7,7 +8,6 @@
 %processes all of the tics of all of the channels.
 %w/o a full path the file must be in the current directory.
 
-function Process_daq_Song(song_daq_file,channel_num,song_range,params_path)
 
 %old - when require noise file
 %function Process_daq_Song(song_daq_file,song_range)
