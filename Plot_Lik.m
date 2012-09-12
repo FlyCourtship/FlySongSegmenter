@@ -1,7 +1,7 @@
 function Plot_Lik(data,pulseInfo,winnowed_sine,Lik_pulse)
 %Plot_Lik(data,pulseInfo,winnowed_sine,Lik_pulse)
+%A utility to examine the likelihood scores for pulses
 %USAGE
-%
 %Plot_Lik(data,pulseInfo2,winnowed_sine,Lik_pulse.LLR_best)
 %
 %
