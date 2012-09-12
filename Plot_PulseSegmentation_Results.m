@@ -1,6 +1,6 @@
 function Plot_PulseSegmentation_Results(data,winnowed_sine,pulseInfo,pulseInfo2)
 %USAGE Plot_PulseSegmentation_Results(data,winnowed_sine,pulseInfo,pulseInfo2)
-%This is the primary utility for examining the direct output of FlySongSegmenter. Does not plot likelihoods.
+%This is the primary utility for examining the direct output of ProcessSong. Does not plot likelihoods.
 figure; clf;
 %plot the signal
 plot((1:size(data.d,1))./data.fs,data.d,'Color',[.742 .742 .742])
