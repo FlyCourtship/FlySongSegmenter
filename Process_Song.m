@@ -11,10 +11,6 @@ if nargin < 3
     params_path = '';
 end
 fetch_song_params
-% 
-% if param.find_sine == 1%use matlabpool only if looking for sine song
-%     [poolavail,isOpen] = check_open_pool;
-% end
 
 disp(['Song length is ' num2str(length(xsong)/param.Fs/60,3) ' minutes.']);
 
@@ -44,20 +40,12 @@ if param.find_sine == 1
     sine = findsine(ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps); %returns sine, which is a structure containing the following fields:
 end
 
-%Probably can delete findputativepulse and delete relevant section of
-%PulseSegmentationv3
-%Run putativepulse2 on sine and noise_sine, where:
-% fprintf('Finding putative pulse.\n')
-% pps = findputativepulse(ssf,sine,noise,param.cutoff_quantile,param.range,param.combine_time,param.low_freq_cutoff,param.high_freq_cutoff);  %returns pps, which is a structure containing the following fields:
 
 clear ssf noise_ssf
 
-%Run PulseSegmentationv3 using xsong, xempty, and pps as inputs (and a list of parameters defined above):
-% if numel(pps.start) > 0
+%Run PulseSegmentationv4 using xsong, xempty, and pps as inputs (and a list of parameters defined above):
     fprintf('Running wavelet transformation.\n')
-%     [pcndInfo, pulseInfo, pulseInfo2, cmhSong] = PulseSegmentationv3(xsong,noise.d,pps,param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.Fs);
     
-    %if delete pps, then
       [pcndInfo, pulseInfo, pulseInfo2, cmhSong] = PulseSegmentationv4(xsong,noise.d,[],param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.Fs);
     
     if param.find_sine == 1
@@ -97,26 +85,10 @@ clear ssf noise_ssf
     else
         winnowed_sine = {};
     end
-% else
-%     fprintf('No segments of putative pulse detected.\n')
-%     pulseInfo = {};
-%     pulseInfo2 = {};
-%     winnowed_sine = sine;
-% end
 
 
-%sine sone is calculated in seconds. Some day, I should go back and change
-%to sample units. For now, just backconvert the times to sample units.
-% winnowed_sine.start = round(winnowed_sine.start .* data.fs);
-% winnowed_sine.stop = round(winnowed_sine.stop .* data.fs);
-% for i=1:numel(winnowed_sine.events)
-%     winnowed_sine.events{i} = round(winnowed_sine.events{i} .* data.fs);
-% end
 
 clear pm_ssf pm_sine
-% if param.find_sine == 1%use matlabpool only if looking for sine song
-%     check_close_pool(poolavail,isOpen);
-% end
 
 tstop=toc(tstart);
 disp(['Run time was ' num2str(tstop/60,3) ' minutes.']);

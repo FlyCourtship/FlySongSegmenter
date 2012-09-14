@@ -28,15 +28,7 @@ function song_quick_check(daqfile,sample,channels)
 %find and display several snippets of putative song. Outputs three plots of
 %each channel.
 
-poolavail = exist('matlabpool','file');
-if poolavail~=0
-    isOpen = matlabpool('size') > 0;%check if pools open (as might occur, for eg if called from Process_multi_daq_Song
-    if isOpen == 0%if not open, then open
-        %matlabpool(getenv('NUMBER_OF_PROCESSORS'))
-        matlabpool open
-        isOpen = -1;%now know pool was opened in this script (no negative pools from matlabpool('size'))
-    end
-end
+[poolavail,isOpen] = check_open_pool;
 
 if(~isdeployed)
 addpath(genpath('./export_fig'));
@@ -101,8 +93,6 @@ for y = channels
          noise = 'nonoise';
          cutoff = 5*5e-3;
      end
-     %fprintf('Running multitaper analysis on noise.\n')
-     %[noise_ssf] = sinesongfinder(xempty,fs,20,12,.1,.01,.05); %returns noise_ssf
         
     if strcmp(noise,'noise') == 1
         
@@ -199,11 +189,7 @@ for y = channels
     
 end
 
-if isOpen == -1%if pool opened in this script, then close
-    if poolavail~=0
-        matlabpool close force local
-    end
-end
+check_close_pool(poolavail,isOpen)
 
 fprintf('Saving figure.\n')
 [pathstr, name, ~] = fileparts(daqfile);

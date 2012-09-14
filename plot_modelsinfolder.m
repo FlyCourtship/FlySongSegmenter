@@ -27,8 +27,6 @@ for y = 1:file_num
     
     
     if TG == 1
-%         if isempty(strfind(root,'pm'))
-%         else
             plotnum = plotnum + 1;
             axes(ax(plotnum));
             
@@ -53,10 +51,8 @@ for y = 1:file_num
             end
             text(1,bottom+ std(min(pulse_model.Z2fhM)),ch,'FontSize',10);
 
-            %         end
     end
 end
-% [pathstr,name,~]=fileparts(folder);
 r=regexp(folder,'/','split');
 folder_name = char(r(end-1));
 outfile = [folder folder_name '_pulsemodels.png'];

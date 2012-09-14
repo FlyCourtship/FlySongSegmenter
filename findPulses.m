@@ -31,7 +31,6 @@ signalRoot = signalToH_f.^(1/H);
 signal_f = filtfilt(bh,ah,signalRoot);
 
 
-%signalToLookAt = signalRoot;
 signalToLookAt = signal_f;
 
 stdS = std(signalToLookAt);
@@ -52,8 +51,6 @@ indLarger = newIndLarger;
 indPulse = indLarger(find(diff(indLarger)~=1)+1);
 tooSmall = find(indPulse<=numPBefore);
 indPulse(tooSmall) = [];
-% tooLarge = find(indPulse>=length(signal) + numPAfter);
-% indPulse(tooLarge) = [];
 
 
  tp = 0:spr^-1:(numPBefore+numPAfter)/spr;
@@ -63,7 +60,6 @@ indPulse(tooSmall) = [];
      end
      
      pulse(p,:) = signal(indPulse(p)-numPBefore:indPulse(p)+numPAfter);
-%     fftPulse(p,:) = fft(pulse(p,:),2^(nextpow2(length(pulse(p,:)))));
  end
 
 

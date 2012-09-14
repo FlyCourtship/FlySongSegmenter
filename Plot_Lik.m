@@ -24,9 +24,6 @@ title(ax2,'LLR','FontSize',10);
 hold on
 if nargin == 6
     scatter(ax2,pulseInfo.wc/ssf.fs,LOD_pulse,35,'b','filled');
-    %legend(ax2,'Lik','LR');
-else
-    %legend(ax2,'Lik');
 end
 
 linkaxes([ax1 ax2],'x');
@@ -57,10 +54,6 @@ if numel(pulseInfo) > 0
     end
 
 end
-
-
-%title('Sine & Pulses','FontSize',14);
-%legend('Signal','Sine','Pulses','Pulse Peaks');
 
 grid on
 hold off

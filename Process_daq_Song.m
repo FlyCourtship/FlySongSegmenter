@@ -8,31 +8,12 @@ function Process_daq_Song(song_daq_file,channel_num,song_range,params_path)
 %processes all of the tics of all of the channels.
 %w/o a full path the file must be in the current directory.
 
-
-%old - when require noise file
-%function Process_daq_Song(song_daq_file,song_range)
-[poolavail,isOpen] = check_open_pool;
-
 song_daqinfo = daqread(song_daq_file,'info');
-%noise_daqinfo = daqread(noise_daq_file,'info');
-
-%if nargin == 1
-%    range = 0;
-%else
-%    range=1;
-%end
-
-%Produce batch process file, with daq 
-
 nchannels_song = length(song_daqinfo.ObjInfo.Channel);
+
 if(~isempty(channel_num) && (numel(channel_num)<1 || (numel(channel_num)>nchannels_song)))
   warning('channel_num out of range');
 end
-%nchannels_noise = length(noise_daqinfo.ObjInfo.Channel);
-%grab sample rate from daq and replace value in params, with
-%warning       
- 
-%fs = song_daqinfo.ObjInfo.SampleRate;
 
 %make directory for output
 sep = filesep;

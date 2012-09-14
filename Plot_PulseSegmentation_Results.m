@@ -47,27 +47,8 @@ hold on;
 plot(wc,mxv,'k^','MarkerFaceColor','k');
 end
 
-
 title('Sine & Pulses','FontSize',14);
-%legend('Signal','Sine','Pulses','Pulse Peaks');
-
-
 hold off
-
-% figure; clf;
-% %plot the signal
-% plot((1:size(data.d,1))./data.fs,data.d,'Color',[.742 .742 .742])
-% hold on; 
-% 
-% %plot putative pulses
-% for n = 1:length(pps.start);
-%     x_start = round(pps.start(n)*data.fs);
-%     x_stop = round(x_start + size(pps.clips{n},1));
-%     time = (x_start:x_stop-1);
-%     y = pps.clips{n};
-%     plot(time./data.fs,y,'g')
-% end
 zoom xon;
-
 title('Putative Pulse Regions','FontSize',14);
 
