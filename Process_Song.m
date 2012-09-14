@@ -1,6 +1,6 @@
 function [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = Process_Song(xsong,xempty,params_path)
 
-%USAGE [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = Process_Song(xsong,[])
+%USAGE [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = Process_Song(xsong,[],'./params.m')
 %This is the core program for analyzing courtship song
 
 tstart=tic;

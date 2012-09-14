@@ -16,7 +16,7 @@ fwindow = [0 Fs/2];%[0 1000] if want up to Nyquist freq
 
 %find sine song? Toggle: 1 = yes; 0 = no. Code is MUCH faster if you don't
 %search for sine.
-find_sine = 0;
+find_sine = 1;
 
 %SET THE PARAMETERS FOR lengthfinder3
 %freq1 and freq2 define the bounds between which the fundamental frequency 

@@ -1,5 +1,9 @@
 function Z_2_pulse_model_multi(folder,pulseInfo_name,pulse_model)
 %USAGE Z_2_pulse_model_multi(folder,pulseInfo_name,pulse_model)
+%e.g.
+%folder = 'full_path_2_folder'
+%pulseInfo_name = 'pulseInfo' or 'pulseInfo2'
+%pulse_model = './pulse_model'
 
 pI_name = char(pulseInfo_name);
 pM_name = char(pulse_model);
@@ -48,19 +52,28 @@ for y = 1:file_num
         
         %will automatically replace pulse_model and Lik_pulse if they exist
         %already
-        varstruc.pulse_model = pulse_model;
-        varstruc.Lik_pulse = Lik_pulse;
-        
+        varstruc.pulse_model = pulse_model;       
         varstruc.pulse_model.variables.pulseInfo_ver = pI_name;
         varstruc.pulse_model.variables.pulseName_ver = pM_name;
         varstruc.pulse_model.variables.date = date;
         varstruc.pulse_model.variables.time = clock;
-        varstruc.Lik_pulse.variables.pulseInfo_ver = pI_name;
-        varstruc.Lik_pulse.variables.pulseName_ver = pM_name;
-        varstruc.Lik_pulse.variables.date = date;
-        varstruc.Lik_pulse.variables.time = clock;
-        
-        
+
+        if strcmp(pI_name,'pulseInfo') == 1
+            
+            varstruc.Lik_pulseInfo = Lik_pulse;
+            varstruc.Lik_pulseInfo.variables.pulseInfo_ver = pI_name;
+            varstruc.Lik_pulseInfo.variables.pulseName_ver = pM_name;
+            varstruc.Lik_pulseInfo.variables.date = date;
+            varstruc.Lik_pulseInfo.variables.time = clock;
+            
+        elseif strcmp(pI_name,'pulseInfo2') == 1
+            varstruc.Lik_pulseInfo2 = Lik_pulse;
+            varstruc.Lik_pulseInfo2.variables.pulseInfo_ver = pI_name;
+            varstruc.Lik_pulseInfo2.variables.pulseName_ver = pM_name;
+            varstruc.Lik_pulseInfo2.variables.date = date;
+            varstruc.Lik_pulseInfo2.variables.time = clock;
+            
+        end
         
         save(path_file,'-struct','varstruc','-mat')%save all variables in original file
        

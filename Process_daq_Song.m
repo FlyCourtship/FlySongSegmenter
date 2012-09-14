@@ -25,14 +25,14 @@ song_daqinfo = daqread(song_daq_file,'info');
 %Produce batch process file, with daq 
 
 nchannels_song = length(song_daqinfo.ObjInfo.Channel);
-if(~isempty(channel_num) && ((channel_num<1) || (channel_num>nchannels_song)))
+if(~isempty(channel_num) && (numel(channel_num)<1 || (numel(channel_num)>nchannels_song)))
   warning('channel_num out of range');
 end
 %nchannels_noise = length(noise_daqinfo.ObjInfo.Channel);
 %grab sample rate from daq and replace value in params, with
 %warning       
  
-fs = song_daqinfo.ObjInfo.SampleRate;
+%fs = song_daqinfo.ObjInfo.SampleRate;
 
 %make directory for output
 sep = filesep;

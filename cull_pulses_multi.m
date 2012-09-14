@@ -1,7 +1,7 @@
 function cull_pulses_multi(folder,pulseInfo_name,Lik_name,Lik_type,minRange,maxRange)
 %USAGE cull_pulses_multi(folder,pulseInfo_name,Lik_type,range)
 %e.g.
-%Lik_name = 'Lik_pulse'
+%Lik_name = 'Lik_pulseInfo' or 'Lik_pulseInfo2'
 %Lik_type = 'LLR_fh'
 %minRange = 0
 %maxRange = 'max'
@@ -49,9 +49,27 @@ for y = 1:file_num
         
         culled_pulseInfo = cull_pulses(pI_data,Lik_data,[minRange maxRange]);
         
+        if strcmp(pI_name,'pulseInfo') == 1
+
+            varstruc.culled_pulseInfo = culled_pulseInfo;
+            varstruc.culled_pulseInfo.variables.pulseInfo_ver = pI_name;
+            varstruc.culled_pulseInfo.variables.Lik_ver = Lik_name;
+            varstruc.culled_pulseInfo.variables.range = [minRange maxRange];
+            varstruc.culled_pulseInfo.variables.date = date;
+            varstruc.culled_pulseInfo.variables.time = clock;
+                        
+        elseif strcmp(pI_name,'pulseInfo2') == 1
+            varstruc.culled_pulseInfo2 = culled_pulseInfo;
+            varstruc.culled_pulseInfo2.variables.pulseInfo_ver = pI_name;
+            varstruc.culled_pulseInfo2.variables.Lik_ver = Lik_name;
+            varstruc.culled_pulseInfo2.variables.range = [minRange maxRange];
+            varstruc.culled_pulseInfo2.variables.date = date;
+            varstruc.culled_pulseInfo2.variables.time = clock;
+
+        end
+ 
         
-        varstruc.culled_pulseInfo = culled_pulseInfo;
-        
+        varstruc.culled_pulseInfo = culled_pulseInfo;   
         varstruc.culled_pulseInfo.variables.pulseInfo_ver = pI_name;
         varstruc.culled_pulseInfo.variables.Lik_ver = Lik_name;
         varstruc.culled_pulseInfo.variables.range = [minRange maxRange];
