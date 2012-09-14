@@ -26,10 +26,8 @@ function sinesong = findsine(ssf, min, max,sine_range_percent,discard_less_n_ste
 sinemin=min;
 sinemax=max;
 allevents=ssf.events;%column 1 = time in sec, column 2 is freq in Hz
-allevents(:,1) = allevents(:,1);
-% fs=ssf.fs;
 stepsize=round(ssf.dS * ssf.fs);
-windowsize=round(ssf.dT* ssf.fs);
+windowsize=round(ssf.dT * ssf.fs);
 data = ssf.d;
 inRangeEvents=[];
 
@@ -78,6 +76,10 @@ NumEvents = numel(RunsEvents(:,1));
 %First, get start and stop values for runs
 NumBouts = 1;
 sine_start(NumBouts) = RunsEvents(1,1)-windowsize/2;
+if sine_start(NumBouts) < 1
+    sine_start(NumBouts) = 1;
+end
+
 for x  = 1:(NumEvents-1)
     
     
@@ -120,6 +122,9 @@ end
 
 %plug in last value as last stop
 sine_stop(NumBouts) = RunsEvents(NumEvents,1);
+if sine_stop(NumBouts) > numel(ssf.d)
+    sine_stop(NumBouts) = numel(ssf.d);
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%winnow to bouts > discard_less_n_steps 
@@ -155,14 +160,7 @@ end
 
 rdcdNumBouts = numel(sine_start);
 NumBouts=rdcdNumBouts;
-
-% length=zeros(NumBouts,1);
-% MeanFundFreq=zeros(NumBouts,1);
-% MedianFundFreq=zeros(NumBouts,1);
 sine_clips = cell(NumBouts,1);
-% statevents =[];
-
-
 length = sine_stop - sine_start;
 
 for x = 1:NumBouts;
