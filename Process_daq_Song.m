@@ -48,4 +48,3 @@ for y = yy
         fprintf(['File %s exists. Skipping.\n'], outfile)
     end
 end
-check_close_pool(poolavail,isOpen);
