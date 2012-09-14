@@ -5,13 +5,12 @@
 %%%%%%%%%%%%%%ALL USER DEFINED PARAMETERS ARE SET HERE%%%%%%%%%%%%%%%%%%%%%
 
 %SET THE PARAMETERS FOR sinesongfinder
-Fs=10000;
+Fs=7813;
 NW = 12;%NW = time-bandwidth product for tapers
 K = 20;%K = num independent tapers to average over, must be < 2*NW
 dT = 0.1;%dT = window length
 dS = 0.01;%dS = window step size
-pval = 0.05;%pval = criterion for F-test
-fwindow = [0 Fs/2];%[0 1000] if want up to Nyquist freq
+pval = 0.5;%pval = criterion for F-test
 
 
 %find sine song? Toggle: 1 = yes; 0 = no. Code is MUCH faster if you don't
@@ -45,7 +44,7 @@ noise_cutoff = 0.9;
 %general parameters:
 a = [100:25:750]; %wavelet scales: frequencies examined.
 b = [2:3]; %Derivative of Gaussian wavelets examined (2:3)
-c = round(Fs/250)+1; %pWid:  Approx Pulse Width in points (odd, rounded)
+c = round(Fs/180)+1; %pWid:  Approx Pulse Width in points (odd, rounded)
 d = round(Fs/100); %lowIPI: estimate of a very low IPI (even, rounded)
 e = 5; %thresh:Proportion of smoothed threshold over which pulses are counted. 
 
