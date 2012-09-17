@@ -14,34 +14,21 @@ fetch_song_params
 
 disp(['Song length is ' num2str(length(xsong)/param.Fs/60,3) ' minutes.']);
 
-fprintf('Running multitaper analysis on signal.\n')
-if param.find_sine == 1
+fprintf('Finding noise floor in recording.\n')
+if length(xsong) <1.1e6
     song = xsong;
-elseif length(xsong) <1.1e6%if user does not want sine, then just take a sample of song
-    song = xsong;
-    
-else%if song is longer than 1.1e6, take just a sample
+else
     song =  xsong(1:1e6);
 end
+
 [ssf] = sinesongfinder(song,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow,1); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
 
 data.d = xsong;
 data.fs = ssf.fs;
 fprintf('Finding noise.\n')
-%if nargin == 1 %if user provides only xsong
-%if ~exist('xempty','var') %if user provides only xsong
 if isempty(xempty) %if user provides only xsong
     noise = findnoise(ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
 end %if user provides both xsong and xempty
-
-if param.find_sine == 1
-    %Run findsine on ssf, where:
-    fprintf('Finding sine.\n')
-    sine = findsine(ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps); %returns sine, which is a structure containing the following fields:
-end
-
-
-clear ssf noise_ssf
 
 %Run PulseSegmentationv4 using xsong, xempty, and pps as inputs (and a list of parameters defined above):
     fprintf('Running wavelet transformation.\n')
@@ -50,12 +37,12 @@ clear ssf noise_ssf
     
     if param.find_sine == 1
 
-        if ismember('x',fieldnames(pulseInfo2))
+        if ismember('x',fieldnames(pulseInfo))
             
             % Mask putative pulses in xsong. Use pulseInfo pulses.
             pm_xsong = pulse_mask(xsong,pulseInfo);
             fprintf('Running multitaper analysis on pulse-masked signal.\n')
-            pm_ssf = sinesongfinder(pm_xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow,1); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
+            pm_ssf = sinesongfinderV2(pm_xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow,1); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
             
             fprintf('Finding sine in pulse-masked signal.\n')
             pm_sine = findsine(pm_ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps); %returns sine, which is a structure containing the following fields:
@@ -76,11 +63,22 @@ clear ssf noise_ssf
                 winnowed_sine.power = {};
                 winnowed_sine.powerMat = [];
             else
-                winnowed_sine = winnow_sine2(pm_sine,pulseInfo2,pm_ssf,param.max_pulse_pause,param.sine_low_freq,param.sine_high_freq);
+                if ismember('x',fieldnames(pulseInfo2))
+                    winnowed_sine = winnow_sine2(pm_sine,pulseInfo2,pm_ssf,param.max_pulse_pause,param.sine_low_freq,param.sine_high_freq);
+                else
+                    winnowed_sine = winnow_sine2(pm_sine,pulseInfo,pm_ssf,param.max_pulse_pause,param.sine_low_freq,param.sine_high_freq);
+                end
             end
         else
             pulseInfo2 = {};
-            winnowed_sine = sine;
+            
+            fprintf('Running multitaper analysis on signal.\n')
+            ssf = sinesongfinderV2(xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow,1); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
+            
+            fprintf('Finding sine in signal.\n')
+            pm_sine = findsine(ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps); %returns sine, which is a structure containing the following fields:
+ 
+            winnowed_sine = pm_sine;
         end
     else
         winnowed_sine = {};
@@ -88,7 +86,7 @@ clear ssf noise_ssf
 
 
 
-clear pm_ssf pm_sine
+clear ssf pm_ssf pm_sine
 
 tstop=toc(tstart);
 disp(['Run time was ' num2str(tstop/60,3) ' minutes.']);

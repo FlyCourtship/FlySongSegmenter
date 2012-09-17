@@ -76,15 +76,15 @@ events_cell = cell(size(Fval,2),1);
 %     
 %     
 % else
-    for i=1:size(Fval,2)
-        fmax=crx_findpeaks(Fval(:,i),sig); %this function name is a hack. chronux 'findpeaks' conflicts with Matlab 'findpeaks'.
-        %I have renamed the chronux function as crx_findpeaks and changed this line too.
-        %This means this code is incompatible with the public version of chronux.
-        %Users must use our version. Future versions of chronux are expected to
-        %fix this namespace conflict, which will require rewrite of this line.
-        events_cell{i}=[repmat(t(i)+dT/2,length(fmax(1).loc),1) f(fmax(1).loc)'];
-        
-    end
+for i=1:size(Fval,2)
+    fmax=crx_findpeaks(Fval(:,i),sig); %this function name is a hack. chronux 'findpeaks' conflicts with Matlab 'findpeaks'.
+    %I have renamed the chronux function as crx_findpeaks and changed this line too.
+    %This means this code is incompatible with the public version of chronux.
+    %Users must use our version. Future versions of chronux are expected to
+    %fix this namespace conflict, which will require rewrite of this line.
+    events_cell{i}=[repmat(t(i)+dT/2,length(fmax(1).loc),1) f(fmax(1).loc)'];
+    
+end
 % end
 t = t +dT/2;
 
