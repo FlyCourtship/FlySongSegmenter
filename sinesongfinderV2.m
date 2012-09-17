@@ -21,23 +21,15 @@
 %addpath chronux\spectral_analysis\helper\
 %addpath chronux\spectral_analysis\continuous\
 
-function SSF=sinesongfinder(d,fs,NW,K,dT,dS,pval,fwindow,reduced_memory)
+function SSF=sinesongfinderV2(d,fs,NW,K,dT,dS,pval,fwindow)
 % pool = exist('matlabpool','file');
-if nargin < 9
-    reduced_memory = 0;
-end
 if nargin < 8
     fwindow = [0 fs/2];
 end
 
 dT2=round(dT*fs);
 dS2=round(dS*fs);
-% plotit=0; % plot it, or don't plot it, there is no try
-
-% [d t]=daqread(filename); % do it this way when pipelined
-% d=d(:,chan);
 d=d-repmat(mean(d),size(d,1),1);
-% fs=1/max(diff(t));
 
 [tapers,eigs]=dpsschk([NW K],dT2,fs);
 
@@ -59,20 +51,6 @@ events_cell = cell(size(A,2),1);
 t=(0:(size(A,2)-1))*dS2/fs;
 for k=1:kk
     [Fval,A(:,k),~,~,~] = ftestc(d(pos(k):(pos(k)+dT2-1)),params,pval/dT2,'n');
-    % if pool~=0%if multicore capability exists, then use
-    % % fprintf('findpeaks in pool')
-    %
-    % parfor i=1:size(Fval,2)
-    % fmax=crx_findpeaks(Fval(:,i),sig); %this function name is a hack. chronux 'findpeaks' conflicts with Matlab 'findpeaks'.
-    % %I have renamed the chronux function as crx_findpeaks and changed this line too.
-    % %This means this code is incompatible with the public version of chronux.
-    % %Users must use our version. Future versions of chronux are expected to
-    % %fix this namespace conflict, which will require rewrite of this line.
-    % events_cell{i}=[repmat(t(i)+dT/2,length(fmax(1).loc),1) f(fmax(1).loc)'];
-    % end
-    %
-    %
-    % else
     fmax=crx_findpeaks(Fval,sig); %this function name is a hack. chronux 'findpeaks' conflicts with Matlab 'findpeaks'.
     %I have renamed the chronux function as crx_findpeaks and changed this line too.
     %This means this code is incompatible with the public version of chronux.
@@ -80,7 +58,6 @@ for k=1:kk
     %fix this namespace conflict, which will require rewrite of this line.
     events_cell{k}=[repmat(t(k)+dT/2,length(fmax(1).loc),1) f(fmax(1).loc)'];
 end
-% end
 t = t +dT/2;
 
 events = cell2mat(events_cell);
@@ -98,6 +75,3 @@ SSF.t=round(t.*fs);%return time in sample units
 SSF.f=f;
 SSF.A=A;
 SSF.events=events;
-% if reduced_memory == 0
-%     SSF.Fval=Fval;
-% end
