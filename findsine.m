@@ -27,7 +27,7 @@ sinemin=min;
 sinemax=max;
 allevents=ssf.events;%column 1 = time in sec, column 2 is freq in Hz
 stepsize=round(ssf.dS * ssf.fs);
-windowsize=round(ssf.dT * ssf.fs);
+windowsize_half=round(ssf.dT * ssf.fs/2);
 data = ssf.d;
 inRangeEvents=[];
 
@@ -75,7 +75,7 @@ NumEvents = numel(RunsEvents(:,1));
 
 %First, get start and stop values for runs
 NumBouts = 1;
-sine_start(NumBouts) = RunsEvents(1,1)-windowsize/2;
+sine_start(NumBouts) = RunsEvents(1,1)-windowsize_half;
 if sine_start(NumBouts) < 1
     sine_start(NumBouts) = 1;
 end
@@ -111,9 +111,9 @@ for x  = 1:(NumEvents-1)
     if RunsEvents(x+1,1) - RunsEvents(x,1) < 2*stepsize && matchesAny%as long as bout continues
     else%reach stop, maybe store data
         
-        sine_stop(NumBouts) = RunsEvents(x,1)+windowsize/2;
+        sine_stop(NumBouts) = RunsEvents(x,1)+windowsize_half;
         NumBouts = NumBouts + 1;
-        sine_start(NumBouts) = RunsEvents(x+1,1)-windowsize/2;
+        sine_start(NumBouts) = RunsEvents(x+1,1)-windowsize_half;
         
     end
     
@@ -164,7 +164,7 @@ sine_clips = cell(NumBouts,1);
 length = sine_stop - sine_start;
 
 for x = 1:NumBouts;
-    sine_clips{x} = data(round(sine_start(x)):round(sine_stop(x)));
+    sine_clips{x} = data(sine_start(x):sine_stop(x));
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
