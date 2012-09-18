@@ -97,7 +97,7 @@ NumBouts = numel(sine_start);
 sine_clips = cell(NumBouts,1);
 
 for i = 1:NumBouts
-    sine_clips{i} = ssf.d(sine_start(i):sine_stop(i));
+    sine_clips{i} = ssf.d(round(sine_start(i)):round(sine_stop(i)));
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

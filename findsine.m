@@ -164,7 +164,7 @@ sine_clips = cell(NumBouts,1);
 length = sine_stop - sine_start;
 
 for x = 1:NumBouts;
-    sine_clips{x} = data(sine_start(x):sine_stop(x));
+    sine_clips{x} = data(round(sine_start(x)):round(sine_stop(x)));
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
