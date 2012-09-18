@@ -1,4 +1,4 @@
-function Process_daq_Song(song_daq_file,channel_num,song_range,params_path)
+function Process_daq_Song(song_daq_file,channel_num,song_range,params_path,pulse_model_path)
 
 %Perform Process_Song on multiple channels from a single daq file
 %e.g. Process_daq_Song('/misc/public/Troy/20120302081902.daq',3,[1 1000000],'./params.m');
@@ -38,7 +38,7 @@ for y = yy
  
         %run Process_Song on selected channel
         fprintf('Processing song.\n')
-        [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = Process_Song(song,[],params_path);
+        [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = Process_Song(song,[],params_path,pulse_model_path);
         %save data
         
         save(outfile, 'data','winnowed_sine', 'pcndInfo','pulseInfo2','pulseInfo','-v7.3')
