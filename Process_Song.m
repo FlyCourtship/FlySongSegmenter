@@ -1,10 +1,12 @@
 function [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo, Lik_pulse, pulse_model, Lik_pulse2, pulse_model2] = ...
-    Process_Song(xsong,xempty,params_path,pulse_model_path)
+    Process_Song(xsong,xempty,params_path)
 
 %USAGE [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = Process_Song(xsong,[],'./params.m')
 %This is the core program for analyzing courtship song
 
 tstart=tic;
+
+[poolavail,isOpen] = check_open_pool;
 
 if(~isdeployed)  addpath(genpath('./chronux'));  end
 
@@ -90,9 +92,8 @@ else
     winnowed_sine = {};
 end
 
-if(~isempty(pulse_model_path))
+if(exist('cpm','var'))
   fprintf('Culling pulses with likelihood model.\n')
-  load(pulse_model_path);
   [pulse_model,Lik_pulse]=Z_2_pulse_model(cpm,pulseInfo.x);
   [pulse_model2,Lik_pulse2]=Z_2_pulse_model(cpm,pulseInfo2.x);
   culled_pulseInfo = cull_pulses(pulseInfo,Lik_pulse.LLR_fh,[0 max(Lik_pulse.LLR_fh) + 1]);
@@ -101,6 +102,8 @@ end
 
 
 clear ssf pm_ssf pm_sine
+
+check_close_pool(poolavail,isOpen);
 
 tstop=toc(tstart);
 disp(['Run time was ' num2str(tstop/60,3) ' minutes.']);
