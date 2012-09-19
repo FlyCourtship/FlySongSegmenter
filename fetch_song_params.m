@@ -59,6 +59,9 @@ m = 99;     % Power percentile at and above which a clip is marked as signal rat
 %SET THE PARAMETERS FOR winnow_sine
 max_pulse_pause = 0.200; %max_pulse_pause in seconds, used to winnow apparent sine between pulses
 
+%SET THE PARAMETERS FOR Z_2_pulse_model and cull_pulses
+load('mel_pm_24ii12.mat');
+
 %%%%%%%%%%%%%%%%%
 %%READ IN USER DEFINED PARAMETERS, SOME OF WHICH MAY REPLACE DEFAULTS
 %%%%%%%%%%%%%%%%%
