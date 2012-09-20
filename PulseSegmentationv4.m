@@ -129,8 +129,10 @@ buff = round(Fs/80); %to avoid edge effects
 
 sig4Test = sig4Test - mean(nDat);
 sig4Test = abs(sig4Test);
-smoothF = smooth(circshift(sig4Test,lowIPI/2+1), lowIPI+1);
-smoothB = smooth(circshift(sig4Test, - lowIPI/2-1), lowIPI+1);
+%smoothF = smooth(circshift(sig4Test,lowIPI/2+1), lowIPI+1);
+%smoothB = smooth(circshift(sig4Test, - lowIPI/2-1), lowIPI+1);
+smoothF = smooth(circshift(sig4Test,lowIPI/2+1), lowIPI/2+1);
+smoothB = smooth(circshift(sig4Test, - lowIPI/2-1), lowIPI/2+1);
 smthSide = max([smoothF smoothB], [], 2);
 smthSide(end - buff-1:end) = inf;
 smthSide(1:buff+1) = inf;
@@ -429,7 +431,8 @@ end
 % fprintf('%8.2f', pulseInfo.w0(i)./Fs);
 % fprintf(' NOT A TRUE PULSE - too close.\n');
         continue;
-    elseif b0-a0 < sp.close & y==y1; %if the pulse is within lms of the pulse after it and is the same in amplitude
+%    elseif b0-a0 < sp.close & y==y1; %if the pulse is within lms of the pulse after it and is the same in amplitude
+    elseif b0-a0 < sp.close & i~=np & y==y1;
 % fprintf('%8.2f', pulseInfo.w0(i)./Fs);
 % fprintf(' NOT A TRUE PULSE - too close.\n');
         continue;
