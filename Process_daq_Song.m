@@ -8,13 +8,14 @@ function Process_daq_Song(song_daq_file,channel_num,song_range,params_path)
 %processes all of the tics of all of the channels.
 %w/o a full path the file must be in the current directory.
 
-fprintf(['Reading daq file header info.\n']);
-song_daqinfo = daqread(song_daq_file,'info');
-nchannels_song = length(song_daqinfo.ObjInfo.Channel);
+%SLOOOOWWW
+%fprintf(['Reading daq file header info.\n']);
+%song_daqinfo = daqread(song_daq_file,'info');
+%nchannels_song = length(song_daqinfo.ObjInfo.Channel);
 
-if(~isempty(channel_num) && (numel(channel_num)<1 || (numel(channel_num)>nchannels_song)))
-  warning('channel_num out of range');
-end
+%if(~isempty(channel_num) && (numel(channel_num)<1 || (numel(channel_num)>nchannels_song)))
+%  warning('channel_num out of range');
+%end
 
 %make directory for output
 sep = filesep;
