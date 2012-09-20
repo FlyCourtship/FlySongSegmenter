@@ -9,10 +9,10 @@ function sinesong = findsine(ssf, min, max,sine_range_percent,discard_less_n_ste
 % user enters min and max value for fundamental frequency
 
 % events should be a 2 column matrix (ie, if lengthfinder is run immediately
-% after sinesongfinder, events will be ans.events)
+% after SineSegmenter, events will be ans.events)
 
 %other potential user defined variables -- These have been moved to
-%Process_Song
+%FlySongSegmenter
 
 %search within ± this percent to determine whether consecutive events are
 %continuous sine

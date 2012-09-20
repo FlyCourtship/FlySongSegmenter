@@ -4,7 +4,7 @@
 
 %%%%%%%%%%%%%%ALL USER DEFINED PARAMETERS ARE SET HERE%%%%%%%%%%%%%%%%%%%%%
 
-%SET THE PARAMETERS FOR sinesongfinder
+%SET THE PARAMETERS FOR SineSegmenter
 Fs=10000;
 NW = 12;%NW = time-bandwidth product for tapers
 K = 20;%K = num independent tapers to average over, must be < 2*NW
@@ -58,7 +58,7 @@ g = round(Fs/5); %if no other pulse within this many samples, do not count as a 
 h = 700; %if best matched scale is greater than this frequency, then don't include pulse as true pulse
 i = round(Fs/50); %if pulse peaks are this close together, only keep the larger pulse (this value should be less than the species-typical IPI)
 
-%SET THE PARAMETERS FOR winnow_sine
+%SET THE PARAMETERS FOR WinnowSine
 max_pulse_pause = 0.070; %max_pulse_pause in seconds, used to winnow apparent sine between pulses
 
 %SET THE PARAMETERS FOR Z_2_pulse_model and cull_pulses

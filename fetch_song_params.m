@@ -56,7 +56,7 @@ k = 900; %if best matched scale is greater than this frequency, then don't inclu
 l = round(Fs/100); %if pulse peaks are this close together, only keep the larger pulse
 m = 99;     % Power percentile at and above which a clip is marked as signal rather than noise.
 
-%SET THE PARAMETERS FOR winnow_sine
+%SET THE PARAMETERS FOR WinnowSine
 max_pulse_pause = 0.200; %max_pulse_pause in seconds, used to winnow apparent sine between pulses
 
 %SET THE PARAMETERS FOR Z_2_pulse_model and cull_pulses
@@ -84,7 +84,7 @@ else
 end
 
 %%%%%%%%%%%%%%%%%
-%%READ PARAMETERS INTO STRUCTURE ARRAY TO BE USED BY Process_Song
+%%READ PARAMETERS INTO STRUCTURE ARRAY TO BE USED BY FlySongSegmenter
 %%%%%%%%%%%%%%%%%
 
 param.NW = NW;

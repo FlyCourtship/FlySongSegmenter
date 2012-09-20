@@ -77,7 +77,7 @@ for y = channels
     
     %grab short snip of song to find noise
     fprintf('Finding noise.\n')
-    [ssf] = sinesongfinder(snip,fs,12,20,.1,.05,.05); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
+    [ssf] = SineSegmenter(snip,fs,12,20,.1,.05,.05); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
     
     %find noise
      try%sometimes may fail to generate noise file. Then, just abort plot
