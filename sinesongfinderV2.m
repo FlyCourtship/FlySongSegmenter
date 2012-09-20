@@ -49,7 +49,7 @@ Fval=zeros(dim1,1, 'single');A=zeros(dim1,kk, 'single');
 [~,~,f,sig,~] = ftestc(d(1:(1+dT2-1)),params,pval/dT2,'n');
 events_cell = cell(size(A,2),1);
 t=(0:(size(A,2)-1))*dS2/fs;
-for k=1:kk
+parfor k=1:kk
     [Fval,A(:,k),~,~,~] = ftestc(d(pos(k):(pos(k)+dT2-1)),params,pval/dT2,'n');
     fmax=crx_findpeaks(Fval,sig); %this function name is a hack. chronux 'findpeaks' conflicts with Matlab 'findpeaks'.
     %I have renamed the chronux function as crx_findpeaks and changed this line too.
