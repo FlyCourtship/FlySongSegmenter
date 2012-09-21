@@ -1,5 +1,5 @@
-function culled_pulseInfo = cull_pulses(pulseInfo,Lik,range)
-%culled_pulseInfo = cull_pulses(pulseInfo,Lik,[0 100])
+function culled_pulseInfo = CullPulses(pulseInfo,Lik,range)
+%culled_pulseInfo = CullPulses(pulseInfo,Lik,[0 100])
 
 culled_pulses.dog = pulseInfo.dog(Lik>range(1) & Lik<range(2));
 culled_pulses.fcmx = pulseInfo.fcmx(Lik>range(1) & Lik<range(2));

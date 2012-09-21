@@ -57,7 +57,7 @@ for j = 1:file_num
     end
     
     %cull data to LLR range. In this case > 0
-    culled_pulseInfo = cull_pulses(pI_data,Lik_data,[cull_thresh max(Lik_data)+1]);
+    culled_pulseInfo = CullPulses(pI_data,Lik_data,[cull_thresh max(Lik_data)+1]);
     [culled_pulse_model,culled_Lik_pulse] = fit_pulse_model(culled_pulseInfo.x);
     
     W = who('-file',file);

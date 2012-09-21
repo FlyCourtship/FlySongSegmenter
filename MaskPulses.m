@@ -1,4 +1,4 @@
-function pm_xsong = pulse_mask(xsong,pcndInfo)
+function pm_xsong = MaskPulses(xsong,pcndInfo)
 pm_xsong = xsong;
 numpulses = numel(pcndInfo.w0);
 if any(pcndInfo.wc)%for some reason, pcndInfo is sometimes fed with array of 0s, even when no pulses.

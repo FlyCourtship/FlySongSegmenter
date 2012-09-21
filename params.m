@@ -4,7 +4,7 @@
 
 %%%%%%%%%%%%%%ALL USER DEFINED PARAMETERS ARE SET HERE%%%%%%%%%%%%%%%%%%%%%
 
-%SET THE PARAMETERS FOR SineSegmenter
+%SET THE PARAMETERS FOR MultiTaperFTest
 Fs=10000;
 NW = 12;%NW = time-bandwidth product for tapers
 K = 20;%K = num independent tapers to average over, must be < 2*NW
@@ -61,7 +61,7 @@ i = round(Fs/50); %if pulse peaks are this close together, only keep the larger 
 %SET THE PARAMETERS FOR WinnowSine
 max_pulse_pause = 0.070; %max_pulse_pause in seconds, used to winnow apparent sine between pulses
 
-%SET THE PARAMETERS FOR Z_2_pulse_model and cull_pulses
+%SET THE PARAMETERS FOR FitPulseModel and CullPulses
 load('pulse_model_melanogaster.mat');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

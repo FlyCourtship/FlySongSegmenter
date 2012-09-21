@@ -17,7 +17,7 @@ end
 if nargin < 3
   params_path = '';
 end
-fetch_song_params
+FetchParams;
 
 disp(['Song length is ' num2str(length(xsong)/param.Fs/60,3) ' minutes.']);
 
@@ -28,13 +28,13 @@ else
   song = xsong(1:1e6);
 end
 
-[ssf] = SineSegmenter(song,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow);
+[ssf] = MultiTaperFTest(song,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow);
 
 data.d = xsong;
 data.fs = ssf.fs;
 %fprintf('Finding noise.\n')
 if isempty(xempty) %if user provides only xsong
-  noise = findnoise(ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
+  noise = EstimateNoise(ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
 end
 
 %Run PulseSegmentationv4 using xsong, xempty, and pps as inputs (and a list of parameters defined above):
@@ -48,13 +48,13 @@ if param.find_sine == 1
   if ismember('x',fieldnames(pulseInfo))
           
     % Mask putative pulses in xsong. Use pulseInfo pulses.
-    pm_xsong = pulse_mask(xsong,pulseInfo);
+    pm_xsong = MaskPulses(xsong,pulseInfo);
     fprintf('Running multitaper analysis on pulse-masked signal.\n')
-    pm_ssf = SineSegmenter(pm_xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow);
+    pm_ssf = MultiTaperFTest(pm_xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow);
         
     fprintf('Finding sine in pulse-masked signal.\n')
     pm_sine = ...
-        findsine(pm_ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps);
+        SineSegmenter(pm_ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps);
         
     % Use results of PulseSegmentation to winnow sine song (remove sine that overlaps pulse)
     %Run only if there is any sine
@@ -84,11 +84,11 @@ if param.find_sine == 1
     pulseInfo2 = {};
         
     fprintf('Running multitaper analysis on signal.\n')
-    ssf = SineSegmenter(xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow,1);
+    ssf = MultiTaperFTest(xsong,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow,1);
         
     fprintf('Finding sine in signal.\n')
     pm_sine = ...
-        findsine(ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps);
+        SineSegmenter(ssf,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent,param.discard_less_n_steps);
 
     winnowed_sine = pm_sine;
   end
@@ -98,10 +98,10 @@ end
 
 if(exist('cpm','var'))
   fprintf('Culling pulses with likelihood model.\n')
-  [pulse_model,Lik_pulse]=Z_2_pulse_model(cpm,pulseInfo.x);
-  [pulse_model2,Lik_pulse2]=Z_2_pulse_model(cpm,pulseInfo2.x);
-  culled_pulseInfo = cull_pulses(pulseInfo,Lik_pulse.LLR_fh,[0 max(Lik_pulse.LLR_fh) + 1]);
-  culled_pulseInfo2 = cull_pulses(pulseInfo2,Lik_pulse2.LLR_fh,[0 max(Lik_pulse2.LLR_fh) + 1]);
+  [pulse_model,Lik_pulse]=FitPulseModel(cpm,pulseInfo.x);
+  [pulse_model2,Lik_pulse2]=FitPulseModel(cpm,pulseInfo2.x);
+  culled_pulseInfo = CullPulses(pulseInfo,Lik_pulse.LLR_fh,[0 max(Lik_pulse.LLR_fh) + 1]);
+  culled_pulseInfo2 = CullPulses(pulseInfo2,Lik_pulse2.LLR_fh,[0 max(Lik_pulse2.LLR_fh) + 1]);
 end
 
 

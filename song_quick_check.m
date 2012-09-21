@@ -77,13 +77,13 @@ for y = channels
     
     %grab short snip of song to find noise
     fprintf('Finding noise.\n')
-    [ssf] = SineSegmenter(snip,fs,12,20,.1,.05,.05); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
+    [ssf] = MultiTaperFTest(snip,fs,12,20,.1,.05,.05); %returns ssf, which is structure containing the following fields: ***David, please explain each field in ssf
     
     %find noise
      try%sometimes may fail to generate noise file. Then, just abort plot
-        xempty = findnoise(ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
+        xempty = EstimateNoise(ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
      catch
-         fprintf('findnoise failed')
+         fprintf('EstimateNoise failed')
      end
      if exist('xempty','var')
          % noise.sigma = std(xempty);

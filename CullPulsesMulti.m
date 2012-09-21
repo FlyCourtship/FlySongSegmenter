@@ -1,5 +1,5 @@
-function cull_pulses_multi(folder,pulseInfo_name,Lik_name,Lik_type,minRange,maxRange)
-%USAGE cull_pulses_multi(folder,pulseInfo_name,Lik_type,range)
+function CullPulsesMulti(folder,pulseInfo_name,Lik_name,Lik_type,minRange,maxRange)
+%USAGE CullPulsesMulti(folder,pulseInfo_name,Lik_type,range)
 %e.g.
 %Lik_name = 'Lik_pulseInfo' or 'Lik_pulseInfo2'
 %Lik_type = 'LLR_fh'
@@ -47,7 +47,7 @@ for y = 1:file_num
             maxRange = max(Lik_data) + 1;
         end
         
-        culled_pulseInfo = cull_pulses(pI_data,Lik_data,[minRange maxRange]);
+        culled_pulseInfo = CullPulses(pI_data,Lik_data,[minRange maxRange]);
         
         if strcmp(pI_name,'pulseInfo') == 1
 

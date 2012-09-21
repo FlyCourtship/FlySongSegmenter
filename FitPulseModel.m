@@ -1,8 +1,8 @@
-function [pulse_model,Lik_pulse] = Z_2_pulse_model(pulse_model,new_pulses,sample_freqs)
+function [pulse_model,Lik_pulse] = FitPulseModel(pulse_model,new_pulses,sample_freqs)
 
 %Fit new data to a pulse model
-%[pulse_model,Lik_pulse] = Z_2_pulse_model(pulse_model,new_pulses)
-%[pulse_model,Lik_pulse] = Z_2_pulse_model(pulse_model,new_pulses,sample_freqs)
+%[pulse_model,Lik_pulse] = FitPulseModel(pulse_model,new_pulses)
+%[pulse_model,Lik_pulse] = FitPulseModel(pulse_model,new_pulses,sample_freqs)
 %USAGE
 %If the model and data were sampled at different sampling frequnecies, then
 %enter this in sample_freqs

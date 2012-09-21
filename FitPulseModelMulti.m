@@ -1,5 +1,5 @@
-function Z_2_pulse_model_multi(folder,pulseInfo_name,pulse_model)
-%USAGE Z_2_pulse_model_multi(folder,pulseInfo_name,pulse_model)
+function FitPulseModelMulti(folder,pulseInfo_name,pulse_model)
+%USAGE FitPulseModelMulti(folder,pulseInfo_name,pulse_model)
 %e.g.
 %folder = 'full_path_2_folder'
 %pulseInfo_name = 'pulseInfo' or 'pulseInfo2'
@@ -48,7 +48,7 @@ for y = 1:file_num
         
 %         pIData = load(path_file,pI_name);
         pI_data = varstruc.(pI_name);
-        [pulse_model,Lik_pulse] = Z_2_pulse_model(pM,pI_data.x);
+        [pulse_model,Lik_pulse] = FitPulseModel(pM,pI_data.x);
         
         %will automatically replace pulse_model and Lik_pulse if they exist
         %already
