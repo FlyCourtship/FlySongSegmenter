@@ -1,4 +1,4 @@
-function Plot_Lik(data,pulseInfo,winnowed_sine,Lik_pulse)
+function Plot_Lik(data,winnowed_sine,pulseInfo,pulseInfo2,Lik_pulse,Lik_pulse2)
 %Plot_Lik(data,pulseInfo,winnowed_sine,Lik_pulse)
 %A utility to examine the likelihood scores for pulses
 %USAGE
@@ -6,7 +6,6 @@ function Plot_Lik(data,pulseInfo,winnowed_sine,Lik_pulse)
 %
 %
 
-Lik = Lik_pulse;
 ssf=data;
 figure; clf;
 %plot the signal
@@ -18,11 +17,12 @@ hold on;
 
 ax2 = subplot(2,1,2);
 
-scatter(ax2,pulseInfo.wc/ssf.fs,Lik,35,'r','filled');
+hold on
+scatter(ax2,pulseInfo.wc/ssf.fs,Lik_pulse.LLR_best,35,'m','filled');
+scatter(ax2,pulseInfo2.wc/ssf.fs,Lik_pulse2.LLR_best,35,'k','filled');
 xlim(ax2,[0 length(ssf.d)/ssf.fs]);
 title(ax2,'LLR','FontSize',10);
-hold on
-if nargin == 6
+if nargin == 8
     scatter(ax2,pulseInfo.wc/ssf.fs,LOD_pulse,35,'b','filled');
 end
 
