@@ -22,7 +22,8 @@ FetchParams;
 
 if(varargin{1}~=param.Fs)
   disp(['WARNING:  sampling rate is specified as ' num2str(varargin{1}) ' in the .daq file and ' ...
-      num2str(param.Fs) ' in ' params_path]);
+      num2str(param.Fs) ' in ' params_path] '.  Proceeding with ' num2str(varargin{1}));
+  param.Fs=varargin{1};
 end
 
 disp(['Song length is ' num2str(length(xsong)/param.Fs/60,3) ' minutes.']);
