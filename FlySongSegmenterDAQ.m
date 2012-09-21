@@ -24,7 +24,7 @@ new_dir = [pathstr sep name '_out'];
 mkdir(new_dir);
 
 
-if(isempty(channel_num))  yy=1:nchannels_song;  else  yy=channel_num;  end
+if(isempty(channel_num))  disp('channel_num empty;  assuming 1:32');  yy=1:32;  else  yy=channel_num;  end
 for y = yy
     outfile  = [new_dir sep 'PS_' name '_ch' num2str(y) '.mat'];
     file_exist = exist(outfile,'file');

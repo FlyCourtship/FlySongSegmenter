@@ -8,7 +8,11 @@ tstart=tic;
 
 [poolavail,isOpen] = check_open_pool;
 
-if(~isdeployed)  addpath(genpath('./chronux'));  end
+if(~isdeployed)
+  addpath(genpath('./chronux'));
+  addpath('./order');
+  addpath('./padcat2');
+end
 
 if nargin < 3
   params_path = '';
