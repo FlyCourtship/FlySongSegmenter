@@ -1,8 +1,9 @@
 function [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo, Lik_pulse, pulse_model, Lik_pulse2, pulse_model2] = ...
-    FlySongSegmenter(xsong,xempty,params_path)
+    FlySongSegmenter(xsong,xempty,params_path,varargin)
 
 %USAGE [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = FlySongSegmenter(xsong,[],'./params.m')
 %This is the core program for analyzing courtship song
+%the sole varargin is the sampling rate passed in from FlySongSegmenterDAQ to cross check with params
 
 tstart=tic;
 
@@ -18,6 +19,11 @@ if nargin < 3
   params_path = '';
 end
 FetchParams;
+
+if(varargin{1}~=param.Fs)
+  disp(['WARNING:  sampling rate is specified as ' num2str(varargin{1}) ' in the .daq file and ' ...
+      num2str(param.Fs) ' in ' params_path]);
+end
 
 disp(['Song length is ' num2str(length(xsong)/param.Fs/60,3) ' minutes.']);
 
