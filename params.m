@@ -62,7 +62,7 @@ i = round(Fs/50); %if pulse peaks are this close together, only keep the larger 
 max_pulse_pause = 0.070; %max_pulse_pause in seconds, used to winnow apparent sine between pulses
 
 %SET THE PARAMETERS FOR Z_2_pulse_model and cull_pulses
-load('mel_pm_24ii12.mat');
+load('pulse_model_melanogaster.mat');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
