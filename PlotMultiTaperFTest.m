@@ -1,4 +1,4 @@
-function SineSegmenterPlot(ssf,range)
+function PlotMultiTaperFTest(ssf,range)
 
 global SSF
 
