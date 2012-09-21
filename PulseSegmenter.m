@@ -31,7 +31,7 @@ sp = segParams;
 xs = xs(:);
 
 %% Prepare for CWT
-fprintf('PREPARING FOR CWT.\n');
+%fprintf('PREPARING FOR CWT.\n');
 ngw = numel(sp.DoGwvlt);
 fc = sp.fc;
 fs = Fs;
@@ -48,16 +48,16 @@ end
 sc = zeros(ngw,numel(fc));
 
 for i = 1:numel(wvlt)
-    fprintf('\tComputing scales for %s.\n',wvlt{i});
+%    fprintf('\tComputing scales for %s.\n',wvlt{i});
     sc(i,:) = scales_for_freqs(fc,1/fs,wvlt{i});
 end
-fprintf('DONE.\n');
+%fprintf('DONE.\n');
 
 
 
 
 %% Perform CWT on Signal
-fprintf('PERFORMING CWT SUITE.\n');
+%fprintf('PERFORMING CWT SUITE.\n');
 
 % cmo = zeros(1,numel(xs)); % Storage for the maximum morlet wavelet
                                                 % coefficient for each bin.
@@ -89,8 +89,8 @@ cmh_sc = int8(zeros(1,length(xs))); % Storage for the scale at which the
 % end
 % else
 for i= 1:numel(wvlt)
-    fprintf('\t%s\n',wvlt{i});
-    fprintf('\t\t...on Signal\n');
+    %fprintf('\t%s\n',wvlt{i});
+    %fprintf('\t\t...on Signal\n');
     for j = 1:size(sc,2)
         temp = single(abs(cwt(xs,sc(i,j),wvlt{i})));
         cmh_sc(temp>cmhSong) = j;
@@ -98,7 +98,7 @@ for i= 1:numel(wvlt)
         cmhSong(temp>cmhSong) = temp(temp>cmhSong);
         clear temp;
     end
-    fprintf('\t\t...on Noise\n');
+    %fprintf('\t\t...on Noise\n');
     for j = 1:size(sc,2)
     cmhNoise = max(abs([cmhNoise; single(cwt(xn,sc(i,j),wvlt{i}))])); %wavelet transformation on noise for that scale and that wavelet
     end
@@ -243,6 +243,7 @@ end
 %%
 %FIRST WINNOW
 %Collecting pulses in pulseInfo (removing those below the noise threshold):
+fprintf('Winnowing pulses.\n');
 
 indPulse = 0*xs;
 np = numel(pcndInfo.wc); %the number of pulses total
@@ -345,7 +346,6 @@ end
 %%
 %SECOND WINNOW
 %Collecting pulses in pulseInfo2:
-fprintf('WINNOWING PULSES FURTHER.\n');
 
 %now that you have collected pulses in pulseInfo, winnow further:
 indPulse = 0*xs;
@@ -480,5 +480,5 @@ for i =1:length(pcndInfo.w0)
     pcndInfo.x{i} = xs(pcndInfo.w0(i):pcndInfo.w1(i));
 end
 
-fprintf('%d/%d (%2.1f %%) pulses passed second stage of winnowing.\n',nOk,np,nOk*100/np)
-fprintf('DONE.\n');
+%fprintf('%d/%d (%2.1f %%) pulses passed second stage of winnowing.\n',nOk,np,nOk*100/np)
+%fprintf('DONE.\n');

@@ -39,7 +39,7 @@ for y = yy
         end
  
         %run FlySongSegmenter on selected channel
-        fprintf('Processing song.\n')
+        %fprintf('Processing song.\n')
         [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = FlySongSegmenter(song,[],params_path);
         %save data
         

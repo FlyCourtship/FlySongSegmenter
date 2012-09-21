@@ -60,7 +60,7 @@ m = 99;     % Power percentile at and above which a clip is marked as signal rat
 max_pulse_pause = 0.200; %max_pulse_pause in seconds, used to winnow apparent sine between pulses
 
 %SET THE PARAMETERS FOR FitPulseModel and CullPulses
-load('mel_pm_24ii12.mat');
+load('pulse_model_melanogaster.mat');
 
 %%%%%%%%%%%%%%%%%
 %%READ IN USER DEFINED PARAMETERS, SOME OF WHICH MAY REPLACE DEFAULTS
