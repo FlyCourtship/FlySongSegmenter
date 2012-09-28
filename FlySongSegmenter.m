@@ -27,22 +27,20 @@ if(varargin{1}~=param.Fs)
 end
 
 disp(['Song length is ' num2str(length(xsong)/param.Fs/60,3) ' minutes.']);
+data.d = xsong;
+data.fs = param.Fs;
 
 fprintf('Finding noise floor in recording.\n')
-if length(xsong) <1.1e6
-  song = xsong;
-else
-  song = xsong(1:1e6);
-end
-
-[ssf] = MultiTaperFTest(song,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow);
-
-data.d = xsong;
-data.fs = ssf.fs;
-%fprintf('Finding noise.\n')
 if isempty(xempty) %if user provides only xsong
-  noise = EstimateNoise(ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
+  xempty=xsong(1:min(end,1e6));
 end
+%if length(xsong) <1.1e6
+%  song = xsong;
+%else
+%  song = xsong(1:1e6);
+%end
+ssf = MultiTaperFTest(xempty,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow);
+noise = EstimateNoise(ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
 
 %Run PulseSegmentationv4 using xsong, xempty, and pps as inputs (and a list of parameters defined above):
 fprintf('Running wavelet transformation.\n')
@@ -110,7 +108,6 @@ if(exist('cpm','var'))
   culled_pulseInfo = CullPulses(pulseInfo,Lik_pulse.LLR_fh,[0 max(Lik_pulse.LLR_fh) + 1]);
   culled_pulseInfo2 = CullPulses(pulseInfo2,Lik_pulse2.LLR_fh,[0 max(Lik_pulse2.LLR_fh) + 1]);
 end
-
 
 clear ssf pm_ssf pm_sine
 
