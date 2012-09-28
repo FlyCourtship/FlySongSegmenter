@@ -29,7 +29,7 @@ end
 
 dT2=round(dT*fs);
 dS2=round(dS*fs);
-d=d-repmat(mean(d),size(d,1),1);
+%d=d-repmat(mean(d),size(d,1),1);
 
 [tapers,eigs]=dpsschk([NW K],dT2,fs);
 
