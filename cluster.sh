@@ -27,6 +27,9 @@ do
   unset IFS
   daq_name=$(basename "$daq_file" ".daq")
   clean_daq_name=$(echo "$daq_name" | sed "s/[^a-zA-Z0-9 ]/_/g")
+  if [ ! -d $daq_folder/$daq_name\_out ] ; then
+    mkdir $daq_folder/$daq_name\_out
+  fi
   for i in $(seq $nchan)
   do
     #qsub -N FSS-$clean_daq_name-$i-$clean_params_name -l short=true -pe batch 4 -b y -j y -cwd -o $daq_folder/$daq_name\_out/$clean_daq_name-$i-$clean_params_name.log -V ./cluster2.sh "\"$daq_file\"" -p "\"$params_path\"" -c "$i"
