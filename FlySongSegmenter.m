@@ -22,7 +22,7 @@ FetchParams;
 
 if(varargin{1}~=param.Fs)
   disp(['WARNING:  sampling rate is specified as ' num2str(varargin{1}) ' in the .daq file and ' ...
-      num2str(param.Fs) ' in ' params_path] '.  Proceeding with ' num2str(varargin{1}));
+      num2str(param.Fs) ' in ' params_path '.  Proceeding with ' num2str(varargin{1})]);
   param.Fs=varargin{1};
 end
 
