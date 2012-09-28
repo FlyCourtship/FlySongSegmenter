@@ -1,6 +1,5 @@
-
-
-function sinesong = SineSegmenter(ssf, min, max,sine_range_percent,discard_less_n_steps)
+function [MergedInTimeHarmonics CulledByLengthFrequency] = ...
+    SineSegmenter(ssf, min, max,sine_range_percent,discard_less_n_steps)
 %input ssf and expected min and max for sine song fundamental frequency 
 
 % output is inRangeEvents giving all events deemed legitimate sine song
@@ -126,6 +125,31 @@ if sine_stop(NumBouts) > numel(ssf.d)
     sine_stop(NumBouts) = numel(ssf.d);
 end
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Now use start and stop times to calculate other parameters of interest
+%and to grab clips
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+rdcdNumBouts = numel(sine_start);
+NumBouts=rdcdNumBouts;
+sine_clips = cell(NumBouts,1);
+length = sine_stop - sine_start;
+
+for x = 1:NumBouts;
+    sine_clips{x} = data(sine_start(x):sine_stop(x));
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Produce output
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+MergedInTimeHarmonics.num_events = numel(sine_start);
+MergedInTimeHarmonics.start = sine_start';
+MergedInTimeHarmonics.stop = sine_stop';
+MergedInTimeHarmonics.length = length;
+MergedInTimeHarmonics.clips = sine_clips;
+ 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%winnow to bouts > discard_less_n_steps 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -170,11 +194,11 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Produce output
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sinesong.num_events = numel(sine_start);
-sinesong.start = sine_start';
-sinesong.stop = sine_stop';
-sinesong.length = length;
-sinesong.clips = sine_clips;
+CulledByLengthFrequency.num_events = numel(sine_start);
+CulledByLengthFrequency.start = sine_start';
+CulledByLengthFrequency.stop = sine_stop';
+CulledByLengthFrequency.length = length;
+CulledByLengthFrequency.clips = sine_clips;
  
 
 end
