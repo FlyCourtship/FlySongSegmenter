@@ -58,6 +58,7 @@ m = 99;     % Power percentile at and above which a clip is marked as signal rat
 
 %SET THE PARAMETERS FOR WinnowSine
 max_pulse_pause = 0.200; %max_pulse_pause in seconds, used to winnow apparent sine between pulses
+mask_pulses = 'CulledByModel';
 
 %SET THE PARAMETERS FOR FitPulseModel and CullPulses
 load('pulse_model_melanogaster.mat');
