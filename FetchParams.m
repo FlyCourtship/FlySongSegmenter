@@ -61,7 +61,7 @@ max_pulse_pause = 0.200; %max_pulse_pause in seconds, used to winnow apparent si
 mask_pulses = 'CulledByModel2';
 
 %SET THE PARAMETERS FOR FitPulseModel and CullPulses
-load('pulse_model_melanogaster.mat');
+pulse_model='pulse_model_melanogaster.mat';
 
 %%%%%%%%%%%%%%%%%
 %%READ IN USER DEFINED PARAMETERS, SOME OF WHICH MAY REPLACE DEFAULTS
@@ -69,20 +69,22 @@ load('pulse_model_melanogaster.mat');
 if ~exist('params_path', 'var') || isempty(params_path)
     params;
 else
-  eval(params_path);
-%    fid = fopen(params_path);
-%    if fid < 0
-%        error('Could not open the parameters file at %s', params_path);
-%    end
-%    params_code = fread(fid, '*char')';
-%    fclose(fid);
-%    try
+    fid = fopen(params_path);
+    if fid < 0
+        error('Could not open the parameters file at %s', params_path);
+    end
+    params_code = fread(fid, '*char')';
+    fclose(fid);
+    try
 %        disp(params_code);
-%        eval(params_code);
-%    catch ME
-%        error('Could not load the parameters from %s (%s)', params_path, ME.message);
-%    end
+        eval(params_code);
+    catch ME
+        error('Could not load the parameters from %s (%s)', params_path, ME.message);
+    end
 end
+
+load(pulse_model);
+
 
 %%%%%%%%%%%%%%%%%
 %%READ PARAMETERS INTO STRUCTURE ARRAY TO BE USED BY FlySongSegmenter
