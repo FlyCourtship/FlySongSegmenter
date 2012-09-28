@@ -1,5 +1,4 @@
-function [MergedInTimeHarmonics CulledByLengthFrequency] = ...
-    SineSegmenter(ssf, min, max,sine_range_percent,discard_less_n_steps)
+function MergedInTimeHarmonics = SineSegmenter(SinesFromMultiTaper, sine_low_freq, sine_high_freq, sine_range_percent)
 %input ssf and expected min and max for sine song fundamental frequency 
 
 % output is inRangeEvents giving all events deemed legitimate sine song
@@ -18,23 +17,23 @@ function [MergedInTimeHarmonics CulledByLengthFrequency] = ...
 %sine_range_percent = 0.2;
 %discard_less_n_steps = 3;
 
+% culling by length now done in WinnowSine
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% create matrix of all legitimate sine events
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sinemin=min;
-sinemax=max;
-allevents=ssf.events;%column 1 = time in sec, column 2 is freq in Hz
-stepsize=round(ssf.dS * ssf.fs);
-windowsize_half=round(ssf.dT * ssf.fs/2);
-data = ssf.d;
+allevents=SinesFromMultiTaper.events;%column 1 = time in sec, column 2 is freq in Hz
+stepsize=round(SinesFromMultiTaper.dS * SinesFromMultiTaper.fs);
+windowsize_half=round(SinesFromMultiTaper.dT * SinesFromMultiTaper.fs/2);
+data = SinesFromMultiTaper.d;
 inRangeEvents=[];
 
-for n=1:numel(ssf.events(:,1))
+for n=1:numel(SinesFromMultiTaper.events(:,1))
     
     %Check if each value within bounds, or within bounds of second harmonic.
     %Either triggers saving value
-    if allevents(n,2)>=sinemin && allevents(n,2)<=sinemax || allevents(n,2)>=2*sinemin && allevents(n,2)<=2*sinemax
+    if allevents(n,2)>=sine_low_freq && allevents(n,2)<=sine_high_freq || allevents(n,2)>=2*sine_low_freq && allevents(n,2)<=2*sine_high_freq
         inRangeEvents=cat(1,inRangeEvents,allevents(n,:)); 
     end
 end
@@ -43,7 +42,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if numel(inRangeEvents) == 0
     fprintf('No sine song in this clip.\n')
-	sinesong.num_events = 0; %return sinesong as 0 (false)
+	MergedInTimeHarmonics.num_events = 0; %return sinesong as 0 (false)
     return
 end
 
@@ -121,8 +120,8 @@ end
 
 %plug in last value as last stop
 sine_stop(NumBouts) = RunsEvents(NumEvents,1);
-if sine_stop(NumBouts) > numel(ssf.d)
-    sine_stop(NumBouts) = numel(ssf.d);
+if sine_stop(NumBouts) > numel(SinesFromMultiTaper.d)
+    sine_stop(NumBouts) = numel(SinesFromMultiTaper.d);
 end
 
 
@@ -148,57 +147,3 @@ MergedInTimeHarmonics.start = sine_start';
 MergedInTimeHarmonics.stop = sine_stop';
 MergedInTimeHarmonics.length = length;
 MergedInTimeHarmonics.clips = sine_clips;
- 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%winnow to bouts > discard_less_n_steps 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for x = NumBouts:-1:1
-    if sine_stop(x) - sine_start(x) <= discard_less_n_steps * stepsize
-        sine_start(x)=[];
-        sine_stop(x)=[];
-    end
-end
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%winnow to eliminate runs that contain no values in fundamental frequency range
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NumEvents = numel(sine_start);
-for x = NumEvents:-1:1
-    %get events for each run
-    events_in_run = find(RunsEvents(:,1)>=sine_start(x) & RunsEvents(:,1)<=sine_stop(x));
-    %if no data in fundamental frequency range eliminate this run
-    if isempty(find(RunsEvents(events_in_run,2)>=sinemin & RunsEvents(events_in_run,2) <=sinemax, 1));
-        sine_start(x)=[];
-        sine_stop(x)=[];
-    end
-end
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Now use start and stop times to calculate other parameters of interest
-%and to grab clips
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-rdcdNumBouts = numel(sine_start);
-NumBouts=rdcdNumBouts;
-sine_clips = cell(NumBouts,1);
-length = sine_stop - sine_start;
-
-for x = 1:NumBouts;
-    sine_clips{x} = data(sine_start(x):sine_stop(x));
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Produce output
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-CulledByLengthFrequency.num_events = numel(sine_start);
-CulledByLengthFrequency.start = sine_start';
-CulledByLengthFrequency.stop = sine_stop';
-CulledByLengthFrequency.length = length;
-CulledByLengthFrequency.clips = sine_clips;
- 
-
-end
