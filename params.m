@@ -47,7 +47,7 @@ a = [100:25:750]; %wavelet scales: frequencies examined.
 b = [2:3]; %Derivative of Gaussian wavelets examined (2:3)
 c = round(Fs/250)+1; %pWid:  Approx Pulse Width in points (odd, rounded)
 d = round(Fs/100); %lowIPI: estimate of a very low IPI (even, rounded)
-e = 5; %thresh:Proportion of smoothed threshold over which pulses are counted. 
+e = 4; %thresh:Proportion of smoothed threshold over which pulses are counted. 
 
 %parameters for winnowing pulses: 
 %first winnow: (returns pulseInfo)
