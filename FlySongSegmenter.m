@@ -46,15 +46,15 @@ noise = EstimateNoise(tmp,param,param.low_freq_cutoff,param.high_freq_cutoff);
 fprintf('Running wavelet transformation.\n')
     
 %[pcndInfo, pulseInfo, pulseInfo2, cmhSong] = ...
-[Pulses.FromWavelet, Pulses.CulledByAmplitude, Pulses.CulledByIPIFrequency, cmhSong] = ...
+[Pulses.Wavelet, Pulses.AmpCull, Pulses.IPICull, cmhSong] = ...
     PulseSegmenter(xsong,noise.d,[],param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.Fs);
     
 if(exist('cpm','var'))
   fprintf('Culling pulses with likelihood model.\n')
-  [pulse_model,Lik_pulse]=FitPulseModel(cpm,Pulses.CulledByAmplitude.x);
-  [pulse_model2,Lik_pulse2]=FitPulseModel(cpm,Pulses.CulledByIPIFrequency.x);
-  Pulses.CulledByModel = CullPulses(Pulses.CulledByAmplitude,Lik_pulse.LLR_fh,[0 max(Lik_pulse.LLR_fh) + 1]);
-  Pulses.CulledByModel2 = CullPulses(Pulses.CulledByIPIFrequency,Lik_pulse2.LLR_fh,[0 max(Lik_pulse2.LLR_fh) + 1]);
+  [pulse_model,Lik_pulse]=FitPulseModel(cpm,Pulses.AmpCull.x);
+  [pulse_model2,Lik_pulse2]=FitPulseModel(cpm,Pulses.IPICull.x);
+  Pulses.ModelCull = CullPulses(Pulses.AmpCull,Lik_pulse.LLR_fh,[0 max(Lik_pulse.LLR_fh) + 1]);
+  Pulses.ModelCull2 = CullPulses(Pulses.IPICull,Lik_pulse2.LLR_fh,[0 max(Lik_pulse2.LLR_fh) + 1]);
 end
 
 if param.find_sine == 1
@@ -111,24 +111,24 @@ if param.find_sine == 1
   end
 
   fprintf('Running multitaper analysis.\n')
-  Sines.FromMultiTaper = ...
+  Sines.MultiTaper = ...
       MultiTaperFTest(tmp,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow);
       
   fprintf('Finding sine.\n')
-  Sines.MergedInTimeHarmonics = ...
-      SineSegmenter(Sines.FromMultiTaper,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent);
+  Sines.TimeHarmonicMerge = ...
+      SineSegmenter(Sines.MultiTaper,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent);
 
   fprintf('Winnowing sines.\n')
-  [Sines.CulledFromPulses Sines.CulledByLength] = ...
-      WinnowSine(Sines.MergedInTimeHarmonics,Pulses.(mask_pulses),Sines.FromMultiTaper,...
+  [Sines.PulsesCull Sines.LengthCull] = ...
+      WinnowSine(Sines.TimeHarmonicMerge,Pulses.(mask_pulses),Sines.MultiTaper,...
         param.max_pulse_pause,param.sine_low_freq,param.sine_high_freq,param.discard_less_n_steps);
 
 %  end
 else
-  Sines.FromMultiTaper = {};
-  Sines.MergedInTimeHarmonics = {};
-  Sines.CulledFromPulses = {};
-  Sines.CulledByLength = {};
+  Sines.MultiTaper = {};
+  Sines.TimeHarmonicMerge= {};
+  Sines.PulsesCull = {};
+  Sines.LengthCull = {};
 end
 
 %clear ssf pm_ssf pm_sine
@@ -142,9 +142,9 @@ disp(['Run time was ' num2str(tstop/60,3) ' minutes.']);
 % step 2:
 %   return Pulses & Sines from FlySongSegmenter
 %   put the following into .m file to source in analysis code
-pcndInfo          = Pulses.FromWavelet;
-pulseInfo         = Pulses.CulledByAmplitude;
-pulseInfo2        = Pulses.CulledByIPIFrequency;
-culled_pulseInfo  = Pulses.CulledByModel;
-culled_pulseInfo2 = Pulses.CulledByModel2;
-winnowed_sine     = Sines.CulledByLength;
+pcndInfo          = Pulses.Wavelet;
+pulseInfo         = Pulses.AmpCull;
+pulseInfo2        = Pulses.IPICull;
+culled_pulseInfo  = Pulses.ModelCull;
+culled_pulseInfo2 = Pulses.ModelCull2;
+winnowed_sine     = Sines.LengthCull;

@@ -60,7 +60,7 @@ i = round(Fs/50); %if pulse peaks are this close together, only keep the larger 
 
 %SET THE PARAMETERS FOR WinnowSine
 max_pulse_pause = 0.070; %max_pulse_pause in seconds, used to winnow apparent sine between pulses
-mask_pulses = 'CulledByModel2';
+mask_pulses = 'ModelCull2';
 
 %SET THE PARAMETERS FOR FitPulseModel and CullPulses
 pulse_model='pulse_model_melanogaster.mat';
