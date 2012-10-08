@@ -28,12 +28,12 @@ For more information about the MCR and the MCR Installer, see
 
 Files to package for Standalone 
 ================================
--fly_song_segmenter_unix 
--run_fly_song_segmenter_unix.sh (shell script run to temporarily set environment 
-                                 variables and execute the application)
+-fly_song_segmenter 
+-run_fly_song_segmenter.sh (shell script run to temporarily set environment variables and 
+                            execute the application)
    -to run the shell script, type
    
-       ./run_fly_song_segmenter_unix.sh <mcr_directory> <argument_list>
+       ./run_fly_song_segmenter.sh <mcr_directory> <argument_list>
        
     at Linux or Mac command prompt. <mcr_directory> is the directory 
     where version 7.17 of MCR is installed or the directory where 
@@ -43,12 +43,12 @@ Files to package for Standalone
     If you have version 7.17 of MCR installed in 
     /mathworks/home/application/v717, run the shell script as:
     
-       ./run_fly_song_segmenter_unix.sh /mathworks/home/application/v717
+       ./run_fly_song_segmenter.sh /mathworks/home/application/v717
        
     If you have MATLAB installed in /mathworks/devel/application/matlab, 
     run the shell script as:
     
-       ./run_fly_song_segmenter_unix.sh /mathworks/devel/application/matlab
+       ./run_fly_song_segmenter.sh /mathworks/devel/application/matlab
 -MCRInstaller.zip
    -include when building component by clicking "Add MCR" link 
     in deploytool
@@ -88,7 +88,7 @@ A. Linux x86-64 systems:
         NOTE: The environment variable syntax utilizes forward 
               slashes (/), delimited by colons (:).  
         NOTE: When deploying standalone applications, it is possible 
-              to run the shell script file run_fly_song_segmenter_unix.sh 
+              to run the shell script file run_fly_song_segmenter.sh 
               instead of setting environment variables. See 
               section 2 "Files to Deploy and Package".    
 
