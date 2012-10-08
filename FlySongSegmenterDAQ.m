@@ -39,14 +39,13 @@ for y = yy
  
         %run FlySongSegmenter on selected channel
         %fprintf('Processing song.\n')
-        [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo, Lik_pulse, pulse_model, Lik_pulse2, pulse_model2] = ...
+        [data, Sines, Pulses] = ...
             FlySongSegmenter(song,[],params_path,song_daqinfo.ObjInfo.SampleRate);
         %save data
         
-        save(outfile, 'data','winnowed_sine', 'pcndInfo','pulseInfo2','pulseInfo', ...
-            'Lik_pulse', 'pulse_model', 'Lik_pulse2', 'pulse_model2','-v7.3');
+        save(outfile, 'data','Sines','Pulses','-v7.3');
         %clear workspace
-        clear song data winnowed_sine pulseInfo2 pulseInfo Lik_pulse pulse_model Lik_pulse2 pulse_model2
+        clear song data Sines Pulses
     else
         fprintf(['File %s exists. Skipping.\n'], outfile);
     end

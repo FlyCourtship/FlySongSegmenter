@@ -1,7 +1,7 @@
-function [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo, Lik_pulse, pulse_model, Lik_pulse2, pulse_model2] = ...
+function [data, Sines, Pulses] = ...
     FlySongSegmenter(xsong,xempty,params_path,varargin)
 
-%USAGE [data, winnowed_sine, pulseInfo, pulseInfo2, pcndInfo] = FlySongSegmenter(xsong,[],'./params.m')
+%USAGE [data, Sines, Pulses] = FlySongSegmenter(xsong,[],'./params.m',...)
 %This is the core program for analyzing courtship song
 %the sole varargin is the sampling rate passed in from FlySongSegmenterDAQ to cross check with params
 
@@ -51,10 +51,10 @@ fprintf('Running wavelet transformation.\n')
     
 if(exist('cpm','var'))
   fprintf('Culling pulses with likelihood model.\n')
-  [pulse_model,Lik_pulse]=FitPulseModel(cpm,Pulses.AmpCull.x);
-  [pulse_model2,Lik_pulse2]=FitPulseModel(cpm,Pulses.IPICull.x);
-  Pulses.ModelCull = CullPulses(Pulses.AmpCull,Lik_pulse.LLR_fh,[0 max(Lik_pulse.LLR_fh) + 1]);
-  Pulses.ModelCull2 = CullPulses(Pulses.IPICull,Lik_pulse2.LLR_fh,[0 max(Lik_pulse2.LLR_fh) + 1]);
+  [Pulses.pulse_model,Pulses.Lik_pulse]=FitPulseModel(cpm,Pulses.AmpCull.x);
+  [Pulses.pulse_model2,Pulses.Lik_pulse2]=FitPulseModel(cpm,Pulses.IPICull.x);
+  Pulses.ModelCull = CullPulses(Pulses.AmpCull,Pulses.Lik_pulse.LLR_fh,[0 max(Pulses.Lik_pulse.LLR_fh) + 1]);
+  Pulses.ModelCull2 = CullPulses(Pulses.IPICull,Pulses.Lik_pulse2.LLR_fh,[0 max(Pulses.Lik_pulse2.LLR_fh) + 1]);
 end
 
 if param.find_sine == 1
@@ -137,14 +137,3 @@ check_close_pool(poolavail,isOpen);
 
 tstop=toc(tstart);
 disp(['Run time was ' num2str(tstop/60,3) ' minutes.']);
-
-
-% step 2:
-%   return Pulses & Sines from FlySongSegmenter
-%   put the following into .m file to source in analysis code
-pcndInfo          = Pulses.Wavelet;
-pulseInfo         = Pulses.AmpCull;
-pulseInfo2        = Pulses.IPICull;
-culled_pulseInfo  = Pulses.ModelCull;
-culled_pulseInfo2 = Pulses.ModelCull2;
-winnowed_sine     = Sines.LengthCull;
