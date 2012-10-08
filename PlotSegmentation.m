@@ -1,5 +1,5 @@
-function PlotSegmentation(data,winnowed_sine,pulseInfo,pulseInfo2,Lik_pulse,Lik_pulse2)
-%PlotSegmentation(data,pulseInfo,winnowed_sine,Lik_pulse)
+function PlotSegmentation(data,Sines,Pulses)
+%PlotSegmentation(data,Sines,Pulses)
 %A utility to examine the likelihood scores for pulses
 %USAGE
 %Plot_Lik(data,pulseInfo2,winnowed_sine,Lik_pulse.LLR_best)
@@ -18,12 +18,12 @@ hold on;
 ax2 = subplot(2,1,2);
 
 hold on
-scatter(ax2,pulseInfo.wc/ssf.fs,Lik_pulse.LLR_best,35,'m','filled');
-scatter(ax2,pulseInfo2.wc/ssf.fs,Lik_pulse2.LLR_best,35,'k','filled');
+scatter(ax2,Pulses.AmpCull.wc/ssf.fs,Pulses.Lik_pulse.LLR_best,35,'m','filled');
+scatter(ax2,Pulses.IPICull.wc/ssf.fs,Pulses.Lik_pulse2.LLR_best,35,'k','filled');
 xlim(ax2,[0 length(ssf.d)/ssf.fs]);
 title(ax2,'LLR','FontSize',10);
 if nargin == 8
-    scatter(ax2,pulseInfo.wc/ssf.fs,LOD_pulse,35,'b','filled');
+    scatter(ax2,Pulses.AmpCull.wc/ssf.fs,LOD_pulse,35,'b','filled');
 end
 
 linkaxes([ax1 ax2],'x');
@@ -31,23 +31,23 @@ zoom xon;
 
 
 % plot sine data
-num_events=length(winnowed_sine.start);
+num_events=length(Sines.LengthCull.start);
 if num_events>0
-    for n = 1:size(winnowed_sine.start,1)
-        x_start = round(winnowed_sine.start(n));
-        x_stop = round(x_start + size(winnowed_sine.clips{n},1));
+    for n = 1:size(Sines.LengthCull.start,1)
+        x_start = round(Sines.LengthCull.start(n));
+        x_stop = round(x_start + size(Sines.LengthCull.clips{n},1));
         time = (x_start:x_stop-1);
-        y = winnowed_sine.clips{n};
+        y = Sines.LengthCull.clips{n};
         plot(ax1,time./ssf.fs,y,'b')
     end
 end
 
 
 
-if numel(pulseInfo) > 0
-    for i = 1:length(pulseInfo.x);
-        a = pulseInfo.w0(i);
-        b = pulseInfo.w1(i);
+if numel(Pulses.AmpCull) > 0
+    for i = 1:length(Pulses.AmpCull.x);
+        a = Pulses.AmpCull.w0(i);
+        b = Pulses.AmpCull.w1(i);
         t = (a:b);
         y = ssf.d(a:b);
         plot(ax1,t./ssf.fs,y,'r'); %hold on;
@@ -57,6 +57,3 @@ end
 
 grid on
 hold off
-
-
-
