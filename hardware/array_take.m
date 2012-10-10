@@ -51,7 +51,7 @@ global button_fft button_timetrace button_equalizer text_realtime
 global button_save text_filedir button_wav edit_filesize text_hygro
 global button_scale_bigger button_scale_smaller buttons_chan
 global hygro_clockperiod hygro_timeout hygro_datain hygro_dataout hygro_clock
-global video vifile video_format video_compress max_Fs
+global video vifile video_format video_compress video_ROI video_FrameRate video_TemporalSubSample max_Fs
 
 clear buttons_chan
 
@@ -68,7 +68,7 @@ hygro_datain=1;    % the digital input line(s) connected to the SHT7x's DATA lin
 in_port=0;         % which hardware port is used for digital input
 out_port=1;        % which hardware port is used for digital output
 
-else  % NI-6259
+elseif(0)  % NI-6259
 
 max_nchan=32;      % maximum number of channels your hardware supports
 max_Fs=1e6;     % maximum aggregate sampling frequency your hardware supports, in Hz
@@ -79,6 +79,17 @@ hygro_datain=[0 1 5 6 7];    % the digital input line(s) connected to the SHT7x'
 in_port=1;         % which hardware port is used for digital input
 out_port=2;        % which hardware port is used for digital output
 
+else  % NI-6259 4-channel with video
+
+max_nchan=32;      % maximum number of channels your hardware supports
+max_Fs=1e6;     % maximum aggregate sampling frequency your hardware supports, in Hz
+range_settings=[10 5 2 1 0.5 0.2];   % available scales your hardware supports, in V
+hygro_clock=0;     % the digital output line connected to the SHT7x's SCK line
+hygro_dataout=1;   % the digital output line connected to the SHT7x's DATA line
+hygro_datain=0;    % the digital input line(s) connected to the SHT7x's DATA line
+in_port=2;         % which hardware port is used for digital input
+out_port=1;        % which hardware port is used for digital output
+
 end
 
 start_stop=-1;     % -1 = use software start/stop button
@@ -86,13 +97,16 @@ start_stop=-1;     % -1 = use software start/stop button
 calibrate=0;       % 1 = optionally play calibration sound while recording
                    % 0 = no such button
                    % can be broadband noise or a harmonic stack, see line 374
-video=0;           % camera attached?, 1=yes, 0=no
-video_format='UYVY_720x480';
-video_compress='none';
+video=1;           % camera attached?, 1=yes, 0=no
+video_format='RGB32_1600x1200';
+video_ROI=[512 512 512 512];
+video_FrameRate='60';
+video_TemporalSubSample=4;
+video_compress='Motion JPEG AVI';
 
 %%%% SOFTWARE SETTINGS
 
-nchan_init=32;
+nchan_init=4;
 samplerate_init=10e3;
 range_init=2;      % i.e. range_settings(range_init)
 hygro_init=1;      % time btw measurements, 1 = 30s, 2 = 60s, 3 = 120s, etc.
@@ -179,8 +193,8 @@ end
 button_exit=uicontrol('style','pushbutton',...
    'backgroundColor',tmp2,'tooltip','exit array_take',...
    'string','exit',...
-   'callback',['global ai ao dio vi;'...
-               'delete([ai ao]); delete(vi); stop(dio); delete(dio); close all; clear all;']);
+   'callback',['global session vi;'...
+               'session.stop; delete(vi); close all; clear all;']);
 
 button_fft=uicontrol('style','radiobutton',...
    'backgroundColor',tmp2,'tooltip','display spectrum of currently selected channel',...
@@ -270,11 +284,12 @@ global Fs range_settings count start_stop in_port out_port calibrate video max_F
 global popupmenu_hygro popupmenu_nchan edit_samplerate popupmenu_range 
 global popupmenu_daq button_calib buttons_chan
 global hygro_period hygro_datain hygro_dataout hygro_clock
-global running ai ao dio vi video_format
+global running session sessionStartStop sessionHygroClk sessionHygroOut sessionHygroIn
+global vi video_format video_ROI video_FrameRate video_TemporalSubSample
 
-if(~isempty(ai))  delete(ai);  end
-if(~isempty(ao))  delete(ao);  end
-if(~isempty(dio))  delete(dio);  end
+%if(~isempty(ai))  delete(ai);  end
+%if(~isempty(ao))  delete(ao);  end
+%if(~isempty(dio))  delete(dio);  end
 if(~isempty(buttons_chan))  delete(buttons_chan);  end
 
 Fs=str2num(get(edit_samplerate,'string'));
@@ -285,48 +300,77 @@ if(Fs*nchan>max_Fs)
 end
 hygro_period=60*2^(get(popupmenu_hygro,'value')-2);
 range=range_settings(get(popupmenu_range,'value'));
-daq=daqhwinfo('nidaq','InstalledBoardIds');
-% daq=char(daq(get(popupmenu_daq,'value')));
-daq=char(daq(1));
+%daq=daqhwinfo('nidaq','InstalledBoardIds');
+%daq=char(daq(get(popupmenu_daq,'value')));
 
-ai = analoginput('nidaq',daq);
-set(ai,'InputType','NonReferencedSingleEnded');
-for(i=0:nchan-1)
-  %tmp=addchannel(ai,max_nchan-1-i);
-  tmp=addchannel(ai,i);
-  set(tmp,'InputRange',[-range range]);
-end
-set(ai,'SampleRate',Fs);
-set(ai,'SamplesPerTrigger',inf)
-set(ai,'SamplesAcquiredFcn',{@array_plot_data})
-set(ai,'SamplesAcquiredFcnCount',count)
-set(ai,'TriggerType','Manual')
+boards=daq.getDevices;
+boards=boards(1);
+session=daq.createSession('ni');
+
+%ai = analoginput('nidaq',daq);
+%set(ai,'InputType','NonReferencedSingleEnded');
+%for(i=0:nchan-1)
+  %%tmp=addchannel(ai,max_nchan-1-i);
+  %tmp=addchannel(ai,i);
+  %set(tmp,'InputRange',[-range range]);
+%end
+session.addAnalogInputChannel(boards.ID,0:nchan-1,'voltage');
+[session.Channels.InputType]=deal('SingleEndedNonReferenced');
+[session.Channels.Range]=deal([-range range]);
+
+session.Rate=Fs;
+session.IsContinuous=true;
+session.IsNotifyWhenDataAvailableExceedsAuto=false;
+session.NotifyWhenDataAvailableExceeds=count;
+
+%set(ai,'SampleRate',Fs);
+%set(ai,'SamplesPerTrigger',inf)
+%set(ai,'SamplesAcquiredFcn',{@array_plot_data})
+%set(ai,'SamplesAcquiredFcnCount',count)
+%set(ai,'TriggerType','Manual')
 %set(ai,'ExternalTriggerDriveLine','PFI7');
 
 if(calibrate && get(button_calib,'value'))
-  ao = analogoutput('nidaq',daq);
-  ao.TriggerType = 'Manual';
+  %ao = analogoutput('nidaq',daq);
+  %ao.TriggerType = 'Manual';
   %ao.TriggerType = 'HwDigital';
   %ao.HwDigitalTriggerSource = 'PFI3';
-  ao.SampleRate=Fs;
-  ao.RepeatOutput=8;
-  addchannel(ao,0);
-  addchannel(ao,1);
+  %ao.SampleRate=Fs;
+  %ao.RepeatOutput=8;
+  %addchannel(ao,0);
+  %addchannel(ao,1);
+  session.addAnalogOutputChannel(boards.ID,0:1,'voltage');
 end
 
-dio = digitalio('nidaq',daq);
+%dio = digitalio('nidaq',daq);
+sessionStartStop=daq.createSession('ni');
 if(start_stop>-1)
-  addline(dio,start_stop,in_port,'in','StartStop');
+  %addline(dio,start_stop,in_port,'in','StartStop');
+  sessionStartStop.addDigitalChannel(boards.ID, ['Port' num2str(in_port) '/Line' num2str(start_stop)], 'InputOnly');
 end
-addline(dio,hygro_clock,out_port,'out','HygroClk');
-addline(dio,hygro_dataout,out_port,'out','HygroOut');
-addline(dio,hygro_datain,in_port,'in','HygroIn');
+%addline(dio,hygro_clock,out_port,'out','HygroClk');
+%addline(dio,hygro_dataout,out_port,'out','HygroOut');
+%addline(dio,hygro_datain,in_port,'in','HygroIn');
+sessionHygroClk=daq.createSession('ni');
+sessionHygroClk.addDigitalChannel(boards.ID, ['Port' num2str(out_port) '/Line' num2str(hygro_clock)], 'OutputOnly');
+sessionHygroOut=daq.createSession('ni');
+sessionHygroOut.addDigitalChannel(boards.ID, ['Port' num2str(out_port) '/Line' num2str(hygro_dataout)], 'OutputOnly');
+sessionHygroIn=daq.createSession('ni');
+for i=1:length(hygro_datain)
+  sessionHygroIn.addDigitalChannel(boards.ID, ['Port' num2str(in_port) '/Line' num2str(hygro_datain(i))], 'InputOnly');
+end
 
 running=0;
 if(start_stop>-1)
-  set(dio,'TimerFcn',{@array_start_stop_cbk});
+  %set(dio,'TimerFcn',{@array_start_stop_cbk});
+  t=timer;
+  set(t,'Name','start_stop');
+  set(t,'Period',1);
+  set(t,'ExecutionMode','fixedRate');
+  set(t,'TimerFcn',@array_start_stop_cbk);
+  start(t);
 end
-start(dio);
+%start(dio);
 
 buttons_chan=uibuttongroup('unit','pixels','position',[0 0 1 1],...
    'SelectionChangeFcn',@selcbk);
@@ -339,7 +383,10 @@ end
 if(video)
   vi=videoinput('winvideo',1,video_format);
   triggerconfig(vi,'manual');
-  set(vi,'FramesPerTrigger',Inf);
+  set(vi,'FramesPerTrigger',Inf,'ROIPosition',video_ROI,'FrameGrabInterval',video_TemporalSubSample);
+  vi_src=get(vi,'source');
+  %set(vi_src,'FrameRate',video_FrameRate);
+  imaqmem(1e10);
 end
 
 resizeFcn;
@@ -360,20 +407,29 @@ global Fs range_settings start_stop calibrate video
 global running button_exit button_start_stop button_calib
 global popupmenu_hygro popupmenu_nchan edit_samplerate popupmenu_range 
 global popupmenu_daq button_save text_filedir button_wav edit_filesize
-global ai ao dio vi vifile video_compress filename t hygro_period
+global session sessionStartStop
+global vi vifile video_compress video_FrameRate video_TemporalSubSample filename t hygro_period
 
-if(running && (start_stop==-1 || ~getvalue(dio.StartStop)))
+persistent h fid
+
+%if(running && (start_stop==-1 || ~getvalue(dio.StartStop)))
+if(running && (start_stop==-1 || ~sessionStartStop.inputSingleScan))
   running=0;
-  if(calibrate && get(button_calib,'value'))
-    stop([ai ao]);  if(video) stop([vi]); end
-  else
-    stop([ai]);  if(video) stop([vi]); end
-  end
+  %if(calibrate && get(button_calib,'value'))
+    %stop([ai ao]);  if(video) stop([vi]); end
+    session.stop;  if(video) stop([vi]); end
+    if(get(button_save,'value'))
+      delete(h);
+      fclose(fid);
+    end
+  %else
+  %  stop([ai]);  if(video) stop([vi]); end
+  %end
   if((video) && get(button_save,'value'))
     while(vi.DiskLoggerFrameCount~=vi.FramesAcquired)
       pause(1);
     end
-    vifile=close(vi.DiskLogger);
+    close(vi.DiskLogger);
   end
   if(get(button_save,'value') && get(button_wav,'value'))
     file=[get(text_filedir,'string') '\' filename];
@@ -416,24 +472,31 @@ if(running && (start_stop==-1 || ~getvalue(dio.StartStop)))
   stop(t);
   delete(t);
   
-elseif(~running && (start_stop==-1 || getvalue(dio.StartStop)))
+%elseif(~running && (start_stop==-1 || getvalue(dio.StartStop)))
+elseif(~running && (start_stop==-1 || sessionStartStop.inputSingleScan))
   if(get(button_save,'value'))
     filename=sprintf('%02d',round(clock'));
-    set(ai,'LogFileName',[get(text_filedir,'string') '\' filename '.daq']);
-    set(ai,'LoggingMode','Disk&Memory');
+%    set(ai,'LogFileName',[get(text_filedir,'string') '\' filename '.daq']);
+%    set(ai,'LoggingMode','Disk&Memory');
+    fid = fopen([get(text_filedir,'string') '\' filename '.bin'],'w');
     if(video)
       set(vi,'LoggingMode','disk');
-      vifile=avifile([get(text_filedir,'string') '\' filename '.avi'],...
-          'compression',video_compress,'fps',29.97);
+      %vifile=avifile([get(text_filedir,'string') '\' filename '.avi'],...
+      %    'compression',video_compress,'fps',29.97);
+      %vifile=avifile([get(text_filedir,'string') '\' filename '.avi']);
+      vifile=VideoWriter([get(text_filedir,'string') '\' filename '.avi'], video_compress);
+      set(vifile,'FrameRate',str2num(video_FrameRate)/video_TemporalSubSample);
+      %open(vifile);
       set(vi,'DiskLogger',vifile);
     end
   else
-    filename=[];
-    set(ai,'LoggingMode','Memory');
+    filename=[];  fid=nan;
+    %set(ai,'LoggingMode','Memory');
     if(video)
       set(vi,'DiskLogger',[]);
     end
   end
+  h=session.addlistener('DataAvailable',@(src, event)array_log_and_plot_data(src, event, fid));
   running=1;
   if(calibrate && get(button_calib,'value'))
     len=1;  isi=5;
@@ -457,8 +520,10 @@ elseif(~running && (start_stop==-1 || getvalue(dio.StartStop)))
     start([ai ao]);  if(video) start(vi); end
     trigger([ai ao]);  if(video) trigger([vi]); end
   else
-    start(ai);  if(video) start(vi); end
-    trigger([ai]);  if(video) trigger([vi]); end
+    %start(ai);  if(video) start(vi); end
+    %trigger([ai]);  if(video) trigger([vi]); end
+    session.startBackground;
+    if(video)  start(vi);  trigger([vi]);  end
   end
   set(button_exit,'enable','off');
   if(start_stop==-1)
@@ -484,18 +549,21 @@ elseif(~running && (start_stop==-1 || getvalue(dio.StartStop)))
 end
 
 
-
-
-function array_plot_data(obj,event)
+function array_log_and_plot_data(obj,evt,fid)
 
 global scale Fs save chan h1 count range_settings
-global ai running button_start_stop popupmenu_nchan popupmenu_range
+global session running button_start_stop popupmenu_nchan popupmenu_range
 global button_fft button_timetrace button_equalizer text_realtime buttons_chan
 
 nchan=get(popupmenu_nchan,'value');
 range=range_settings(get(popupmenu_range,'value'));
 
-[d t]=getdata(ai,count);
+%[d t]=getdata(ai,count);
+t = evt.TimeStamps;
+d = evt.Data;
+if(~isnan(fid))
+  fwrite(fid,[evt.TimeStamps, evt.Data]','double');
+end
 
 if(get(button_fft,'value')==1)
 subplot(3,1,1);
@@ -535,10 +603,10 @@ ylabel('intensity (Vrms)');
 set(gca,'xtick',1:nchan,'xticklabel',1:nchan);
 end
 
-tmp=get(ai,'SamplesAvailable');
-%tmp2=get(ai,'SamplesAcquired');
-set(text_realtime,'string',[num2str(tmp/Fs,'%2.1f') 's']);
-%set(text_realtime,'string',num2str((tmp2-tmp)/tmp2,2));
+%tmp=get(ai,'SamplesAvailable');
+%%tmp2=get(ai,'SamplesAcquired');
+%set(text_realtime,'string',[num2str(tmp/Fs,'%2.1f') 's']);
+%%set(text_realtime,'string',num2str((tmp2-tmp)/tmp2,2));
 
 drawnow;
 
@@ -581,6 +649,7 @@ for(i=1:length(T))
   set(text_hygro(i),'string',[num2str(T(i),'%2.1f') 'C,' num2str(RH(i),2) '%']);
 end
 
+return;
 if(get(button_save,'value'))
   fid=fopen([get(text_filedir,'string') '\' filename '.hyg'],'a');
   fprintf(fid,'%f ',etime(clock,get(ai,'InitialTriggerTime')));
@@ -594,10 +663,12 @@ end
 
 function hygro_write(data)
 
-global dio hygro_clockperiod
+global sessionHygroClk sessionHygroOut sessionHygroIn hygro_clockperiod
 
 for(i=1:size(data,2))
-  putvalue([dio.HygroClk dio.HygroOut],[data(1,i) ~data(2,i)]);
+  %putvalue([dio.HygroClk dio.HygroOut],[data(1,i) ~data(2,i)]);
+  sessionHygroClk.outputSingleScan(data(1,i));
+  sessionHygroOut.outputSingleScan(~data(2,i));
   pause(hygro_clockperiod);
 end
 
@@ -605,30 +676,43 @@ end
 
 function err=hygro_wait_ack()
 
-global dio hygro_clockperiod  hygro_timeout  hygro_datain
+global sessionHygroClk sessionHygroOut sessionHygroIn
+global hygro_clockperiod  hygro_timeout  hygro_datain
 
 tic;
-while((sum(getvalue(dio.HygroIn))>0) && (toc<hygro_timeout))  end
-if(sum(getvalue(dio.HygroIn))>0)
+%while((sum(getvalue(dio.HygroIn))>0) && (toc<hygro_timeout))  end
+while((sum(sessionHygroIn.inputSingleScan)>0) && (toc<hygro_timeout))  end
+%if(sum(getvalue(dio.HygroIn))>0)
+if(sum(sessionHygroIn.inputSingleScan)>0)
   disp('hygro timed out 1');
-  putvalue(dio.HygroOut,~1);
+  %putvalue(dio.HygroOut,~1);
+  sessionHygroOut.outputSingleScan(~1);
   for(i=1:10)
-    putvalue(dio.HygroClk,1);  pause(hygro_clockperiod);
-    putvalue(dio.HygroClk,0);  pause(hygro_clockperiod);
+    %putvalue(dio.HygroClk,1);  pause(hygro_clockperiod);
+    %putvalue(dio.HygroClk,0);  pause(hygro_clockperiod);
+    sessionHygroClk.outputSingleScan(1);  pause(hygro_clockperiod);
+    sessionHygroClk.outputSingleScan(0);  pause(hygro_clockperiod);
   end
   err=1;
   return;
 end
-putvalue(dio.HygroClk,1);  pause(hygro_clockperiod);
-putvalue(dio.HygroClk,0);  pause(0.1);
+%putvalue(dio.HygroClk,1);  pause(hygro_clockperiod);
+%putvalue(dio.HygroClk,0);  pause(0.1);
+sessionHygroClk.outputSingleScan(1);  pause(hygro_clockperiod);
+sessionHygroClk.outputSingleScan(0);  pause(0.1);
 tic;
-while((sum(getvalue(dio.HygroIn))>0) && (toc<hygro_timeout))  end
-if(sum(getvalue(dio.HygroIn)>0))
+%while((sum(getvalue(dio.HygroIn))>0) && (toc<hygro_timeout))  end
+while((sum(sessionHygroIn.inputSingleScan)>0) && (toc<hygro_timeout))  end
+%if(sum(getvalue(dio.HygroIn)>0))
+if(sum(sessionHygroIn.inputSingleScan)>0)  % ??
   disp('hygro timed out 2');
-  putvalue(dio.HygroOut,~1);
+  %putvalue(dio.HygroOut,~1);
+  sessionHygroOut.outputSingleScan(~1);
   for(i=1:10)
-    putvalue(dio.HygroClk,1);  pause(hygro_clockperiod);
-    putvalue(dio.HygroClk,0);  pause(hygro_clockperiod);
+    %putvalue(dio.HygroClk,1);  pause(hygro_clockperiod);
+    %putvalue(dio.HygroClk,0);  pause(hygro_clockperiod);
+    sessionHygroClk.outputSingleScan(1);  pause(hygro_clockperiod);
+    sessionHygroClk.outputSingleScan(0);  pause(hygro_clockperiod);
   end
   err=1;
   return;
@@ -639,23 +723,31 @@ err=0;
 
 function ret_val=hygro_read()
 
-global dio hygro_clockperiod  hygro_datain
+global sessionHygroClk sessionHygroOut sessionHygroIn
+global hygro_clockperiod  hygro_datain
 
 idx=4:3+length(hygro_datain);
 
 tmp=zeros(length(hygro_datain),2);
 for(i=1:2)
   for(j=7:-1:0)
-    putvalue(dio.HygroClk,1);  pause(hygro_clockperiod);
-    tmp(:,i)=tmp(:,i)+(2^j).*getvalue(dio.HygroIn)';
-    putvalue(dio.HygroClk,0);  pause(hygro_clockperiod);
+    %putvalue(dio.HygroClk,1);  pause(hygro_clockperiod);
+    sessionHygroClk.outputSingleScan(1);  pause(hygro_clockperiod);
+    %tmp(:,i)=tmp(:,i)+(2^j).*getvalue(dio.HygroIn)';
+    tmp(:,i)=tmp(:,i)+(2^j).*sessionHygroIn.inputSingleScan';
+    %putvalue(dio.HygroClk,0);  pause(hygro_clockperiod);
+    sessionHygroClk.outputSingleScan(0);  pause(hygro_clockperiod);
   end
   if(i==1)
-    putvalue(dio.HygroOut,~0);  pause(hygro_clockperiod);
+    %putvalue(dio.HygroOut,~0);  pause(hygro_clockperiod);
+    sessionHygroOut.outputSingleScan(~0);  pause(hygro_clockperiod);
   end
-  putvalue(dio.HygroClk,1);   pause(hygro_clockperiod);
-  putvalue(dio.HygroClk,0);   pause(hygro_clockperiod);
-  putvalue(dio.HygroOut,~1);  pause(hygro_clockperiod);
+  %putvalue(dio.HygroClk,1);   pause(hygro_clockperiod);
+  %putvalue(dio.HygroClk,0);   pause(hygro_clockperiod);
+  %putvalue(dio.HygroOut,~1);  pause(hygro_clockperiod);
+  sessionHygroClk.outputSingleScan(1);   pause(hygro_clockperiod);
+  sessionHygroClk.outputSingleScan(0);   pause(hygro_clockperiod);
+  sessionHygroOut.outputSingleScan(~1);  pause(hygro_clockperiod);
 end
 
 ret_val=256*tmp(:,1)+tmp(:,2);
