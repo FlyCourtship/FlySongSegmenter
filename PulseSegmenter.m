@@ -37,8 +37,6 @@ fc = sp.fc;
 fs = Fs;
 
 wvlt = cell(1,ngw);
-% wvlt{1} = 'morl'; %kept the morlet here in case it ends up being useful later
-%#function morlet
 
 for i = 1:ngw
     wvlt{i} = ['gaus' num2str(sp.DoGwvlt(i))];
@@ -59,17 +57,11 @@ end
 %% Perform CWT on Signal
 %fprintf('PERFORMING CWT SUITE.\n');
 
-% cmo = zeros(1,numel(xs)); % Storage for the maximum morlet wavelet
-                                                % coefficient for each bin.
-
 cmhSong = single(zeros(1,numel(xs))); % Storage for the maximum mexican hat
                           % wavelet coefficient for each bin.
                           
 cmhNoise = single(zeros(1,numel(xn))); % Storage for the maximum mexican hat
                                                               % wavelet coefficient for each bin in noise signal.
-
-% cmo_sc = cmo; % Storage for the scale at which the
-                                        % highest coefficient occured for each bin.
 
 cmh_dog = int8(zeros(1,length(xs))); % Storage for the order of the
                           % D.o.G. wavelet for which the highest
@@ -103,7 +95,7 @@ for i= 1:numel(wvlt)
     cmhNoise = max(abs([cmhNoise; single(cwt(xn,sc(i,j),wvlt{i}))])); %wavelet transformation on noise for that scale and that wavelet
     end
 end
-%now we have cmh and cmo for the signal and cmh_noise for the noise
+%now we have cmh for the signal and cmh_noise for the noise
 %%
 %Calculate running maxima for wavelet fits and then smooth
 %Perform all operations on noise to make later comparisons meaningful
