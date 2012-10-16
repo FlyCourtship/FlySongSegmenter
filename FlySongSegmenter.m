@@ -50,12 +50,12 @@ fprintf('Running wavelet transformation.\n')
 
 fprintf('Segmenting pulses.\n')
 Pulses.Wavelet = PulseSegmenter(Pulses.cmhSong, Pulses.cmhNoise,...
-    Params.pWid, Params.lowIPI, Params.thresh, Params.Fs);
+    Params.pWid, Params.minIPI, Params.thresh, Params.Fs);
 
 fprintf('Culling pulses heuristically.\n')
 [Pulses.Wavelet  Pulses.AmpCull  Pulses.IPICull] = ...
     CullPulses(Pulses.Wavelet, Pulses.cmh_dog, Pulses.cmh_sc, Pulses.sc, xsong, noise.d,...
-    Params.fc, Params.pWid, Params.wnwMinAbsVoltage, Params.IPI, Params.frequency, Params.close);
+    Params.fc, Params.pWid, Params.wnwMinAbsVoltage, Params.maxIPI, Params.frequency, Params.close);
     
 if(exist('cpm','var'))
   fprintf('Culling pulses with likelihood model.\n')
@@ -65,7 +65,7 @@ if(exist('cpm','var'))
   Pulses.ModelCull2 = ModelCullPulses(Pulses.IPICull, Pulses.Lik_pulse2.LLR_fh, [0 max(Pulses.Lik_pulse2.LLR_fh)+1]);
 end
 
-if Params.find_sine == 1
+if Params.find_sine
         
   if ismember('x',fieldnames(Pulses.(Params.mask_pulses)))
     fprintf('Masking pulses.\n')

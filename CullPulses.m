@@ -1,6 +1,6 @@
 %function [Wavelet AmpCull IPICull] = CullPulses(Wavelet,cmh_dog,cmh_sc,sc,xs,xn,a, b, c, d, e, f, g, h, i, Fs)
 function [Wavelet AmpCull IPICull] = CullPulses(Wavelet,cmh_dog,cmh_sc,sc,xs,xn, ...
-    fc, pWid, wnwMinAbsVoltage, IPI, frequency, close)
+    fc, pWid, wnwMinAbsVoltage, maxIPI, frequency, close)
 
 %========PARAMETERS=================
 %segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
@@ -186,7 +186,7 @@ end
     end
     
     %if b-a>sp.IPI && a-c>sp.IPI;
-    if b-a>IPI && a-c>IPI;
+    if b-a>maxIPI && a-c>maxIPI;
 % fprintf('%8.2f', AmpCull.w0(i)./Fs);
 % fprintf(' NO PULSE WITHIN j samples.\n');
         continue;

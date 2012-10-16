@@ -1,5 +1,5 @@
 %function Wavelet = PulseSegmenter(cmhSong,cmhNoise,a, b, c, d, e, f, g, h, i, Fs)
-function Wavelet = PulseSegmenter(cmhSong,cmhNoise, pWid, lowIPI, thresh, Fs)
+function Wavelet = PulseSegmenter(cmhSong,cmhNoise, pWid, minIPI, thresh, Fs)
 
 %========PARAMETERS=================
 %segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
@@ -42,8 +42,8 @@ sig4Test = sig4Test - mean(nDat);
 sig4Test = abs(sig4Test);
 %smoothF = smooth(circshift(sig4Test,lowIPI/2+1), lowIPI+1);
 %smoothB = smooth(circshift(sig4Test, - lowIPI/2-1), lowIPI+1);
-smoothF = smooth(circshift(sig4Test,lowIPI/2+1), lowIPI/2+1);
-smoothB = smooth(circshift(sig4Test, - lowIPI/2-1), lowIPI/2+1);
+smoothF = smooth(circshift(sig4Test,minIPI/2+1), minIPI/2+1);
+smoothB = smooth(circshift(sig4Test, - minIPI/2-1), minIPI/2+1);
 smthSide = max([smoothF smoothB], [], 2);
 smthSide(end - buff-1:end) = inf;
 smthSide(1:buff+1) = inf;
