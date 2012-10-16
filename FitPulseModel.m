@@ -178,7 +178,7 @@ end
 
 
 %Now realign all data to the  models
-fprintf('Aligning all data to the models.\n');
+%fprintf('Aligning all data to the models.\n');
 Z2fhM = alignpulses2model(Z,fhM);
 Z2fhM = scaleZ2M(Z2fhM,fhM);
 
