@@ -1,9 +1,9 @@
-function [data, Sines, Pulses] = ...
-    FlySongSegmenter(xsong,xempty,params_path,varargin)
+function [data, Sines, Pulses, Params] = ...
+    FlySongSegmenter(xsong,xempty,Paramss_path,varargin)
 
-%USAGE [data, Sines, Pulses] = FlySongSegmenter(xsong,[],'./params.m',...)
+%USAGE [data, Sines, Pulses] = FlySongSegmenter(xsong,[],'./Paramss.m',...)
 %This is the core program for analyzing courtship song
-%the sole varargin is the sampling rate passed in from FlySongSegmenterDAQ to cross check with params
+%the sole varargin is the sampling rate passed in from FlySongSegmenterDAQ to cross check with Paramss
 
 tstart=tic;
 
@@ -16,19 +16,19 @@ if(~isdeployed)
 end
 
 if nargin < 3
-  params_path = '';
+  Paramss_path = '';
 end
 FetchParams;
 
-if((nargin>3) & (varargin{1}~=param.Fs))
+if((nargin>3) & (varargin{1}~=Params.Fs))
   disp(['WARNING:  sampling rate is specified as ' num2str(varargin{1}) ' in the .daq file and ' ...
-      num2str(param.Fs) ' in ' params_path '.  Proceeding with ' num2str(varargin{1})]);
-  param.Fs=varargin{1};
+      num2str(Params.Fs) ' in ' Paramss_path '.  Proceeding with ' num2str(varargin{1})]);
+  Params.Fs=varargin{1};
 end
 
-disp(['Song length is ' num2str(length(xsong)/param.Fs/60,3) ' minutes.']);
+disp(['Song length is ' num2str(length(xsong)/Params.Fs/60,3) ' minutes.']);
 data.d = xsong-repmat(mean(xsong),size(xsong,1),1);
-data.fs = param.Fs;
+data.fs = Params.Fs;
 
 fprintf('Finding noise floor.\n')
 if isempty(xempty) %if user provides only xsong
@@ -39,53 +39,53 @@ end
 %else
 %  song = xsong(1:1e6);
 %end
-tmp = MultiTaperFTest(xempty,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow);
-noise = EstimateNoise(tmp,param,param.low_freq_cutoff,param.high_freq_cutoff);
+tmp = MultiTaperFTest(xempty, Params.Fs, Params.NW, Params.K, Params.dT, Params.dS, Params.pval, Params.fwindow);
+noise = EstimateNoise(tmp, Params, Params.low_freq_cutoff, Params.high_freq_cutoff);
 
-%Run PulseSegmentationv4 using xsong, xempty, and pps as inputs (and a list of parameters defined above):
+%Run PulseSegmentationv4 using xsong, xempty, and pps as inputs (and a list of Paramseters defined above):
     
 fprintf('Running wavelet transformation.\n')
-[Pulses.cmhSong Pulses.cmhNoise Pulses.cmh_dog Pulses.cmh_sc Pulses.sc] = WaveletTransform(xsong,noise.d,...
-    param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.Fs);
+[Pulses.cmhSong  Pulses.cmhNoise  Pulses.cmh_dog  Pulses.cmh_sc  Pulses.sc] = ...
+    WaveletTransform(xsong, noise.d, Params.fc, Params.DoGwvlt, Params.Fs);
 
 fprintf('Segmenting pulses.\n')
-Pulses.Wavelet = PulseSegmenter(Pulses.cmhSong,Pulses.cmhNoise,...
-    param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.Fs);
+Pulses.Wavelet = PulseSegmenter(Pulses.cmhSong, Pulses.cmhNoise,...
+    Params.pWid, Params.lowIPI, Params.thresh, Params.Fs);
 
 fprintf('Culling pulses heuristically.\n')
-[Pulses.Wavelet Pulses.AmpCull Pulses.IPICull] = ...
-    CullPulses(Pulses.Wavelet,Pulses.cmh_dog,Pulses.cmh_sc,Pulses.sc,xsong,noise.d,...
-    param.a,param.b,param.c,param.d,param.e,param.f,param.g,param.h,param.i,param.Fs);
+[Pulses.Wavelet  Pulses.AmpCull  Pulses.IPICull] = ...
+    CullPulses(Pulses.Wavelet, Pulses.cmh_dog, Pulses.cmh_sc, Pulses.sc, xsong, noise.d,...
+    Params.fc, Params.pWid, Params.wnwMinAbsVoltage, Params.IPI, Params.frequency, Params.close);
     
 if(exist('cpm','var'))
   fprintf('Culling pulses with likelihood model.\n')
-  [Pulses.pulse_model,Pulses.Lik_pulse]=FitPulseModel(cpm,Pulses.AmpCull.x);
-  [Pulses.pulse_model2,Pulses.Lik_pulse2]=FitPulseModel(cpm,Pulses.IPICull.x);
-  Pulses.ModelCull=ModelCullPulses(Pulses.AmpCull,Pulses.Lik_pulse.LLR_fh,[0 max(Pulses.Lik_pulse.LLR_fh)+1]);
-  Pulses.ModelCull2=ModelCullPulses(Pulses.IPICull,Pulses.Lik_pulse2.LLR_fh,[0 max(Pulses.Lik_pulse2.LLR_fh)+1]);
+  [Pulses.pulse_model  Pulses.Lik_pulse] = FitPulseModel(cpm,Pulses.AmpCull.x);
+  [Pulses.pulse_model2  Pulses.Lik_pulse2] = FitPulseModel(cpm,Pulses.IPICull.x);
+  Pulses.ModelCull = ModelCullPulses(Pulses.AmpCull, Pulses.Lik_pulse.LLR_fh, [0 max(Pulses.Lik_pulse.LLR_fh)+1]);
+  Pulses.ModelCull2 = ModelCullPulses(Pulses.IPICull, Pulses.Lik_pulse2.LLR_fh, [0 max(Pulses.Lik_pulse2.LLR_fh)+1]);
 end
 
-if param.find_sine == 1
+if Params.find_sine == 1
         
-  if ismember('x',fieldnames(Pulses.(mask_pulses)))
+  if ismember('x',fieldnames(Pulses.(Params.mask_pulses)))
     fprintf('Masking pulses.\n')
-    tmp = MaskPulses(xsong,Pulses.(mask_pulses));
+    tmp = MaskPulses(xsong,Pulses.(Params.mask_pulses));
   else
     tmp = xsong;
   end
 
   fprintf('Running multitaper analysis.\n')
   Sines.MultiTaper = ...
-      MultiTaperFTest(tmp,param.Fs,param.NW,param.K,param.dT,param.dS,param.pval,param.fwindow);
+      MultiTaperFTest(tmp, Params.Fs, Params.NW, Params.K, Params.dT, Params.dS, Params.pval, Params.fwindow);
       
   fprintf('Segmenting sine song.\n')
   Sines.TimeHarmonicMerge = ...
-      SineSegmenter(Sines.MultiTaper,param.sine_low_freq,param.sine_high_freq,param.sine_range_percent);
+      SineSegmenter(Sines.MultiTaper, Params.sine_low_freq, Params.sine_high_freq, Params.sine_range_percent);
 
   fprintf('Winnowing sine song.\n')
   [Sines.PulsesCull Sines.LengthCull] = ...
-      WinnowSine(Sines.TimeHarmonicMerge,Pulses.(mask_pulses),Sines.MultiTaper,...
-        param.max_pulse_pause,param.sine_low_freq,param.sine_high_freq,param.discard_less_n_steps);
+      WinnowSine(Sines.TimeHarmonicMerge,Pulses.(Params.mask_pulses), Sines.MultiTaper,...
+        Params.max_pulse_pause, Params.sine_low_freq, Params.sine_high_freq, Params.discard_less_n_steps);
 
 %  end
 else

@@ -1,20 +1,25 @@
-function [Wavelet AmpCull IPICull] = CullPulses(Wavelet,cmh_dog,cmh_sc,sc,xs,xn,a, b, c, d, e, f, g, h, i, Fs)
+%function [Wavelet AmpCull IPICull] = CullPulses(Wavelet,cmh_dog,cmh_sc,sc,xs,xn,a, b, c, d, e, f, g, h, i, Fs)
+function [Wavelet AmpCull IPICull] = CullPulses(Wavelet,cmh_dog,cmh_sc,sc,xs,xn, ...
+    fc, pWid, wnwMinAbsVoltage, IPI, frequency, close)
 
 %========PARAMETERS=================
-segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
-segParams.DoGwvlt = b; % Derivative of Gaussian wavelets examined
-segParams.pWid = c; %pWid: Approx Pulse Width in points (odd, rounded)
-segParams.pulsewindow = round(c); %factor for computing window around pulse peak (this determines how much of the signal before and after the peak is included in the pulse)
-segParams.lowIPI = d; %lowIPI: estimate of a very low IPI (even, rounded)
-segParams.thresh = e; %thresh: Proportion of smoothed threshold over which pulses are counted.
-segParams.wnwMinAbsVoltage = f*mean(abs(xn));
+%segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
+%segParams.DoGwvlt = b; % Derivative of Gaussian wavelets examined
+%segParams.pWid = c; %pWid: Approx Pulse Width in points (odd, rounded)
+%segParams.pulsewindow = round(c); %factor for computing window around pulse peak (this determines how much of the signal before and after the peak is included in the pulse)
+%segParams.pulsewindow = round(pWid); %factor for computing window around pulse peak (this determines how much of the signal before and after the peak is included in the pulse)
+pulsewindow = round(pWid); %factor for computing window around pulse peak (this determines how much of the signal before and after the peak is included in the pulse)
+%segParams.lowIPI = d; %lowIPI: estimate of a very low IPI (even, rounded)
+%segParams.thresh = e; %thresh: Proportion of smoothed threshold over which pulses are counted.
+%segParams.wnwMinAbsVoltage = f*mean(abs(xn));
+wnwMinAbsVoltage = wnwMinAbsVoltage*mean(abs(xn));
 %for 2nd winnow
-segParams.IPI = g; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
-segParams.frequency = h; %if AmpCull.fcmx is greater than this frequency, then don't include pulse
-segParams.close = i; %if pulse peaks are this close together, only keep the larger pulse
-sp = segParams;
+%segParams.IPI = g; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
+%segParams.frequency = h; %if AmpCull.fcmx is greater than this frequency, then don't include pulse
+%segParams.close = i; %if pulse peaks are this close together, only keep the larger pulse
+%sp = segParams;
 
-fc = sp.fc;
+%fc = sp.fc;
        
 %%
        
@@ -65,7 +70,8 @@ for i = 1:np
    Wavelet.scmx(i) = sc_at_max;
    
 % pulsewin = [];
-   pulsewin = 2*sp.pulsewindow;
+   %pulsewin = 2*sp.pulsewindow;
+   pulsewin = 2*pulsewindow;
    
    %Wavelet.w0(i) = round(peak-pulsewin*sc_at_max); %use this if you want
    %to scale the window around each pulse based on frequency
@@ -85,7 +91,8 @@ for i = 1:np
    w1 = Wavelet.w1(i);
    y = max(abs(xs(w0:w1)));
 
-   if (y<sp.wnwMinAbsVoltage)
+   %if (y<sp.wnwMinAbsVoltage)
+   if (y<wnwMinAbsVoltage)
 % fprintf('%8.3f', Wavelet.wc(i)./Fs);
 % fprintf('TOO LOW.\n');
        Wavelet.comment{i} = 'tlav';
@@ -154,7 +161,8 @@ for i = 1:np;
     
 %======Don't include pulse > certain frequency==========
 
-if AmpCull.fcmx(i)>sp.frequency
+%if AmpCull.fcmx(i)>sp.frequency
+if AmpCull.fcmx(i)>frequency
 % fprintf('%8.2f', AmpCull.w0(i)./Fs);
 % fprintf(' PULSE IS > k.\n');
     continue
@@ -177,7 +185,8 @@ end
         c = AmpCull.w0(i);
     end
     
-    if b-a>sp.IPI && a-c>sp.IPI;
+    %if b-a>sp.IPI && a-c>sp.IPI;
+    if b-a>IPI && a-c>IPI;
 % fprintf('%8.2f', AmpCull.w0(i)./Fs);
 % fprintf(' NO PULSE WITHIN j samples.\n');
         continue;
@@ -213,16 +222,19 @@ end
         y0 = y;
     end
     
-    if b0-a0 < sp.close & y<y1; %if the pulse is within lms of the pulse after it and is smaller in amplitude
+    %if b0-a0 < sp.close & y<y1; %if the pulse is within lms of the pulse after it and is smaller in amplitude
+    if b0-a0 < close & y<y1; %if the pulse is within lms of the pulse after it and is smaller in amplitude
 % fprintf('%8.2f', AmpCull.w0(i)./Fs);
 % fprintf(' NOT A TRUE PULSE - too close.\n');
         continue;
 %    elseif b0-a0 < sp.close & y==y1; %if the pulse is within lms of the pulse after it and is the same in amplitude
-    elseif b0-a0 < sp.close & i~=np & y==y1;
+    %elseif b0-a0 < sp.close & i~=np & y==y1;
+    elseif b0-a0 < close & i~=np & y==y1;
 % fprintf('%8.2f', AmpCull.w0(i)./Fs);
 % fprintf(' NOT A TRUE PULSE - too close.\n');
         continue;
-    elseif a0-c0 < sp.close & y<y0; %if the pulse is within lms of the pulse before it and is smaller in amplitude
+    %elseif a0-c0 < sp.close & y<y0; %if the pulse is within lms of the pulse before it and is smaller in amplitude
+    elseif a0-c0 < close & y<y0; %if the pulse is within lms of the pulse before it and is smaller in amplitude
 % fprintf('%8.2f', AmpCull.w0(i)./Fs);
 % fprintf(' NOT A TRUE PULSE - too close.\n');
         continue;

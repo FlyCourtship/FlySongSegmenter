@@ -1,20 +1,22 @@
-function [cmhSong cmhNoise cmh_dog cmh_sc sc] = WaveletTransform(xs, xn, a, b, c, d, e, f, g, h, i, Fs)
+%function [cmhSong cmhNoise cmh_dog cmh_sc sc] = WaveletTransform(xs, xn, a, b, c, d, e, f, g, h, i, Fs)
+function [cmhSong cmhNoise cmh_dog cmh_sc sc] = WaveletTransform(xs, xn, fc, DoGwvlt, fs)
 
 %pool = exist('matlabpool','file');
 
 %========PARAMETERS=================
-segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
-segParams.DoGwvlt = b; % Derivative of Gaussian wavelets examined
-segParams.pWid = c; %pWid: Approx Pulse Width in points (odd, rounded)
-segParams.pulsewindow = round(c); %factor for computing window around pulse peak (this determines how much of the signal before and after the peak is included in the pulse)
-segParams.lowIPI = d; %lowIPI: estimate of a very low IPI (even, rounded)
-segParams.thresh = e; %thresh: Proportion of smoothed threshold over which pulses are counted.
-segParams.wnwMinAbsVoltage = f*mean(abs(xn));
-%for 2nd winnow
-segParams.IPI = g; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
-segParams.frequency = h; %if AmpCull.fcmx is greater than this frequency, then don't include pulse
-segParams.close = i; %if pulse peaks are this close together, only keep the larger pulse
-sp = segParams;
+%segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
+%segParams.DoGwvlt = b; % Derivative of Gaussian wavelets examined
+
+%segParams.pWid = c; %pWid: Approx Pulse Width in points (odd, rounded)
+%segParams.pulsewindow = round(c); %factor for computing window around pulse peak (this determines how much of the signal before and after the peak is included in the pulse)
+%segParams.lowIPI = d; %lowIPI: estimate of a very low IPI (even, rounded)
+%segParams.thresh = e; %thresh: Proportion of smoothed threshold over which pulses are counted.
+%segParams.wnwMinAbsVoltage = f*mean(abs(xn));
+%%for 2nd winnow
+%segParams.IPI = g; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
+%segParams.frequency = h; %if AmpCull.fcmx is greater than this frequency, then don't include pulse
+%segParams.close = i; %if pulse peaks are this close together, only keep the larger pulse
+%sp = segParams;
 
 %% Load the Signals
 
@@ -22,14 +24,16 @@ xs = xs(:);
 
 %% Prepare for CWT
 %fprintf('PREPARING FOR CWT.\n');
-ngw = numel(sp.DoGwvlt);
-fc = sp.fc;
-fs = Fs;
+%ngw = numel(sp.DoGwvlt);
+ngw = numel(DoGwvlt);
+%fc = sp.fc;
+%fs = Fs;
 
 wvlt = cell(1,ngw);
 
 for i = 1:ngw
-    wvlt{i} = ['gaus' num2str(sp.DoGwvlt(i))];
+    %wvlt{i} = ['gaus' num2str(sp.DoGwvlt(i))];
+    wvlt{i} = ['gaus' num2str(DoGwvlt(i))];
 end
 
 sc = zeros(ngw,numel(fc));

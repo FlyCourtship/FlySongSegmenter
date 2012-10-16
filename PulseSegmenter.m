@@ -1,24 +1,25 @@
-function Wavelet = PulseSegmenter(cmhSong,cmhNoise,a, b, c, d, e, f, g, h, i, Fs)
+%function Wavelet = PulseSegmenter(cmhSong,cmhNoise,a, b, c, d, e, f, g, h, i, Fs)
+function Wavelet = PulseSegmenter(cmhSong,cmhNoise, pWid, lowIPI, thresh, Fs)
 
 %========PARAMETERS=================
-segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
-segParams.DoGwvlt = b; % Derivative of Gaussian wavelets examined
-segParams.pWid = c; %pWid: Approx Pulse Width in points (odd, rounded)
-segParams.pulsewindow = round(c); %factor for computing window around pulse peak (this determines how much of the signal before and after the peak is included in the pulse)
-segParams.lowIPI = d; %lowIPI: estimate of a very low IPI (even, rounded)
-segParams.thresh = e; %thresh: Proportion of smoothed threshold over which pulses are counted.
+%segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
+%segParams.DoGwvlt = b; % Derivative of Gaussian wavelets examined
+%segParams.pulsewindow = round(c); %factor for computing window around pulse peak (this determines how much of the signal before and after the peak is included in the pulse)
+%segParams.pWid = c; %pWid: Approx Pulse Width in points (odd, rounded)
+%segParams.lowIPI = d; %lowIPI: estimate of a very low IPI (even, rounded)
+%segParams.thresh = e; %thresh: Proportion of smoothed threshold over which pulses are counted.
 %segParams.wnwMinAbsVoltage = f*mean(abs(xn));
 %for 2nd winnow
-segParams.IPI = g; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
-segParams.frequency = h; %if AmpCull.fcmx is greater than this frequency, then don't include pulse
-segParams.close = i; %if pulse peaks are this close together, only keep the larger pulse
-sp = segParams;
+%segParams.IPI = g; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
+%segParams.frequency = h; %if AmpCull.fcmx is greater than this frequency, then don't include pulse
+%segParams.close = i; %if pulse peaks are this close together, only keep the larger pulse
+%sp = segParams;
 
 %%
 %Calculate running maxima for wavelet fits and then smooth
 %Perform all operations on noise to make later comparisons meaningful
 clear ci
-pWid = sp.pWid;
+%pWid = sp.pWid;
 
 [sig4Test] = runningExtreme(cmhSong,pWid,'max');
 [nDat] = runningExtreme(cmhNoise,pWid,'max');
@@ -34,7 +35,7 @@ nDat = abs(nDat); %don't want negatives
 % threshold). Finally make threshold infinite at start and end to avoid edge
 % effects.
 
-lowIPI = sp.lowIPI;
+%lowIPI = sp.lowIPI;
 buff = round(Fs/80); %to avoid edge effects
 
 sig4Test = sig4Test - mean(nDat);
@@ -55,7 +56,7 @@ smthThresh = smthSide;
 smthThresh(smthThresh < mean(nDat)) = mean(nDat);
 %%
 %Perform Threshold Matching
-thresh = sp.thresh;
+%thresh = sp.thresh;
 
 hiTest = sig4Test; %hiTest will be used for comparison to threshold
 hiTest(hiTest - (smthThresh+smthThresh./thresh) <= 0) = 0; %Set threshold based on the maximum of the smoothed region
