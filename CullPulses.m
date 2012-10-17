@@ -1,6 +1,6 @@
 %function [Wavelet AmpCull IPICull] = CullPulses(Wavelet,cmh_dog,cmh_sc,sc,xs,xn,a, b, c, d, e, f, g, h, i, Fs)
 function [Wavelet AmpCull IPICull] = CullPulses(Wavelet,cmh_dog,cmh_sc,sc,xs,xn, ...
-    fc, pWid, wnwMinAbsVoltage, maxIPI, frequency, close)
+    fc, pWid, minAmplitude, maxIPI, frequency, close)
 
 %========PARAMETERS=================
 %segParams.fc = a; % frequencies examined. These will be converted to CWT scales later on.
@@ -12,7 +12,7 @@ pulsewindow = round(pWid); %factor for computing window around pulse peak (this 
 %segParams.lowIPI = d; %lowIPI: estimate of a very low IPI (even, rounded)
 %segParams.thresh = e; %thresh: Proportion of smoothed threshold over which pulses are counted.
 %segParams.wnwMinAbsVoltage = f*mean(abs(xn));
-wnwMinAbsVoltage = wnwMinAbsVoltage*mean(abs(xn));
+minAmplitude = minAmplitude*std(xn);
 %for 2nd winnow
 %segParams.IPI = g; %in samples, if no other pulse within this many samples, do not count as a pulse (the idea is that a single pulse (not within IPI range of another pulse) is likely not a true pulse)
 %segParams.frequency = h; %if AmpCull.fcmx is greater than this frequency, then don't include pulse
@@ -92,7 +92,7 @@ for i = 1:np
    y = max(abs(xs(w0:w1)));
 
    %if (y<sp.wnwMinAbsVoltage)
-   if (y<wnwMinAbsVoltage)
+   if (y<minAmplitude)
 % fprintf('%8.3f', Wavelet.wc(i)./Fs);
 % fprintf('TOO LOW.\n');
        Wavelet.comment{i} = 'tlav';

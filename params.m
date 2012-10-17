@@ -13,7 +13,7 @@ Params.pWid = round(Params.Fs/250)+1;
 Params.minIPI = round(Params.Fs/100);
 Params.thresh = 4;
 
-Params.wnwMinAbsVoltage   = 6;
+Params.minAmplitude = 6;
 Params.maxIPI = round(Params.Fs/5);
 Params.frequency = 700;
 Params.close = round(Params.Fs/50);
