@@ -13,7 +13,7 @@ into the Matlab workspace or FlySongSegmenterDAQ() to analyze .daq files
 on disk without first loading them.  The former returns the results to the
 workspace, while the latter saves them to disk in a .mat file.  Either way,
 the results can be viewed with PlotSegmentation().  All parameters are
-contained in params.m.
+contained in FetchParams.m.
 
 FlySongSegmenterDAQ has been packaged into an executable called
 fly_song_segmenter.  If you do not have Matlab or prefer to run a stand-alone
@@ -37,7 +37,7 @@ one sample of noise.  Load it into your workspace:
 You can segment song with or without the noise file. If you don't provide
 a noise file, then noise is estimated from the data.  To segment the song:
 
->> [data,Sines,Pulses] = FlySongSegmenter(easy,[],'./params.m')
+>> [data,Sines,Pulses,Params] = FlySongSegmenter(easy,[],[])
 
 To view the results:
 
@@ -61,7 +61,7 @@ Pulses.ModelCull and Pulses.ModelCull2 are subsets of Pulses.AmpCull and
 Pulses.IPICull, respectively, which fit a specified model.
 
 To optimize segmentation for your recordings, you might have to adjust
-several parameters contained in params.m.  We suggest you do this on
+several parameters by modifiying params.m.  We suggest you do this on
 a small (~1 min) but representative section of your data.  The utility
 FlySongSegmenterByHand() provides a way to manually ground truth data, and
 CompareManual2AutoSegmentation() calculates how well manual and automatic
