@@ -1,9 +1,12 @@
 function [data, Sines, Pulses, Params] = ...
-    FlySongSegmenter(xsong,xempty,Paramss_path,varargin)
+    FlySongSegmenter(xsong,xempty,params_path,varargin)
 
-%USAGE [data, Sines, Pulses] = FlySongSegmenter(xsong,[],'./Paramss.m',...)
 %This is the core program for analyzing courtship song
-%the sole varargin is the sampling rate passed in from FlySongSegmenterDAQ to cross check with Paramss
+%  xsong is the song to be analyzed
+%  xempty is a recording with no song from which noise characteristics are estimated.
+%    to estimate noise from xsong instead, specifiy xempty as []
+%  params_path is the full path to the custom parameters file.  if specified as [], ./params.m is used
+%  the sole varargin is the sampling rate passed in from FlySongSegmenterDAQ to cross check with params
 
 tstart=tic;
 
@@ -16,13 +19,13 @@ if(~isdeployed)
 end
 
 if nargin < 3
-  Paramss_path = '';
+  params_path = [];
 end
 FetchParams;
 
 if((nargin>3) & (varargin{1}~=Params.Fs))
   disp(['WARNING:  sampling rate is specified as ' num2str(varargin{1}) ' in the .daq file and ' ...
-      num2str(Params.Fs) ' in ' Paramss_path '.  Proceeding with ' num2str(varargin{1})]);
+      num2str(Params.Fs) ' in ' params_path '.  Proceeding with ' num2str(varargin{1})]);
   Params.Fs=varargin{1};
 end
 
@@ -34,16 +37,9 @@ fprintf('Finding noise floor.\n')
 if isempty(xempty) %if user provides only xsong
   xempty=xsong(1:min(end,1e6));
 end
-%if length(xsong) <1.1e6
-%  song = xsong;
-%else
-%  song = xsong(1:1e6);
-%end
 tmp = MultiTaperFTest(xempty, Params.Fs, Params.NW, Params.K, Params.dT, Params.dS, Params.pval, Params.fwindow);
 noise = EstimateNoise(tmp, Params, Params.low_freq_cutoff, Params.high_freq_cutoff);
 
-%Run PulseSegmentationv4 using xsong, xempty, and pps as inputs (and a list of Paramseters defined above):
-    
 fprintf('Running wavelet transformation.\n')
 [Pulses.cmhSong  Pulses.cmhNoise  Pulses.cmh_dog  Pulses.cmh_sc  Pulses.sc] = ...
     WaveletTransform(xsong, noise.d, Params.fc, Params.DoGwvlt, Params.Fs);
@@ -87,15 +83,12 @@ if Params.find_sine
       WinnowSine(Sines.TimeHarmonicMerge,Pulses.(Params.mask_pulses), Sines.MultiTaper,...
         Params.max_pulse_pause, Params.sine_low_freq, Params.sine_high_freq, Params.discard_less_n_steps);
 
-%  end
 else
   Sines.MultiTaper = {};
   Sines.TimeHarmonicMerge= {};
   Sines.PulsesCull = {};
   Sines.LengthCull = {};
 end
-
-%clear ssf pm_ssf pm_sine
 
 check_close_pool(poolavail,isOpen);
 
