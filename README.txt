@@ -1,3 +1,18 @@
+FLY SONG SEGMENTER
+
+A tool for analyzing audio recordings of the courtship song of the fruit
+fly Drosophila melanogaster and related species.  Given the raw time series,
+the program outputs time stamps demarcating the beginning and end of both
+sine and pulse song.
+
+
+COPYRIGHT
+
+The portions of this software created by the Janelia Farm Research
+Campus of the Howard Hughes Medical Institute are subject to the
+license at http://license.janelia.org/license.
+
+
 SYSTEM REQUIREMENTS
 
 Matlab and the following toolboxes:  Signal, Statistics, Wavelet, and
