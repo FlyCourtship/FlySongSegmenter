@@ -107,7 +107,7 @@ if(NARGIN==1)
 else
   if(ischar(varargin{1}))
     FILE=varargin{1};
-    [foo foo TYPE]=fileparts(varargin{1});
+    [PATH foo TYPE]=fileparts(varargin{1});
     if(isempty(regexp(TYPE,'\.ch[0-9*]')))
       error('only .daq and .ch* filetypes supported, or matrices in the workspace');
     end
@@ -115,7 +115,7 @@ else
     tmp=dir(FILE);
     NCHAN=length(tmp);
     FILE={1,NCHAN};
-    [FILE{1:NCHAN}]=deal(tmp.name);
+    [FILE{1:NCHAN}]=fullfile(PATH,deal(tmp.name));
     FS=varargin{2};
     fid=fopen(FILE{CHANNEL},'r');
     %fseek(fid,0,1);
