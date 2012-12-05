@@ -289,6 +289,9 @@ LLR_sh = LL_shM - LL_0_shpdf;
 %Take best LLR
 best_LLR = max(LLR_fh,LLR_sh);
 
+
+
+
 %calculate new pulse models with pulses that fit first and second harmonic
 %best and return these
 
@@ -298,35 +301,29 @@ fhZ4M = Z2fhM(best_chisqr <1.5 & best_chisqr_idx == 1 | best_chisqr_idx == 3,:);
 shZ4M = Z2shM(best_chisqr <1.5 & best_chisqr_idx == 2 | best_chisqr_idx == 4,:);
 
 
-%compare models with Lik analysis
-%first make  de novo models from presumptive first harmonic data
-%then, compare all data to each model with likelihood analysis
-
-
 %Build model of fh with fh data
 if size(fhZ4M,1)>1
     fprintf('Fitting first harmonic model.\n');
     %nfhM is new fhM fit to fhZ4M
-    [Z2nfhM,nfhM] = alignpulses(fhZ4M,20);
+    [fhZ4M,nfhM] = alignpulses(fhZ4M,20);
         
     %compare SE at each point (from front and back) with deviation of fh model
     %start and stop when deviation exceeds SE of data
-    S_Z = std(Z2nfhM(Z2nfhM ~= 0));%take only data that are not 0 (i.e. padding)
+    S_Z = std(fhZ4M(fhZ4M ~= 0));%take only data that are not 0 (i.e. padding)
     SE_Z = S_Z/sqrt(n_samples);
     
     start = find((abs(fhM)>SE_Z),1,'first');
     finish = find((abs(fhM)>SE_Z),1,'last');
     
     nfhM  = nfhM(start:finish);
-    Z2nfhM = Z2nfhM(:,start:finish);
+	fhZ4M = fhZ4M(:,start:finish);
     
     %Get standard deviation at each point
-    S_Z2nfhM = std(Z2nfhM);
+    S_fhZ4M = std(fhZ4M);
     
 else
     nfhM = [];
-    Z2nfhM = [];
-    S_Z2nfhM = [];
+    S_fhZ4M = [];
 end
 
 %Build second harmonic model
@@ -334,41 +331,37 @@ if size(shZ4M,1)>1
     
     fprintf('Building second harmonic model\n')
     
-    [Z2nshM,nshM] = alignpulses(shZ4M,20);
+    [shZ4M,nshM] = alignpulses(shZ4M,20);
         
     %compare SE at each point (from front and back) with deviation of fh model
     %start and stop when deviation exceeds SE of data
-    S_Z = std(Z2nshM(Z2nshM ~= 0));%take only data that are not 0 (i.e. padding)
+    S_Z = std(shZ4M(shZ4M ~= 0));%take only data that are not 0 (i.e. padding)
     SE_Z = S_Z/sqrt(n_samples);
     
     start = find((abs(shM)>SE_Z),1,'first');
     finish = find((abs(shM)>SE_Z),1,'last');
     
     nshM  = nshM(start:finish);    
-    Z2nshM = Z2nshM(:,start:finish);
+    shZ4M = shZ4M(:,start:finish);
     
     %Get standard deviation at each point
     
-    S_Z2nshM = std(Z2nshM);
+    S_shZ4M = std(shZ4M);
     
 else
     nshM = [];
-    Z2nshM = [];
-    S_Z2nshM = [];
+    S_shZ4M = [];
 end
 
 new_pulse_model.newfhM = nfhM;
 new_pulse_model.newshM = nshM;
-new_pulse_model.newfhS = S_Z2nfhM;
-new_pulse_model.newshS = S_Z2nshM;
+new_pulse_model.newfhS = S_fhZ4M;
+new_pulse_model.newshS = S_shZ4M;
 
 new_pulse_model.allZ2oldfhM = Z2fhM;%aligned all pulses to old first harmonic model
 new_pulse_model.allZ2oldshM = Z2shM;%aligned all pulses to old second harmonic model
 
-new_pulse_model.fhZ2newfhM = Z2nfhM;%aligned all pulses to new first harmonic model
-new_pulse_model.shZ2newshM = Z2nshM;%aligned all pulses to new second harmonic model
-
-
+%return LLR of pulses to old models
 Lik_pulse.LLR_best = best_LLR;
 Lik_pulse.LLR_fh = LLR_fh;
 Lik_pulse.LLR_sh = LLR_sh;
