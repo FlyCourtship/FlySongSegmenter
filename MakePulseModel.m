@@ -1,6 +1,6 @@
 function [pulse_model,Lik_pulse] = MakePulseModel(pulses)
 
-%[pulse_model,Lik_pulse] = fit_pulse_model(pulses)
+%[pulse_model,Lik_pulse] = MakePulseModel(pulses)
 %USAGE
 %
 %provide sample of pulses
@@ -22,7 +22,7 @@ max_length = max(cellfun(@length,d));
 total_length = 2* max_length;
 Z = zeros(n_samples,total_length );
 if n_samples >1
-    parfor n=1:n_samples;
+    for n=1:n_samples;
         X = d{n};
         T = length(X);
         [~,C] = max(X);%get position of max power
@@ -86,7 +86,7 @@ if n_samples >1
     [best_chisqr,best_chisqr_idx] = min(chisq,[],2);
     
     %flip data that fits a reversed model better (columns 3 or 4)
-    parfor n=1:n_samples
+    for n=1:n_samples
         if best_chisqr_idx(n) > 2
             fhZ(n,:) = -fhZ(n,:);
         end
@@ -121,20 +121,18 @@ if n_samples >1
         
         %compare SE at each point (from front and back) with deviation of fh model
         %start and stop when deviation exceeds SE of data
-        S_Z = std(Z2nfhM(Z2nfhM ~= 0));%take only data that are not 0 (i.e. padding)
+        S_Z = std(fhZ4M(fhZ4M ~= 0));%take only data that are not 0 (i.e. padding)
         SE_Z = S_Z/sqrt(n_samples);
         
         start = find((abs(fhM)>SE_Z),1,'first');
         finish = find((abs(fhM)>SE_Z),1,'last');
         
         nfhM  = nfhM(start:finish);
-        
-        
         fhZ4M = fhZ4M(:,start:finish);
         Z2nfhM = Z2nfhM(:,start:finish);
         
         %Get standard deviation at each point
-        S_Z2nfhM = std(Z2nfhM);
+        S_Z2nfhM = std(fhZ4M);
         S_ar_nfh = repmat(S_Z2nfhM,size(Z2nfhM,1),1);
         %%%%
         %%calculate likelihood of data under each model
@@ -167,7 +165,7 @@ if n_samples >1
                 
         %compare SE at each point (from front and back) with deviation of fh model
         %start and stop when deviation exceeds SE of data
-        S_Z = std(Z2nshM(Z2nshM ~= 0));%take only data that are not 0 (i.e. padding)
+        S_Z = std(shZ4M(shZ4M ~= 0));%take only data that are not 0 (i.e. padding)
         SE_Z = S_Z/sqrt(n_samples);
         
         start = find((abs(shM)>SE_Z),1,'first');
@@ -180,7 +178,7 @@ if n_samples >1
         
         %Get standard deviation at each point
         
-        S_Z2nshM = std(Z2nshM);
+        S_Z2nshM = std(shZ4M);
         S_ar_nsh = repmat(S_Z2nshM,size(Z2nshM,1),1);
         %%%%
         %%calculate likelihood of data under each model
