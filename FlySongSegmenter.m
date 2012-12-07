@@ -38,7 +38,7 @@ if isempty(xempty) %if user provides only xsong
   xempty=xsong(1:min(end,1e6));
 end
 tmp = MultiTaperFTest(xempty, Params.Fs, Params.NW, Params.K, Params.dT, Params.dS, Params.pval, Params.fwindow);
-noise = EstimateNoise(tmp, Params, Params.low_freq_cutoff, Params.high_freq_cutoff);
+noise = EstimateNoise(xsong, tmp, Params, Params.low_freq_cutoff, Params.high_freq_cutoff);
 
 fprintf('Running wavelet transformation.\n')
 [Pulses.cmhSong  Pulses.cmhNoise  Pulses.cmh_dog  Pulses.cmh_sc  Pulses.sc] = ...
@@ -76,11 +76,13 @@ if Params.find_sine
       
   fprintf('Segmenting sine song.\n')
   Sines.TimeHarmonicMerge = ...
-      SineSegmenter(Sines.MultiTaper, Params.sine_low_freq, Params.sine_high_freq, Params.sine_range_percent);
+      SineSegmenter(tmp, Sines.MultiTaper, Params.Fs, Params.dT, Params.dS, ...
+          Params.sine_low_freq, Params.sine_high_freq, Params.sine_range_percent);
 
   fprintf('Winnowing sine song.\n')
   [Sines.PulsesCull Sines.LengthCull] = ...
-      WinnowSine(Sines.TimeHarmonicMerge,Pulses.(Params.mask_pulses), Sines.MultiTaper,...
+      WinnowSine(tmp, Sines.TimeHarmonicMerge, Pulses.(Params.mask_pulses), Sines.MultiTaper,...
+        Params.Fs, Params.dS, ...
         Params.max_pulse_pause, Params.sine_low_freq, Params.sine_high_freq, Params.discard_less_n_steps);
 
 else

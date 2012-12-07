@@ -81,7 +81,7 @@ for y = channels
     
     %find noise
      try%sometimes may fail to generate noise file. Then, just abort plot
-        xempty = EstimateNoise(ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
+        xempty = EstimateNoise(song,ssf,param,param.low_freq_cutoff,param.high_freq_cutoff);
      catch
          fprintf('EstimateNoise failed')
      end

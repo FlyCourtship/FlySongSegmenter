@@ -1,4 +1,4 @@
-function noise = EstimateNoise(ssf,param,low_freq_cutoff,high_freq_cutoff)
+function noise = EstimateNoise(xsong,ssf,param,low_freq_cutoff,high_freq_cutoff)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%Function runs MultiTaperFTest (multitaper spectral analysis) on recording
 %%Finds putative noise by fitting a mixture model to the distribution of
@@ -52,19 +52,19 @@ A_noise_indices = A_noise_indices(2:end-1);
 %     A_noise_indices = A_noise_indices(1:300);
 % end
 % noise =zeros(300*ssf.fs,1);
-numevents = round(numel(A_noise_indices)* ssf.dS);
-xempty = zeros(numevents * ssf.fs,1);
+numevents = round(numel(A_noise_indices)* param.dS);
+xempty = zeros(numevents * param.Fs,1);
 noise_starts = zeros(numevents,1);
 noise_stops = zeros(numevents,1);
-dT2=round(ssf.dT*ssf.fs);  % exactly like in MultiTaperFTest.m, line 33
-dS2=round(ssf.dS*ssf.fs);
+dT2=round(param.dT*param.Fs);  % exactly like in MultiTaperFTest.m, line 33
+dS2=round(param.dS*param.Fs);
 for i = 1:length(A_noise_indices)
     segment = A_noise_indices(i);
     %start_sample=round((segment * ssf.dS - ssf.dS/2) * ssf.fs)+1;
     %stop_sample=round((segment * ssf.dS + ssf.dS/2) * ssf.fs);
     start_sample=(segment-1)*dS2+1;  % equivalent to MultiTaperFTest.m, lines 53 & 60
     stop_sample=start_sample+dT2;
-    sample_noise = ssf.d(start_sample:stop_sample);
+    sample_noise = xsong(start_sample:stop_sample);
     start_in_noise = (i-1) * length(sample_noise) + 1;
     stop_in_noise = i *length(sample_noise);
     noise_starts(i) = start_in_noise;

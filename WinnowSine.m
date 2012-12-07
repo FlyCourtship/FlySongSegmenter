@@ -12,8 +12,8 @@
 %% culling by length now done here instead of SineSegmenter
 
 function [CulledFromPulses CulledByLength] = ...
-    WinnowSine(SinesMergedInTimeHarmonics,Pulses,SinesFromMultiTaper,...
-    max_pulse_pause,sine_low_freq,sine_high_freq,discard_less_n_steps)
+    WinnowSine(data, SinesMergedInTimeHarmonics, Pulses, SinesFromMultiTaper,...
+    Fs, dS, max_pulse_pause, sine_low_freq, sine_high_freq, discard_less_n_steps)
 
 %USER DEFINED VARIABLE -- HAS BEEN MOVED TO FlySongSegmenter
 % max_pulse_pause = 0.200; %max_pulse_pause in seconds
@@ -26,8 +26,8 @@ if(SinesMergedInTimeHarmonics.num_events==0)
   return;
 end
 
-stepsize=round(SinesFromMultiTaper.dS * SinesFromMultiTaper.fs);
-data = SinesFromMultiTaper.d;
+stepsize=round(dS * Fs);
+%data = SinesFromMultiTaper.d;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Winnow 1: Remove sine that overlaps pulse
@@ -82,7 +82,7 @@ winnowed_sine_1 = setdiff(all_sine,all_pulses);
 %get all pulse_pauses
 pulse_pauses=cell(numel(Pulses.w0-1),1);
 for i = 1:numel(Pulses.w0)-1
-        if Pulses.w0(i+1)/SinesFromMultiTaper.fs-Pulses.w1(i)/SinesFromMultiTaper.fs < max_pulse_pause
+        if Pulses.w0(i+1)/Fs-Pulses.w1(i)/Fs < max_pulse_pause
             pulse_pauses{i} = (Pulses.w1(i):1:Pulses.w0(i+1))';
         end
 end
@@ -110,7 +110,7 @@ NumBouts = numel(sine_start);
 sine_clips = cell(NumBouts,1);
 
 for i = 1:NumBouts
-    sine_clips{i} = SinesFromMultiTaper.d(sine_start(i):sine_stop(i));
+    sine_clips{i} = data(sine_start(i):sine_stop(i));
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

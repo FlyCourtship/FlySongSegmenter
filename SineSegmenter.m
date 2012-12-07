@@ -1,4 +1,4 @@
-function MergedInTimeHarmonics = SineSegmenter(SinesFromMultiTaper, sine_low_freq, sine_high_freq, sine_range_percent)
+function MergedInTimeHarmonics = SineSegmenter(data, SinesFromMultiTaper, Fs, dT, dS, sine_low_freq, sine_high_freq, sine_range_percent)
 %input ssf and expected min and max for sine song fundamental frequency 
 
 % output is inRangeEvents giving all events deemed legitimate sine song
@@ -24,9 +24,9 @@ function MergedInTimeHarmonics = SineSegmenter(SinesFromMultiTaper, sine_low_fre
 %% create matrix of all legitimate sine events
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 allevents=SinesFromMultiTaper.events;%column 1 = time in sec, column 2 is freq in Hz
-stepsize=round(SinesFromMultiTaper.dS * SinesFromMultiTaper.fs);
-windowsize_half=round(SinesFromMultiTaper.dT * SinesFromMultiTaper.fs/2);
-data = SinesFromMultiTaper.d;
+stepsize=round(dS * Fs);
+windowsize_half=round(dT * Fs/2);
+%data = SinesFromMultiTaper.d;
 inRangeEvents=[];
 
 for n=1:numel(SinesFromMultiTaper.events(:,1))
@@ -120,8 +120,8 @@ end
 
 %plug in last value as last stop
 sine_stop(NumBouts) = RunsEvents(NumEvents,1);
-if sine_stop(NumBouts) > numel(SinesFromMultiTaper.d)
-    sine_stop(NumBouts) = numel(SinesFromMultiTaper.d);
+if sine_stop(NumBouts) > numel(data)
+    sine_stop(NumBouts) = numel(data);
 end
 
 

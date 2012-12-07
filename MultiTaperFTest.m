@@ -64,13 +64,13 @@ events = cell2mat(events_cell);
 events(:,1) = round(events(:,1)*fs);
 
 
-SSF.d=d;
-SSF.fs=fs;
-SSF.NW=NW;
-SSF.K=K;
-SSF.dT=dT;
-SSF.dS=dS;
-SSF.pval=pval;
+%SSF.d=d;
+%SSF.fs=fs;
+%SSF.NW=NW;
+%SSF.K=K;
+%SSF.dT=dT;
+%SSF.dS=dS;
+%SSF.pval=pval;
 SSF.t=round(t.*fs);%return time in sample units
 SSF.f=f;
 SSF.A=A;
