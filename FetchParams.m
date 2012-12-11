@@ -57,7 +57,7 @@ Params.mask_pulses = 'ModelCull2';
 if ~exist('params_path', 'var') || isempty(params_path)
     params;
 else
-    params_path;
+    run(params_path);
 %    fid = fopen(params_path);
 %    if fid < 0
 %        error('Could not open the parameters file at %s', params_path);
