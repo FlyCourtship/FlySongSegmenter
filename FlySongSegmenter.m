@@ -1,4 +1,4 @@
-function [data, Sines, Pulses, Params] = ...
+function [Data, Sines, Pulses, Params] = ...
     FlySongSegmenter(xsong,xempty,params_path,varargin)
 
 %This is the core program for analyzing courtship song
@@ -30,8 +30,8 @@ if((nargin>3) & (varargin{1}~=Params.Fs))
 end
 
 disp(['Song length is ' num2str(length(xsong)/Params.Fs/60,3) ' minutes.']);
-data.d = xsong-repmat(mean(xsong),size(xsong,1),1);
-data.fs = Params.Fs;
+Data.d = xsong-repmat(mean(xsong),size(xsong,1),1);
+Data.fs = Params.Fs;
 
 fprintf('Finding noise floor.\n')
 if isempty(xempty) %if user provides only xsong
@@ -109,6 +109,10 @@ if ~Params.keep_mediumrare_data
   Pulses.pulse_model.allZ2oldshM=[];
   Pulses.pulse_model2.allZ2oldfhM=[];
   Pulses.pulse_model2.allZ2oldshM=[];
+end
+
+if ~Params.copy_raw_data
+  Data = [];
 end
 
 check_close_pool(poolavail,isOpen);

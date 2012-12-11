@@ -39,9 +39,9 @@ function fly_song_segmenter_unix(song_path, varargin)
         else
           [data, Fs] = wavread(p.Results.song_path,sample_range);
         end
-        %process_song_data(song_path, data, Fs, sample_range, p.Results.params_path);
-        [data, Sines, Pulses, Params]=FlySongSegmenter(data, [], p.Results.params_path, Fs);
-        save([p.Results.song_path(1:end-4) '.mat'], 'data','Sines','Pulses','Params','-v7.3');
+        process_song_data(p.Results.song_path, data, Fs, p.Results.params_path);
+        %[data, Sines, Pulses, Params]=FlySongSegmenter(data, [], p.Results.params_path, Fs);
+        %save([p.Results.song_path(1:end-4) '.mat'], 'data','Sines','Pulses','Params','-v7.3');
     elseif strcmp(ext, '.au')
         if(~isempty(p.Results.channel_num))
           error('-c channel_num only valid with .daq files');
@@ -51,25 +51,25 @@ function fly_song_segmenter_unix(song_path, varargin)
         else
           [data, Fs] = auread(p.Results.song_path,sample_range);
         end
-        %process_song_data(song_path, data, Fs, sample_range, p.Results.params_path);
-        [data, Sines, Pulses, Params]=FlySongSegmenter(data, [], p.Results.params_path, Fs);
-        save([p.Results.song_path(1:end-4) '.mat'], 'data','Sines','Pulses','Params','-v7.3');
+        process_song_data(p.Results.song_path, data, Fs, p.Results.params_path);
+        %[data, Sines, Pulses, Params]=FlySongSegmenter(data, [], p.Results.params_path, Fs);
+        %save([p.Results.song_path(1:end-4) '.mat'], 'data','Sines','Pulses','Params','-v7.3');
     else
         error('Unknown song file format: %s', ext);
     end
 end
 
 
-function process_song_data(song_path, song_data, Fs, sample_range, params_path)
+function process_song_data(song_path, song_data, Fs, params_path)
     [parentDir, song_name, ~] = fileparts(song_path);
     outfile  = fullfile(parentDir, [song_name '.mat']);
     if ~exist(outfile, 'file')
-        if ~isempty(sample_range)
-            song_data = song_data(sample_range(1):sample_range(2));
-        end
-        [data, winnowed_sine, pulseInfo2, pulseInfo] = FlySongSegmenter(song_data, [], params_path); %#ok<NASGU,ASGLU>
-        save(outfile, 'data','winnowed_sine','pulseInfo2','pulseInfo','-v7.3')
-        clear song data winnowed_sine pulseInfo2 pulseInfo;
+%        if ~isempty(sample_range)
+%            song_data = song_data(sample_range(1):sample_range(2));
+%        end
+        [Data, Sines, Pulses, Params] = FlySongSegmenter(song_data, [], params_path); %#ok<NASGU,ASGLU>
+        save(outfile, 'Data','Sines','Pulses','Params','-v7.3')
+        clear song_data Data Sines Pulses Params;
     else
         fprintf('File %s exists. Skipping.\n', outfile)
     end

@@ -38,13 +38,13 @@ for y = yy
  
         %run FlySongSegmenter on selected channel
         %fprintf('Processing song.\n')
-        [data, Sines, Pulses, Params] = ...
+        [Data, Sines, Pulses, Params] = ...
             FlySongSegmenter(song,[],params_path,song_daqinfo.ObjInfo.SampleRate);
         
         %save data
         data.daqinfo = song_daqinfo;
         data.hygrometer = hyg;
-        save(outfile, 'data','Sines','Pulses','Params','-v7.3');
+        save(outfile, 'Data','Sines','Pulses','Params','-v7.3');
 
         %clear workspace
         clear song data Sines Pulses Params

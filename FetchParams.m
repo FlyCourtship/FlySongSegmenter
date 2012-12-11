@@ -8,6 +8,7 @@
 
 Params.Fs = 10000;                    % sampling frequency, in Hertz
 Params.keep_mediumrare_data = true;   % Sines.MultiTaper.A, Pulses.cmhSong/cmhNoise/cmh_dog/cmh_sc are BIG
+Params.copy_raw_data = true;          % into Data.d/hyg/daqinfo
 
 %estimating noise
 Params.low_freq_cutoff = 100;         % exclude data below this frequency
