@@ -92,6 +92,25 @@ else
   Sines.LengthCull = {};
 end
 
+if ~Params.keep_mediumrare_data
+  Sines.MultiTaper.A=[];
+  Pulses.cmhSong=[];
+  Pulses.cmhNoise=[];
+  Pulses.cmh_dog=[];
+  Pulses.cmh_sc=[];
+
+  Sines.TimeHarmonicMerge.clips=[];
+  Sines.PulsesCull.clips=[];
+  Sines.LengthCull.clips=[];
+  Pulses.Wavelet.x=[];
+  Pulses.AmpCull.x=[];
+  Pulses.IPICull.x=[];
+  Pulses.pulse_model.allZ2oldfhM=[];
+  Pulses.pulse_model.allZ2oldshM=[];
+  Pulses.pulse_model2.allZ2oldfhM=[];
+  Pulses.pulse_model2.allZ2oldshM=[];
+end
+
 check_close_pool(poolavail,isOpen);
 
 tstop=toc(tstart);
