@@ -92,6 +92,14 @@ else
   Sines.LengthCull = {};
 end
 
+if ~Params.keep_mediumrare_data
+  Sines.MultiTaper.A=[];
+  Pulses.cmhSong=[];
+  Pulses.cmhNoise=[];
+  Pulses.cmh_dog=[];
+  Pulses.cmh_sc=[];
+end
+
 check_close_pool(poolavail,isOpen);
 
 tstop=toc(tstart);

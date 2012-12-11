@@ -3,3 +3,5 @@
 
 %e.g.
 %Params.Fs = 9750;
+
+Params.keep_mediumrare_data = false;   % Sines.MultiTaper.A, Pulses.cmhSong/cmhNoise/cmh_dog/cmh_sc are BIG
