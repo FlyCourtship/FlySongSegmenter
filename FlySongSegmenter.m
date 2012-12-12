@@ -30,7 +30,7 @@ if((nargin>3) & (varargin{1}~=Params.Fs))
 end
 
 disp(['Song length is ' num2str(length(xsong)/Params.Fs/60,3) ' minutes.']);
-Data.d = xsong-repmat(mean(xsong),size(xsong,1),1);
+Data.d = xsong;
 Data.fs = Params.Fs;
 
 fprintf('Finding noise floor.\n')
