@@ -11,7 +11,11 @@ function FlySongSegmenterDAQ(song_daq_file,channel_num,song_range,params_path)
 fprintf(['Reading daq file header info.\n']);
 song_daqinfo = daqread(song_daq_file,'info');
 nchannels_song = length(song_daqinfo.ObjInfo.Channel);
-hyg = load([song_daq_file(1:end-4) '.hyg']);
+try
+  hyg = load([song_daq_file(1:end-4) '.hyg']);
+catch
+  hyg = [];
+end
 
 if(~isempty(channel_num) && ((sum(channel_num<1)>0) || (sum(channel_num>nchannels_song)>0)))
   warning('channel_num out of range');
