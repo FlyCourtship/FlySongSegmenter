@@ -133,7 +133,7 @@ end
 rdcdNumBouts = numel(sine_start);
 NumBouts=rdcdNumBouts;
 sine_clips = cell(NumBouts,1);
-length = sine_stop - sine_start;
+len = sine_stop - sine_start;
 
 for x = 1:NumBouts;
     sine_clips{x} = data(sine_start(x):sine_stop(x));
@@ -142,8 +142,12 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Produce output
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MergedInTimeHarmonics.num_events = numel(sine_start);
-MergedInTimeHarmonics.start = sine_start';
-MergedInTimeHarmonics.stop = sine_stop';
-MergedInTimeHarmonics.length = length;
-MergedInTimeHarmonics.clips = sine_clips;
+if(isempty(sine_start))
+  MergedInTimeHarmonics = [];
+else
+  %MergedInTimeHarmonics.num_events = numel(sine_start);
+  MergedInTimeHarmonics.start = sine_start';
+  MergedInTimeHarmonics.stop = sine_stop';
+  %MergedInTimeHarmonics.len = len;
+  MergedInTimeHarmonics.clips = sine_clips;
+end

@@ -20,9 +20,9 @@ function [CulledFromPulses CulledByLength] = ...
 % min = 100;
 % max = 200;
 
-if(SinesMergedInTimeHarmonics.num_events==0)
-  CulledFromPulses={};
-  CulledByLength={};
+if(isempty(SinesMergedInTimeHarmonics))
+  CulledFromPulses=[];
+  CulledByLength=[];
   return;
 end
 
@@ -53,11 +53,11 @@ ssfeventTimes = SinesFromMultiTaper.events(:,1);
 
 %get all time points of sine song
 % sample_sine=[];
-all_sine=cell(numel(SinesMergedInTimeHarmonics.num_events),1);
-for i = 1:SinesMergedInTimeHarmonics.num_events
+all_sine=cell(length(SinesMergedInTimeHarmonics.start),1);
+for i = 1:length(SinesMergedInTimeHarmonics.start)
     all_sine{i} = (sineStart(i):1:sineStop(i));
 end
-all_sine = cell2mat(all_sine);
+all_sine = cell2mat(all_sine');
 %get all time points of pulse (w1 - w0)
 % sample_pulse=[];
 all_pulses=cell(numel(Pulses.w0),1);
@@ -113,6 +113,7 @@ for i = 1:NumBouts
     sine_clips{i} = data(sine_start(i):sine_stop(i));
 end
 
+if(0)  % specialzed code for troy shirangi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %For each clip, get original F-test events that overlap with times between 
 %sine_start and sine_stop
@@ -145,6 +146,7 @@ for i = 1:NumBouts
 end
 % sine_bout_events(cellfun('isempty',sine_bout_events))=[];
 % sine_bout_power(cellfun('isempty',sine_bout_power))=[];
+end
     
     
 %CulledFromPulses.num_events = NumBouts;
@@ -154,10 +156,12 @@ CulledFromPulses.stop = sine_stop';
 %CulledFromPulses.MeanFundFreq = MeanFundFreq';
 %CulledFromPulses.MedianFundFreq=MedianFundFreq';
 CulledFromPulses.clips = sine_clips;
+if(0)  % troy shirangi again
 CulledFromPulses.events = sine_bout_events;
 CulledFromPulses.eventTimes = sine_bout_events_times;
 CulledFromPulses.power = sine_bout_power;
 CulledFromPulses.powerMat = cell2mat(sine_bout_power);
+end
 
 %CulledFromPulses.all_sine = all_sine;
 %CulledFromPulses.winnowed_sine1 = winnowed_sine_1;
@@ -205,7 +209,7 @@ end
 rdcdNumBouts = numel(sine_start);
 NumBouts=rdcdNumBouts;
 sine_clips = cell(NumBouts,1);
-length = sine_stop - sine_start;
+len = sine_stop - sine_start;
 
 for x = 1:NumBouts;
     sine_clips{x} = data(sine_start(x):sine_stop(x));
@@ -214,10 +218,10 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Produce output
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-CulledByLength.num_events = numel(sine_start);
+%CulledByLength.num_events = numel(sine_start);
 CulledByLength.start = sine_start';
 CulledByLength.stop = sine_stop';
-CulledByLength.length = length;
+%CulledByLength.len = len;
 CulledByLength.clips = sine_clips;
  
 
