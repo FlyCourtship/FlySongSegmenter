@@ -7,8 +7,9 @@
 %SET DEFAULT PARAMETERS
 
 Params.Fs = 10000;                    % sampling frequency, in Hertz
-Params.keep_mediumrare_data = true;   % Sines.MultiTaper.A, Pulses.cmhSong/cmhNoise/cmh_dog/cmh_sc are BIG
-Params.copy_raw_data = true;          % into Data.d/hyg/daqinfo
+Params.keep_mediumrare_data = true;   % if false, Sines.MultiTaper.A, Sines.*.clips, Pulses.cmh*,
+                                      %     Pulses.*.x, and Pulses.pulse_model*.allZ* are not saved
+Params.copy_raw_data = true;          % if false, Data.d/hyg/daqinfo are not saved in the .mat file
 
 %estimating noise
 Params.low_freq_cutoff = 100;         % exclude data below this frequency
