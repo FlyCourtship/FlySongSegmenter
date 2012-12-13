@@ -105,6 +105,8 @@ if ~Params.keep_mediumrare_data
   Pulses.Wavelet.x=[];
   Pulses.AmpCull.x=[];
   Pulses.IPICull.x=[];
+  Pulses.ModelCull.x=[];
+  Pulses.ModelCull2.x=[];
   Pulses.pulse_model.allZ2oldfhM=[];
   Pulses.pulse_model.allZ2oldshM=[];
   Pulses.pulse_model2.allZ2oldfhM=[];
