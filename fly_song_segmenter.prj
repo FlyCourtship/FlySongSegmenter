@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deployment-project plugin="plugin.deploytool" plugin-version="1.0">
-  <configuration target="target.standalone" target-name="Standalone Application" name="fly_song_segmenter" location="/home/arthurb/projects/stern/FlySongSegmenter" file="/home/arthurb/projects/stern/FlySongSegmenter/fly_song_segmenter.prj" build-checksum="1296450253">
+  <configuration target="target.standalone" target-name="Standalone Application" name="fly_song_segmenter" location="/home/arthurb/projects/stern/FlySongSegmenter" file="/home/arthurb/projects/stern/FlySongSegmenter/fly_song_segmenter.prj" build-checksum="1688485112">
     <param.project.name>/home/arthurb/projects/stern/FlySongSegmenter/fly_song_segmenter.prj</param.project.name>
     <param.target.type>Standalone Application</param.target.type>
     <param.appname>fly_song_segmenter</param.appname>
@@ -192,7 +192,7 @@
       <vista>false</vista>
       <linux>true</linux>
       <solaris>false</solaris>
-      <osver>3.2.7-1.fc16.x86_64</osver>
+      <osver>2.6.18-128.el5</osver>
       <os32>false</os32>
       <os64>true</os64>
       <arch>glnxa64</arch>
