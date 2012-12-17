@@ -60,19 +60,19 @@ Params.mask_pulses = 'ModelCull2';
 if ~exist('params_path', 'var') || isempty(params_path)
     params;
 else
-    run(params_path);
-%    fid = fopen(params_path);
-%    if fid < 0
-%        error('Could not open the parameters file at %s', params_path);
-%    end
-%    params_code = fread(fid, '*char')';
-%    fclose(fid);
-%    try
-%%        disp(params_code);
-%        eval(params_code);
-%    catch ME
-%        error('Could not load the parameters from %s (%s)', params_path, ME.message);
-%    end
+%    run(params_path);
+    fid = fopen(params_path);
+    if fid < 0
+        error('Could not open the parameters file at %s', params_path);
+    end
+    params_code = fread(fid, '*char')';
+    fclose(fid);
+    try
+        disp(params_code);
+        eval(params_code);
+    catch ME
+        error('Could not load the parameters from %s (%s)', params_path, ME.message);
+    end
 end
 
 load(Params.pulse_model);
