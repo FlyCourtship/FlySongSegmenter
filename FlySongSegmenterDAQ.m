@@ -51,7 +51,7 @@ for y = yy
         save(outfile, 'Data','Sines','Pulses','Params','-v7.3');
 
         %clear workspace
-        clear song data Sines Pulses Params
+        clear song Data Sines Pulses Params
     else
         fprintf(['File %s exists. Skipping.\n'], outfile);
     end

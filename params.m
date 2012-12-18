@@ -4,5 +4,6 @@
 %e.g.
 %Params.Fs = 9750;
 
-Params.keep_mediumrare_data = false;   % Sines.MultiTaper.A, Pulses.cmhSong/cmhNoise/cmh_dog/cmh_sc are BIG
-%Params.copy_raw_data = false;          % into Data.d/hyg/daqinfo
+%note that dealing with github is MUCH easier if you DO NOT modify this
+%params file, but rather copy it, modify the copy, use the copy to process
+%data, and don't check the copy into git
