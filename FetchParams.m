@@ -68,7 +68,7 @@ else
     params_code = fread(fid, '*char')';
     fclose(fid);
     try
-        disp(params_code);
+%        disp(params_code);
         eval(params_code);
     catch ME
         error('Could not load the parameters from %s (%s)', params_path, ME.message);
