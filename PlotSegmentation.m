@@ -6,6 +6,13 @@ function PlotSegmentation(data,Sines,Pulses)
 %
 %
 
+if isempty(Sines.LengthCull.clips)
+    Sines.LengthCull.clips = GetClips(Sines.LengthCull.start,Sines.LengthCull.stop,data.d);
+end
+if isempty(Pulses.AmpCull.x)
+    Pulses.AmpCull.x = GetClips(Pulses.AmpCull.w0,Pulses.AmpCull.w1,data.d);
+end
+    
 ssf=data;
 figure; clf;
 %plot the signal
