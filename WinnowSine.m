@@ -13,12 +13,13 @@
 
 function [CulledFromPulses CulledByLength] = ...
     WinnowSine(data, SinesMergedInTimeHarmonics, Pulses, SinesFromMultiTaper,...
-    Fs, dS, max_pulse_pause, sine_low_freq, sine_high_freq, discard_less_n_steps)
+    Fs, dS, max_pulse_pause, sine_low_freq, sine_high_freq, discard_less_sec)
 
 %USER DEFINED VARIABLE -- HAS BEEN MOVED TO FlySongSegmenter
 % max_pulse_pause = 0.200; %max_pulse_pause in seconds
 % min = 100;
 % max = 200;
+% discard_less_msec
 
 if(isempty(SinesMergedInTimeHarmonics))
   CulledFromPulses=[];
@@ -26,7 +27,7 @@ if(isempty(SinesMergedInTimeHarmonics))
   return;
 end
 
-stepsize=round(dS * Fs);
+discard_less_samples=round(discard_less_sec * Fs);
 %data = SinesFromMultiTaper.d;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -177,7 +178,7 @@ end
 %%winnow to bouts > discard_less_n_steps 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for x = NumBouts:-1:1
-    if sine_stop(x) - sine_start(x) <= discard_less_n_steps * stepsize
+    if sine_stop(x) - sine_start(x) <= discard_less_samples
         sine_start(x)=[];
         sine_stop(x)=[];
     end
