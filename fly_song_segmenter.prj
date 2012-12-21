@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deployment-project plugin="plugin.deploytool" plugin-version="1.0">
-  <configuration target="target.standalone" target-name="Standalone Application" name="fly_song_segmenter" location="/home/arthurb/projects/stern/FlySongSegmenter" file="/home/arthurb/projects/stern/FlySongSegmenter/fly_song_segmenter.prj" build-checksum="1097015049">
+  <configuration target="target.standalone" target-name="Standalone Application" name="fly_song_segmenter" location="/home/arthurb/projects/stern/FlySongSegmenter" file="/home/arthurb/projects/stern/FlySongSegmenter/fly_song_segmenter.prj" build-checksum="1296450253">
     <param.project.name>/home/arthurb/projects/stern/FlySongSegmenter/fly_song_segmenter.prj</param.project.name>
     <param.target.type>Standalone Application</param.target.type>
     <param.appname>fly_song_segmenter</param.appname>
@@ -75,14 +75,6 @@
     <matlab>
       <root>/home/arthurb/bin/matlab2012a</root>
       <path>
-        <directory>${PROJECT_ROOT}/./padcat2</directory>
-        <directory>${PROJECT_ROOT}/./order</directory>
-        <directory>${PROJECT_ROOT}/./chronux</directory>
-        <directory>/home/arthurb/projects/branson/JAABA/perframe/params</directory>
-        <directory>/home/arthurb/projects/branson/JAABA/perframe/larva_compute_perframe_features</directory>
-        <directory>/home/arthurb/projects/branson/JAABA/perframe/compute_perframe_features</directory>
-        <directory>/home/arthurb/projects/branson/JAABA/filehandling</directory>
-        <directory>/home/arthurb/projects/branson/JAABA/misc</directory>
         <directory>/home/arthurb/Documents/MATLAB</directory>
         <directory>/home/arthurb/matlab</directory>
         <directory>${MATLAB_ROOT}/toolbox/matlab/optimfun</directory>
