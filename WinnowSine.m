@@ -21,7 +21,7 @@ function [CulledFromPulses CulledByLength] = ...
 % max = 200;
 % discard_less_msec
 
-if(isempty(SinesMergedInTimeHarmonics))
+if isempty(SinesMergedInTimeHarmonics)
     CulledFromPulses=[];
     CulledByLength=[];
     return;

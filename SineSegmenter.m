@@ -42,7 +42,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if numel(inRangeEvents) == 0
     fprintf('No sine song in this clip.\n')
-	MergedInTimeHarmonics.num_events = 0; %return sinesong as 0 (false)
+	MergedInTimeHarmonics = []; %return empty array
     return
 end
 
