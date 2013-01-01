@@ -20,14 +20,13 @@ minAmplitude = minAmplitude*std(xn);
 %sp = segParams;
 
 %fc = sp.fc;
-       
+
 %%
-       
-       
+
+
 if Wavelet.wc==0;
-    zz = zeros(1,10);
-    AmpCull.w0 = zz;
-    IPICull.w0=zz;
+    AmpCull.x=[];
+    IPICull.x=[];
     return
 end
 
@@ -58,84 +57,84 @@ AmpCull.x = cell(1,np); % the signals themselves
 %AmpCull.aven = zz; %power
 
 for i = 1:np
-   
-   % find the location of the pulse peak and set the pulse window
-
-   peak = round(Wavelet.wc(i));
-   dog_at_max = cmh_dog(peak);
-   sc_at_max = sc(dog_at_max,cmh_sc(peak));
-   fc_at_max = fc(cmh_sc(peak));
-   Wavelet.dog(i) = dog_at_max;
-   Wavelet.fcmx(i) = fc_at_max;
-   Wavelet.scmx(i) = sc_at_max;
-   
-% pulsewin = [];
-   %pulsewin = 2*sp.pulsewindow;
-   pulsewin = 2*pulsewindow;
-   
-   %Wavelet.w0(i) = round(peak-pulsewin*sc_at_max); %use this if you want
-   %to scale the window around each pulse based on frequency
-   Wavelet.w0(i) = round(peak-pulsewin);
-   if Wavelet.w0(i) < 0;
-       Wavelet.w0(i) = 1;
-   end
-   %Wavelet.w1(i) = round(peak+pulsewin*sc_at_max); %use this if you want
-   %to scale the window around each pulse based on frequency
-   Wavelet.w1(i) = round(peak+pulsewin);
-   if Wavelet.w1(i) > length(xs);
-       Wavelet.w1(i) = length(xs);
-   end
-   
-   %=======Don't include very small pulses (below the noise threshold defined by d*mean(xn))========
-   w0 = Wavelet.w0(i);
-   w1 = Wavelet.w1(i);
-   y = max(abs(xs(w0:w1)));
-
-   %if (y<sp.wnwMinAbsVoltage)
-   if (y<minAmplitude)
-% fprintf('%8.3f', Wavelet.wc(i)./Fs);
-% fprintf('TOO LOW.\n');
-       Wavelet.comment{i} = 'tlav';
-       continue;
-   else
-       %fprintf('OK.\n');
-   end
     
-   indPulse(max(Wavelet.w0(i),1):min(Wavelet.w1(i),numel(xs)))=1;
-   %Wavelet.ok(i) = 1;
-   nOk = nOk+1;
-   
-   AmpCull.dog(nOk) = Wavelet.dog(i);
-   AmpCull.fcmx(nOk) = Wavelet.fcmx(i);
-   AmpCull.scmx(nOk) = Wavelet.scmx(i);
-   AmpCull.wc(nOk) = Wavelet.wc(i);
-   AmpCull.w0(nOk) = Wavelet.w0(i);
-   AmpCull.w1(nOk) = Wavelet.w1(i);
-  
-   AmpCull.x{nOk} = xs(w0:w1);
-   %AmpCull.aven(nOk) = mean(xs(w0:w1).^2);
-   %AmpCull.mxv(nOk) = max(abs(xs(w0:w1)));
+    % find the location of the pulse peak and set the pulse window
+    
+    peak = round(Wavelet.wc(i));
+    dog_at_max = cmh_dog(peak);
+    sc_at_max = sc(dog_at_max,cmh_sc(peak));
+    fc_at_max = fc(cmh_sc(peak));
+    Wavelet.dog(i) = dog_at_max;
+    Wavelet.fcmx(i) = fc_at_max;
+    Wavelet.scmx(i) = sc_at_max;
+    
+    % pulsewin = [];
+    %pulsewin = 2*sp.pulsewindow;
+    pulsewin = 2*pulsewindow;
+    
+    %Wavelet.w0(i) = round(peak-pulsewin*sc_at_max); %use this if you want
+    %to scale the window around each pulse based on frequency
+    Wavelet.w0(i) = round(peak-pulsewin);
+    if Wavelet.w0(i) < 0;
+        Wavelet.w0(i) = 1;
+    end
+    %Wavelet.w1(i) = round(peak+pulsewin*sc_at_max); %use this if you want
+    %to scale the window around each pulse based on frequency
+    Wavelet.w1(i) = round(peak+pulsewin);
+    if Wavelet.w1(i) > length(xs);
+        Wavelet.w1(i) = length(xs);
+    end
+    
+    %=======Don't include very small pulses (below the noise threshold defined by d*mean(xn))========
+    w0 = Wavelet.w0(i);
+    w1 = Wavelet.w1(i);
+    y = max(abs(xs(w0:w1)));
+    
+    %if (y<sp.wnwMinAbsVoltage)
+    if (y<minAmplitude)
+        % fprintf('%8.3f', Wavelet.wc(i)./Fs);
+        % fprintf('TOO LOW.\n');
+        Wavelet.comment{i} = 'tlav';
+        continue;
+    else
+        %fprintf('OK.\n');
+    end
+    
+    indPulse(max(Wavelet.w0(i),1):min(Wavelet.w1(i),numel(xs)))=1;
+    %Wavelet.ok(i) = 1;
+    nOk = nOk+1;
+    
+    AmpCull.dog(nOk) = Wavelet.dog(i);
+    AmpCull.fcmx(nOk) = Wavelet.fcmx(i);
+    AmpCull.scmx(nOk) = Wavelet.scmx(i);
+    AmpCull.wc(nOk) = Wavelet.wc(i);
+    AmpCull.w0(nOk) = Wavelet.w0(i);
+    AmpCull.w1(nOk) = Wavelet.w1(i);
+    
+    AmpCull.x{nOk} = xs(w0:w1);
+    %AmpCull.aven(nOk) = mean(xs(w0:w1).^2);
+    %AmpCull.mxv(nOk) = max(abs(xs(w0:w1)));
 end
 
 if (nOk)
-  AmpCull.dog = AmpCull.dog(1:nOk);
-  AmpCull.fcmx = AmpCull.fcmx(1:nOk);
-  AmpCull.scmx = AmpCull.scmx(1:nOk);
-  AmpCull.wc = AmpCull.wc(1:nOk);
-  AmpCull.w0 = AmpCull.w0(1:nOk);
-  AmpCull.w1 = AmpCull.w1(1:nOk);
-  %AmpCull.aven = AmpCull.aven(1:nOk);
-  AmpCull.x = AmpCull.x(1:nOk);
-  %AmpCull.mxv = AmpCull.mxv(1:nOk);
+    AmpCull.dog = AmpCull.dog(1:nOk);
+    AmpCull.fcmx = AmpCull.fcmx(1:nOk);
+    AmpCull.scmx = AmpCull.scmx(1:nOk);
+    AmpCull.wc = AmpCull.wc(1:nOk);
+    AmpCull.w0 = AmpCull.w0(1:nOk);
+    AmpCull.w1 = AmpCull.w1(1:nOk);
+    %AmpCull.aven = AmpCull.aven(1:nOk);
+    AmpCull.x = AmpCull.x(1:nOk);
+    %AmpCull.mxv = AmpCull.mxv(1:nOk);
 end
 
 if AmpCull.w0==0;
-    zz = zeros(1,10);
-    IPICull.w0=zz;
+    AmpCull.x=[];
+    IPICull.x=[];
     fprintf('no pulses made it through first round of winnowing and into AmpCull.\n');
     return
 end
-   
+
 %%
 %SECOND WINNOW
 %Collecting pulses in IPICull:
@@ -159,16 +158,16 @@ IPICull.x = cell(1,np); % the signals themselves
 
 for i = 1:np;
     
-%======Don't include pulse > certain frequency==========
-
-%if AmpCull.fcmx(i)>sp.frequency
-if AmpCull.fcmx(i)>frequency
-% fprintf('%8.2f', AmpCull.w0(i)./Fs);
-% fprintf(' PULSE IS > k.\n');
-    continue
-end
-
-%======Don't include pulses without another pulse (either before or after) within segParams.IPI samples==========:
+    %======Don't include pulse > certain frequency==========
+    
+    %if AmpCull.fcmx(i)>sp.frequency
+    if AmpCull.fcmx(i)>frequency
+        % fprintf('%8.2f', AmpCull.w0(i)./Fs);
+        % fprintf(' PULSE IS > k.\n');
+        continue
+    end
+    
+    %======Don't include pulses without another pulse (either before or after) within segParams.IPI samples==========:
     a=[];
     b=[];
     c=[];
@@ -187,18 +186,18 @@ end
     
     %if b-a>sp.IPI && a-c>sp.IPI;
     if b-a>maxIPI && a-c>maxIPI;
-% fprintf('%8.2f', AmpCull.w0(i)./Fs);
-% fprintf(' NO PULSE WITHIN j samples.\n');
+        % fprintf('%8.2f', AmpCull.w0(i)./Fs);
+        % fprintf(' NO PULSE WITHIN j samples.\n');
         continue;
     end
     
-%=====If pulses are close together (parameter sp.close), keep the larger pulse===========
-% a0=[];
-% a1=[];
+    %=====If pulses are close together (parameter sp.close), keep the larger pulse===========
+    % a0=[];
+    % a1=[];
     b0=[];
-% b1=[];
+    % b1=[];
     c0=[];
-% c1=[];
+    % c1=[];
     a0 = AmpCull.w0(i);
     a1 = AmpCull.w1(i);
     y = max(abs(xs(a0:a1))); %pulse peak
@@ -224,50 +223,51 @@ end
     
     %if b0-a0 < sp.close & y<y1; %if the pulse is within lms of the pulse after it and is smaller in amplitude
     if b0-a0 < close & y<y1; %if the pulse is within lms of the pulse after it and is smaller in amplitude
-% fprintf('%8.2f', AmpCull.w0(i)./Fs);
-% fprintf(' NOT A TRUE PULSE - too close.\n');
+        % fprintf('%8.2f', AmpCull.w0(i)./Fs);
+        % fprintf(' NOT A TRUE PULSE - too close.\n');
         continue;
-%    elseif b0-a0 < sp.close & y==y1; %if the pulse is within lms of the pulse after it and is the same in amplitude
-    %elseif b0-a0 < sp.close & i~=np & y==y1;
+        %    elseif b0-a0 < sp.close & y==y1; %if the pulse is within lms of the pulse after it and is the same in amplitude
+        %elseif b0-a0 < sp.close & i~=np & y==y1;
     elseif b0-a0 < close & i~=np & y==y1;
-% fprintf('%8.2f', AmpCull.w0(i)./Fs);
-% fprintf(' NOT A TRUE PULSE - too close.\n');
+        % fprintf('%8.2f', AmpCull.w0(i)./Fs);
+        % fprintf(' NOT A TRUE PULSE - too close.\n');
         continue;
-    %elseif a0-c0 < sp.close & y<y0; %if the pulse is within lms of the pulse before it and is smaller in amplitude
+        %elseif a0-c0 < sp.close & y<y0; %if the pulse is within lms of the pulse before it and is smaller in amplitude
     elseif a0-c0 < close & y<y0; %if the pulse is within lms of the pulse before it and is smaller in amplitude
-% fprintf('%8.2f', AmpCull.w0(i)./Fs);
-% fprintf(' NOT A TRUE PULSE - too close.\n');
+        % fprintf('%8.2f', AmpCull.w0(i)./Fs);
+        % fprintf(' NOT A TRUE PULSE - too close.\n');
         continue;
     end
-          
-   indPulse(max(AmpCull.w0(i),1):min(AmpCull.w1(i),numel(xs)))=1;
-   %IPICull.ok(i) = 1;
-   nOk = nOk+1;
-   
-   IPICull.dog(nOk) = AmpCull.dog(i);
-   IPICull.fcmx(nOk) = AmpCull.fcmx(i);
-   IPICull.scmx(nOk) = AmpCull.scmx(i);
-   IPICull.wc(nOk) = AmpCull.wc(i);
-   IPICull.w0(nOk) = AmpCull.w0(i);
-   IPICull.w1(nOk) = AmpCull.w1(i);
-   IPICull.x{nOk} = AmpCull.x{i};
-   %IPICull.aven(nOk) = AmpCull.aven(i);
-   %IPICull.mxv(nOk) = AmpCull.mxv(i);
+    
+    indPulse(max(AmpCull.w0(i),1):min(AmpCull.w1(i),numel(xs)))=1;
+    %IPICull.ok(i) = 1;
+    nOk = nOk+1;
+    
+    IPICull.dog(nOk) = AmpCull.dog(i);
+    IPICull.fcmx(nOk) = AmpCull.fcmx(i);
+    IPICull.scmx(nOk) = AmpCull.scmx(i);
+    IPICull.wc(nOk) = AmpCull.wc(i);
+    IPICull.w0(nOk) = AmpCull.w0(i);
+    IPICull.w1(nOk) = AmpCull.w1(i);
+    IPICull.x{nOk} = AmpCull.x{i};
+    %IPICull.aven(nOk) = AmpCull.aven(i);
+    %IPICull.mxv(nOk) = AmpCull.mxv(i);
 end
 
 if (nOk)
-  IPICull.dog = IPICull.dog(1:nOk);
-  IPICull.fcmx = IPICull.fcmx(1:nOk);
-  IPICull.scmx = IPICull.scmx(1:nOk);
-  IPICull.wc = IPICull.wc(1:nOk);
-  IPICull.w0 = IPICull.w0(1:nOk);
-  IPICull.w1 = IPICull.w1(1:nOk);
-  %IPICull.aven = IPICull.aven(1:nOk);
-  IPICull.x = IPICull.x(1:nOk);
-  %IPICull.mxv = IPICull.mxv(1:nOk);
+    IPICull.dog = IPICull.dog(1:nOk);
+    IPICull.fcmx = IPICull.fcmx(1:nOk);
+    IPICull.scmx = IPICull.scmx(1:nOk);
+    IPICull.wc = IPICull.wc(1:nOk);
+    IPICull.w0 = IPICull.w0(1:nOk);
+    IPICull.w1 = IPICull.w1(1:nOk);
+    %IPICull.aven = IPICull.aven(1:nOk);
+    IPICull.x = IPICull.x(1:nOk);
+    %IPICull.mxv = IPICull.mxv(1:nOk);
 end
 
 if isempty(IPICull.w0) | (IPICull.w0==0)
+    IPICull.x = [];
     fprintf('no pulses made it through second round of winnowing and into IPICull.\n');
     return
 end

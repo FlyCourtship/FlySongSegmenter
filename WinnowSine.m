@@ -6,7 +6,7 @@
 %%not overlap pulses
 %%Case 2 is partially solved by the same winnowing, but may leave a small
 %%window of sine between two neighboring pulses. This requires defining a
-%%threshold for the maximum distance between two pulses (max_pulse_pause) 
+%%threshold for the maximum distance between two pulses (max_pulse_pause)
 %%between which sine should be removed.
 
 %% culling by length now done here instead of SineSegmenter
@@ -22,9 +22,9 @@ function [CulledFromPulses CulledByLength] = ...
 % discard_less_msec
 
 if(isempty(SinesMergedInTimeHarmonics))
-  CulledFromPulses=[];
-  CulledByLength=[];
-  return;
+    CulledFromPulses=[];
+    CulledByLength=[];
+    return;
 end
 
 discard_less_samples=round(discard_less_sec * Fs);
@@ -60,13 +60,16 @@ for i = 1:length(SinesMergedInTimeHarmonics.start)
 end
 all_sine = cell2mat(all_sine');
 %get all time points of pulse (w1 - w0)
-% sample_pulse=[];
-all_pulses=cell(numel(Pulses.w0),1);
-for i = 1:numel(Pulses.w0)
-    all_pulses{i} = (Pulses.w0(i):1:Pulses.w1(i))';
-end
-all_pulses = cell2mat(all_pulses);
 
+if ~isempty(Pulses)
+    all_pulses=cell(numel(Pulses.w0),1);
+    for i = 1:numel(Pulses.w0)
+        all_pulses{i} = (Pulses.w0(i):1:Pulses.w1(i))';
+    end
+    all_pulses = cell2mat(all_pulses);
+else
+    all_pulses = [];
+end
 %round data to # sig digits of sampling rate
 % all_sine = round(all_sine * 10^sigdig)./(10^sigdig);
 % all_pulses = round(all_pulses * 10^sigdig)./(10^sigdig);
@@ -81,15 +84,18 @@ winnowed_sine_1 = setdiff(all_sine,all_pulses);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %get all pulse_pauses
-pulse_pauses=cell(numel(Pulses.w0-1),1);
-for i = 1:numel(Pulses.w0)-1
+if ~isempty(Pulses)
+    pulse_pauses=cell(numel(Pulses.w0-1),1);
+    for i = 1:numel(Pulses.w0)-1
         if Pulses.w0(i+1)/Fs-Pulses.w1(i)/Fs < max_pulse_pause
             pulse_pauses{i} = (Pulses.w1(i):1:Pulses.w0(i+1))';
         end
+    end
+    pulse_pauses(cellfun('isempty',pulse_pauses))=[];
+    pulse_pauses = cell2mat(pulse_pauses);
+else
+    pulse_pauses = [];
 end
-pulse_pauses(cellfun('isempty',pulse_pauses))=[];
-pulse_pauses = cell2mat(pulse_pauses);
-
 %remove sine that falls within a pulse pause
 winnowed_sine_2 = setdiff(winnowed_sine_1,pulse_pauses);
 
@@ -115,41 +121,41 @@ for i = 1:NumBouts
 end
 
 if(0)  % specialzed code for troy shirangi
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%For each clip, get original F-test events that overlap with times between 
-%sine_start and sine_stop
-%times are in column 1 of ssf.events
-%frequencies are in column 2
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%MeanFundFreq=zeros(NumBouts,1);
-%MedianFundFreq=zeros(NumBouts,1);
-sine_bout_events=cell(NumBouts,1);
-sine_bout_power = cell(NumBouts,1);
-sine_bout_events_times = cell(NumBouts,1);
-for i = 1:NumBouts
-    sine_bout = sine_start(i):1:sine_stop(i);
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %For each clip, get original F-test events that overlap with times between
+    %sine_start and sine_stop
+    %times are in column 1 of ssf.events
+    %frequencies are in column 2
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    %MeanFundFreq=zeros(NumBouts,1);
+    %MedianFundFreq=zeros(NumBouts,1);
+    sine_bout_events=cell(NumBouts,1);
+    sine_bout_power = cell(NumBouts,1);
+    sine_bout_events_times = cell(NumBouts,1);
+    for i = 1:NumBouts
+        sine_bout = sine_start(i):1:sine_stop(i);
         
-    %get indices of values in events that are also found in sine_bout
-    event_idx = ismember(ssfeventTimes,sine_bout');
-    values = SinesFromMultiTaper.events(event_idx,2);
-    times = ssfeventTimes(event_idx);
-    times= times(values>=sine_low_freq & values <= sine_high_freq);
-    values = values(values>=sine_low_freq & values <=sine_high_freq);%take only values that fall between min and max
-    
-    sine_bout_events{i} = values;
-    sine_bout_events_times{i} = times;
-    temp_power = zeros(numel(values),1);
-    for j = 1:numel(values)
-        temp_power(j) = SinesFromMultiTaper.A(SinesFromMultiTaper.f == values(j),sineTime == times(j));
+        %get indices of values in events that are also found in sine_bout
+        event_idx = ismember(ssfeventTimes,sine_bout');
+        values = SinesFromMultiTaper.events(event_idx,2);
+        times = ssfeventTimes(event_idx);
+        times= times(values>=sine_low_freq & values <= sine_high_freq);
+        values = values(values>=sine_low_freq & values <=sine_high_freq);%take only values that fall between min and max
+        
+        sine_bout_events{i} = values;
+        sine_bout_events_times{i} = times;
+        temp_power = zeros(numel(values),1);
+        for j = 1:numel(values)
+            temp_power(j) = SinesFromMultiTaper.A(SinesFromMultiTaper.f == values(j),sineTime == times(j));
+        end
+        sine_bout_power{i} = temp_power;
     end
-    sine_bout_power{i} = temp_power;
+    % sine_bout_events(cellfun('isempty',sine_bout_events))=[];
+    % sine_bout_power(cellfun('isempty',sine_bout_power))=[];
 end
-% sine_bout_events(cellfun('isempty',sine_bout_events))=[];
-% sine_bout_power(cellfun('isempty',sine_bout_power))=[];
-end
-    
-    
+
+
 %CulledFromPulses.num_events = NumBouts;
 CulledFromPulses.start = sine_start';
 CulledFromPulses.stop = sine_stop';
@@ -158,24 +164,24 @@ CulledFromPulses.stop = sine_stop';
 %CulledFromPulses.MedianFundFreq=MedianFundFreq';
 CulledFromPulses.clips = sine_clips;
 if(0)  % troy shirangi again
-CulledFromPulses.events = sine_bout_events;
-CulledFromPulses.eventTimes = sine_bout_events_times;
-CulledFromPulses.power = sine_bout_power;
-CulledFromPulses.powerMat = cell2mat(sine_bout_power);
+    CulledFromPulses.events = sine_bout_events;
+    CulledFromPulses.eventTimes = sine_bout_events_times;
+    CulledFromPulses.power = sine_bout_power;
+    CulledFromPulses.powerMat = cell2mat(sine_bout_power);
 end
 
 %CulledFromPulses.all_sine = all_sine;
 %CulledFromPulses.winnowed_sine1 = winnowed_sine_1;
 
 if(isempty(CulledFromPulses.start))
-  CulledByLength={};
-  return;
+    CulledByLength={};
+    return;
 end
 
- 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%winnow to bouts > discard_less_n_steps 
+%%winnow to bouts > discard_less_n_steps
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for x = NumBouts:-1:1
     if sine_stop(x) - sine_start(x) <= discard_less_samples
@@ -224,7 +230,7 @@ CulledByLength.start = sine_start';
 CulledByLength.stop = sine_stop';
 %CulledByLength.len = len;
 CulledByLength.clips = sine_clips;
- 
+
 
 
 

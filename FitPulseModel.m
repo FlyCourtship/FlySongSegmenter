@@ -26,6 +26,26 @@ function [new_pulse_model,Lik_pulse] = FitPulseModel(pulse_model,new_pulses,samp
 %
 % new_pulses = pulseInfo.x
 
+
+       
+if isempty(new_pulses);%if no pulses passed, send back empty arrays
+    new_pulse_model.newfhM = [];
+    new_pulse_model.newshM = [];
+    new_pulse_model.newfhS = [];
+    new_pulse_model.newshS = [];
+    
+    new_pulse_model.allZ2oldfhM = [];%aligned all pulses to old first harmonic model
+    new_pulse_model.allZ2oldshM = [];%aligned all pulses to old second harmonic model
+    
+    %return LLR of pulses to old models
+    Lik_pulse.LLR_best = [];
+    Lik_pulse.LLR_fh = [];
+    Lik_pulse.LLR_sh = [];
+    return
+end
+
+
+
 fhM = pulse_model.fhM;
 shM = pulse_model.shM;
 lengthfhM = length(fhM);

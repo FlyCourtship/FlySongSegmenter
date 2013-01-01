@@ -1,6 +1,9 @@
 function culled_pulseInfo = CullPulses(pulseInfo,Lik,range)
 %culled_pulseInfo = CullPulses(pulseInfo,Lik,[0 100])
-
+if isempty(Lik)
+    culled_pulseInfo = [];
+    return
+end
 culled_pulses.dog = pulseInfo.dog(Lik>range(1) & Lik<range(2));
 culled_pulses.fcmx = pulseInfo.fcmx(Lik>range(1) & Lik<range(2));
 culled_pulses.wc= pulseInfo.wc(Lik>range(1) & Lik<range(2));

@@ -16,7 +16,7 @@ a = num./den;
 ar = repmat(a',1,total_length);
 Z = ar.* Z;
 
-MZ = mean(Z);
+MZ = mean(Z,1);
 
 scale = MZ/M;
 
