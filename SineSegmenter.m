@@ -58,7 +58,8 @@ for x  = 2:numel(inRangeEvents(:,1))
         row = row + 1;
     end
 end
-   
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%create chains of sine song
@@ -68,7 +69,6 @@ sine_start = [];
 sine_stop = [];
 start = 0;
 RunsEvents = UnqInRangeEvents;
-
 NumEvents = numel(RunsEvents(:,1));
 
 %First, get start and stop values for runs
@@ -79,7 +79,6 @@ if sine_start(NumBouts) < 1
 end
 
 for x  = 1:(NumEvents-1)
-    
     
     %get values for two time points
     first = RunsEvents(x,2);
@@ -112,16 +111,28 @@ for x  = 1:(NumEvents-1)
         sine_stop(NumBouts) = RunsEvents(x,1)+windowsize_half;
         NumBouts = NumBouts + 1;
         sine_start(NumBouts) = RunsEvents(x+1,1)-windowsize_half;
-        
     end
-    
 end
-
 
 %plug in last value as last stop
 sine_stop(NumBouts) = RunsEvents(NumEvents,1);
 if sine_stop(NumBouts) > numel(data)
     sine_stop(NumBouts) = numel(data);
+end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%if majority of events out of expected fundamental freq, discard train
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+for i = numel(sine_start):-1:1
+   range = (sine_start(i):sine_stop(i));
+   [~,test_times,~] = intersect(UnqInRangeEvents(:,1),range);
+   numInRange = UnqInRangeEvents(test_times,2) > sine_low_freq & UnqInRangeEvents(test_times,2) < sine_high_freq;
+   if sum(numInRange) < numel(numInRange) /2 %if fewer than half of events are in expected freq range
+       sine_start(i) = [];
+       sine_stop(i) = [];
+   end
 end
 
 
@@ -133,11 +144,12 @@ end
 rdcdNumBouts = numel(sine_start);
 NumBouts=rdcdNumBouts;
 sine_clips = cell(NumBouts,1);
-len = sine_stop - sine_start;
 
 for x = 1:NumBouts;
     sine_clips{x} = data(sine_start(x):sine_stop(x));
 end
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Produce output

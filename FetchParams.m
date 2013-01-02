@@ -7,7 +7,7 @@
 %SET DEFAULT PARAMETERS
 
 Params.Fs = 10000;                    % sampling frequency, in Hertz
-Params.keep_mediumrare_data = true;   % if false, Sines.MultiTaper.A, Sines.*.clips, Pulses.cmh*,
+Params.keep_mediumrare_data = false;   % if false, Sines.MultiTaper.A, Sines.*.clips, Pulses.cmh*,
                                       %     Pulses.*.x, and Pulses.pulse_model*.allZ* are not saved
 Params.copy_raw_data = true;          % if false, Data.d/hyg/daqinfo are not saved in the .mat file
 
@@ -43,7 +43,7 @@ Params.K = 20;                        % numver independent tapers to average ove
 Params.dT = 0.1;                      % FFT window length, in seconds
 Params.dS = 0.01;                     % FFT window step size, in seconds
 Params.pval = 0.05;                   % criterion for F-test
-Params.fwindow = [0 Params.Fs];       % frequency range to analyze, in Hertz
+Params.fwindow = [0 1000];       % frequency range to analyze, in Hertz
 
 %sine song:  segment
 Params.sine_low_freq = 100;           % lowest frequency to include as sine, in Hertz
