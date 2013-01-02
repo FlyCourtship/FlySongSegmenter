@@ -49,7 +49,7 @@ Params.fwindow = [0 1000];       % frequency range to analyze, in Hertz
 Params.sine_low_freq = 100;           % lowest frequency to include as sine, in Hertz
 Params.sine_high_freq = 300;          % highest frequency to include as sine, in Hertz
 Params.sine_range_percent = 0.2;      % tolerance to merge harmonically-related frequencies
-Params.discard_less_sec = .3;      % minimum length for sine song, in seconds
+Params.discard_less_sec = .03;      % minimum length for sine song, in seconds
 
 %sine song:  winnow
 Params.max_pulse_pause = 0.200; %max_pulse_pause in seconds, used to winnow apparent sine between pulses
