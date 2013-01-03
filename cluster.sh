@@ -6,6 +6,8 @@
 #each channel of each file is sent to it's own half node.  all files
 #assumed to have the same number of channels.
 
+#hard-coded for matlab 2012b on janelia cluster
+
 daq_file_or_folder="$1"
 params_path="$2"
 nchan="$3"
