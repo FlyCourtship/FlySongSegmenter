@@ -32,7 +32,7 @@ for y = 1:file_num
         [Data, Sines, Pulses, Params] = FlySongSegmenter(Data.d,[],[]);
 
         %Save results back in same file
-        save(path_file,'Data','Sines','Pulses','Params');
+        save(path_file,'Data','Sines','Pulses','Params','-v7.3');
     end
 end
 
