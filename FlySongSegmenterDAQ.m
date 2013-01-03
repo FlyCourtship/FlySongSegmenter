@@ -8,6 +8,8 @@ function FlySongSegmenterDAQ(song_daq_file,channel_num,song_range,params_path)
 %processes all of the tics of all of the channels.
 %w/o a full path the file must be in the current directory.
 
+[poolavail,isOpen] = check_open_pool;
+
 fprintf(['Reading daq file header info.\n']);
 song_daqinfo = daqread(song_daq_file,'info');
 nchannels_song = length(song_daqinfo.ObjInfo.Channel);
@@ -56,3 +58,5 @@ for y = yy
         fprintf(['File %s exists. Skipping.\n'], outfile);
     end
 end
+
+check_close_pool(poolavail,isOpen);
