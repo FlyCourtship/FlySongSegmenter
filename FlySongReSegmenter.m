@@ -38,7 +38,3 @@ end
 
 check_close_pool(poolavail,isOpen);
 
-
-function my_save(result_path,Analysis_Results)
-
-save(result_path,'Analysis_Results','-mat');
