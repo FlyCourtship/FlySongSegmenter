@@ -8,7 +8,7 @@ sine and pulse song.
 
 COPYRIGHT
 
-Copyright (c) 2012, Princeton University and Howard Hughes Medical
+Copyright (c) 2013, Princeton University and Howard Hughes Medical
 Institute, All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
