@@ -1,8 +1,10 @@
 #!/bin/bash
 
-export MCR_CACHE_VERBOSE=1
+date
 
 hostname
+
+export MCR_CACHE_VERBOSE=1
 
 if [ -d /scratch/$USER ]
   then
@@ -23,3 +25,5 @@ foo=$1
 chmod -R g+w ${foo:0:(${#foo}-4)}"_out"
 
 rm -rf $MCR_CACHE_ROOT
+
+date
