@@ -35,8 +35,8 @@ do
   cmd=$cmd" > $daq_folder/$daq_name""_out""/$clean_daq_name-"'${SGE_TASK_ID}'"-$clean_params_name.log"
   qsub -t 1-$nchan \
       -N FSS-$clean_daq_name-$clean_params_name \
-#      -pe batch 8 \
-#	  -l short=true,h_rt=2:00:00 \
+      -pe batch 1 \
+      -l short=true,h_rt=2:00:00 \
       -b y -j y -o /dev/null -cwd -V \
        $cmd
 done
