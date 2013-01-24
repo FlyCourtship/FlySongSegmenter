@@ -1,15 +1,15 @@
 function [poolavail,isOpen] = check_open_pool
 %[poolavail,isOpen] = check_open_pool
 
-%if(isdeployed)
-%  num_procs=8;
-%  poolavail=0;
-%  isOpen=0;
-%  return;
-%else
-  num_procs=getenv('NUMBER_OF_PROCESSORS');
-%  num_procs=4;
-%end
+if(isdeployed)
+%   num_procs=8;
+  poolavail=0;
+  isOpen=0;
+  return;
+% else
+%   num_procs=getenv('NUMBER_OF_PROCESSORS');
+%   num_procs=4;
+end
 
 poolavail = exist('matlabpool','file');
 if poolavail~=0
@@ -20,7 +20,7 @@ if poolavail~=0
       matlabpool(num_procs)  % crashes the cluster if you don't have local scratch space
       isOpen = -1;%now know pool was opened in this script (no negative pools from matlabpool('size'))
     catch
-      disp('WARNING: could not open matlab pool.  proceeding with a single thread.');
+      disp('WARNING: Could not open matlab pool. Proceeding with a single thread.');
     end
   end
 else
