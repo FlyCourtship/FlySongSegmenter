@@ -114,7 +114,7 @@ if ~Params.keep_mediumrare_data
 end
 
 if ~Params.copy_raw_data
-    Data = [];
+    Data.d = [];
 end
 
 check_close_pool(poolavail,isOpen);

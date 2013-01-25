@@ -48,8 +48,8 @@ for y = yy
             FlySongSegmenter(song,[],params_path,song_daqinfo.ObjInfo.SampleRate);
         
         %save data
-        data.daqinfo = song_daqinfo;
-        data.hygrometer = hyg;
+        Data.daqinfo = song_daqinfo;
+        Data.hygrometer = hyg;
         save(outfile, 'Data','Sines','Pulses','Params','-v7.3');
 
         %clear workspace
