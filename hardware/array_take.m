@@ -431,7 +431,7 @@ if(running && (start_stop==-1 || ~getvalue(dio.StartStop)))
   set(button_save,'enable','on');
   stop(t);
   delete(t);
-  if(edit_autoturnoff>0)
+  if(isvalid(t2))
     stop(t2);
     delete(t2);
   end  
