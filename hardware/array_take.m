@@ -47,7 +47,7 @@ global scale Fs h1 h2 count
 global running chan in_port out_port calibrate max_nchan
 global range_settings button_exit button_start_stop button_calib start_stop
 global popupmenu_hygro popupmenu_nchan edit_samplerate popupmenu_range popupmenu_daq
-global button_fft button_timetrace button_equalizer text_realtime
+global button_fft button_timetrace button_equalizer text_realtime edit_autoturnoff
 global button_save text_filedir button_wav edit_filesize text_hygro
 global button_scale_bigger button_scale_smaller buttons_chan
 global hygro_clockperiod hygro_timeout hygro_datain hygro_dataout hygro_clock
@@ -68,10 +68,21 @@ hygro_datain=1;    % the digital input line(s) connected to the SHT7x's DATA lin
 in_port=0;         % which hardware port is used for digital input
 out_port=1;        % which hardware port is used for digital output
 
-else  % NI-6259
+elseif(1)  % NI-6259
 
 max_nchan=32;      % maximum number of channels your hardware supports
 max_Fs=1e6;     % maximum aggregate sampling frequency your hardware supports, in Hz
+range_settings=[10 5 2 1 0.5 0.2];   % available scales your hardware supports, in V
+hygro_clock=4;     % the digital output line connected to the SHT7x's SCK line
+hygro_dataout=6;   % the digital output line connected to the SHT7x's DATA line
+hygro_datain=[0 1 5 6 7];    % the digital input line(s) connected to the SHT7x's DATA line
+in_port=1;         % which hardware port is used for digital input
+out_port=2;        % which hardware port is used for digital output
+
+else  % NI-6281
+
+max_nchan=16;      % maximum number of channels your hardware supports
+max_Fs=500e3;     % maximum aggregate sampling frequency your hardware supports, in Hz
 range_settings=[10 5 2 1 0.5 0.2];   % available scales your hardware supports, in V
 hygro_clock=4;     % the digital output line connected to the SHT7x's SCK line
 hygro_dataout=6;   % the digital output line connected to the SHT7x's DATA line
@@ -99,6 +110,7 @@ hygro_init=1;      % time btw measurements, 1 = 30s, 2 = 60s, 3 = 120s, etc.
 wav_init=1;        % 1 = save as separated .wav files in addition to .daq
 wav_size_init=2;   % max length in minutes for each .wav file.  0 = unlimited
 window_size=1.5;   % scale factor from default window size, must be >=1.5
+autoturnoff_init=0;  % 0=manual turn off, >0 is the desired length in minutes
 
 %%%% SHOULDN'T NEED TO CHANGE THESE
 
@@ -157,7 +169,7 @@ popupmenu_hygro=uicontrol('style','popupmenu','value',hygro_init,...
 popupmenu_range=uicontrol('style','popupmenu','value',range_init,...
    'string',range_settings,'tooltip','range in volts of analog-to-digital conversion',...
    'callback', @array_init);
-edit_samplerate=uicontrol('style','edit','string',samplerate_init,'tooltip','sampling rate in Hertz'...
+edit_autoturnoff=uicontrol('style','edit','string',autoturnoff_init,'tooltip','automatically turn off recording after this many minutes'...
     ,'callback', @array_init);
 popupmenu_nchan=uicontrol('style','popupmenu','value',nchan_init,...
    'string',[1:max_nchan],'tooltip','number of channels to record',...
@@ -166,6 +178,8 @@ popupmenu_nchan=uicontrol('style','popupmenu','value',nchan_init,...
 %    'string',daqhwinfo('nidaq','InstalledBoardIds'),...
 %    'position',[tmp(3)-100-45*(start_stop==-1)-20*calibrate tmp(4)-24 50 22],...
 %    'callback', @array_init);
+edit_samplerate=uicontrol('style','edit','string',samplerate_init,'tooltip','sampling rate in Hertz'...
+    ,'callback', @array_init);
 if(calibrate)
   button_calib=uicontrol('style','radiobutton','value',0,...
      'backgroundColor',tmp2,'tooltip','play calibration sound while recording',...
@@ -205,7 +219,7 @@ function resizeFcn(src,evt)
 
 global range_settings button_exit button_start_stop button_calib start_stop
 global popupmenu_hygro popupmenu_nchan edit_samplerate popupmenu_range popupmenu_daq
-global button_fft button_timetrace button_equalizer text_realtime
+global button_fft button_timetrace button_equalizer text_realtime edit_autoturnoff
 global button_save text_filedir button_wav edit_filesize text_hygro calibrate
 global button_scale_bigger button_scale_smaller buttons_chan
 
@@ -217,12 +231,13 @@ for(i=1:length(text_hygro))
 end
 set(button_save,'position',[40+65*length(text_hygro) tmp(4)-24 20 20]);
 set(text_filedir,'position',[60+65*length(text_hygro) tmp(4)-32 tmp(3)-575 30]);
-set(button_wav,'position',[tmp(3)-285-45*(start_stop==-1)-20*calibrate tmp(4)-24 20 20]);
-set(edit_filesize,'position',[tmp(3)-265-45*(start_stop==-1)-20*calibrate tmp(4)-24 20 22]);
-set(popupmenu_hygro,'position',[tmp(3)-240-45*(start_stop==-1)-20*calibrate tmp(4)-24 45 22]);
-set(popupmenu_range,'position',[tmp(3)-190-45*(start_stop==-1)-20*calibrate tmp(4)-24 40 22]);
-set(edit_samplerate,'position',[tmp(3)-145-45*(start_stop==-1)-20*calibrate tmp(4)-24 50 22]);
-set(popupmenu_nchan,'position',[tmp(3)-90-45*(start_stop==-1)-20*calibrate tmp(4)-24 35 22]);
+set(button_wav,'position',[tmp(3)-315-45*(start_stop==-1)-20*calibrate tmp(4)-24 20 20]);
+set(edit_filesize,'position',[tmp(3)-295-45*(start_stop==-1)-20*calibrate tmp(4)-24 20 22]);
+set(popupmenu_hygro,'position',[tmp(3)-270-45*(start_stop==-1)-20*calibrate tmp(4)-24 45 22]);
+set(popupmenu_range,'position',[tmp(3)-220-45*(start_stop==-1)-20*calibrate tmp(4)-24 40 22]);
+set(edit_samplerate,'position',[tmp(3)-175-45*(start_stop==-1)-20*calibrate tmp(4)-24 50 22]);
+set(popupmenu_nchan,'position',[tmp(3)-120-45*(start_stop==-1)-20*calibrate tmp(4)-24 35 22]);
+set(edit_autoturnoff,'position',[tmp(3)-80-45*(start_stop==-1)-20*calibrate tmp(4)-24 30 22]);
 if(calibrate)
   set(button_calib,'position',[tmp(3)-15-45*(start_stop==-1) tmp(4)-24 20 20]);
 end
@@ -357,10 +372,10 @@ chan=str2num(get(eventdata.NewValue,'string'));
 function array_start_stop_cbk(obj,event)
 
 global Fs range_settings start_stop calibrate video
-global running button_exit button_start_stop button_calib
+global running button_exit button_start_stop button_calib edit_autoturnoff
 global popupmenu_hygro popupmenu_nchan edit_samplerate popupmenu_range 
 global popupmenu_daq button_save text_filedir button_wav edit_filesize
-global ai ao dio vi vifile video_compress filename t hygro_period
+global ai ao dio vi vifile video_compress filename t t2 hygro_period
 
 if(running && (start_stop==-1 || ~getvalue(dio.StartStop)))
   running=0;
@@ -401,7 +416,8 @@ if(running && (start_stop==-1 || ~getvalue(dio.StartStop)))
   end
   if(calibrate)  set(button_calib,'enable','on');  end
 %   set(popupmenu_daq,'enable','on');
-%   set(popupmenu_nchan,'enable','on');
+  set(popupmenu_nchan,'enable','on');
+  set(edit_autoturnoff,'enable','on');
   set(edit_samplerate,'enable','on');
   set(popupmenu_range,'enable','on');
   set(popupmenu_hygro,'enable','on');
@@ -415,7 +431,10 @@ if(running && (start_stop==-1 || ~getvalue(dio.StartStop)))
   set(button_save,'enable','on');
   stop(t);
   delete(t);
-  
+  if(edit_autoturnoff>0)
+    stop(t2);
+    delete(t2);
+  end  
 elseif(~running && (start_stop==-1 || getvalue(dio.StartStop)))
   if(get(button_save,'value'))
     filename=sprintf('%02d',round(clock'));
@@ -466,7 +485,8 @@ elseif(~running && (start_stop==-1 || getvalue(dio.StartStop)))
   end
   if(calibrate)  set(button_calib,'enable','off');  end
 %   set(popupmenu_daq,'enable','off');
-%   set(popupmenu_nchan,'enable','off');
+  set(popupmenu_nchan,'enable','off');
+  set(edit_autoturnoff,'enable','off');
   set(edit_samplerate,'enable','off');
   set(popupmenu_range,'enable','off');
   set(popupmenu_hygro,'enable','off');
@@ -481,6 +501,16 @@ elseif(~running && (start_stop==-1 || getvalue(dio.StartStop)))
   set(t,'ExecutionMode','fixedRate');
   set(t,'TimerFcn',@array_hygro);
   start(t);
+
+  tmp=str2num(get(edit_autoturnoff,'string'));
+  if(tmp>0)
+    t2=timer;
+    set(t2,'Name','autoturnoff');
+    set(t2,'StartDelay',60*tmp);
+    set(t2,'ExecutionMode','singleShot');
+    set(t2,'TimerFcn',@array_start_stop_cbk);
+    start(t2);
+  end
 end
 
 
