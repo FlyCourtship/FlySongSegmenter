@@ -59,6 +59,7 @@ if(exist('cpm','var'))
     [Pulses.pulse_model2  Pulses.Lik_pulse2] = FitPulseModel(cpm,Pulses.IPICull.x);
     Pulses.ModelCull = ModelCullPulses(Pulses.AmpCull, Pulses.Lik_pulse.LLR_fh, [0 max(Pulses.Lik_pulse.LLR_fh)+1]);
     Pulses.ModelCull2 = ModelCullPulses(Pulses.IPICull, Pulses.Lik_pulse2.LLR_fh, [0 max(Pulses.Lik_pulse2.LLR_fh)+1]);
+    Pulses.OldPulseModel = cpm;
 end
 
 if Params.find_sine

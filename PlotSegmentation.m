@@ -36,6 +36,17 @@ end
 linkaxes([ax1 ax2],'x');
 zoom xon;
 
+%plot pulse data
+if numel(Pulses.AmpCull) > 0
+    for i = 1:length(Pulses.AmpCull.x);
+        a = Pulses.AmpCull.w0(i);
+        b = Pulses.AmpCull.w1(i);
+        t = (a:b);
+        y = ssf.d(a:b);
+        plot(ax1,t./ssf.fs,y,'r'); %hold on;
+    end
+
+end
 
 % plot sine data
 num_events=length(Sines.LengthCull.start);
@@ -51,16 +62,6 @@ end
 
 
 
-if numel(Pulses.AmpCull) > 0
-    for i = 1:length(Pulses.AmpCull.x);
-        a = Pulses.AmpCull.w0(i);
-        b = Pulses.AmpCull.w1(i);
-        t = (a:b);
-        y = ssf.d(a:b);
-        plot(ax1,t./ssf.fs,y,'r'); %hold on;
-    end
-
-end
 
 grid on
 hold off
