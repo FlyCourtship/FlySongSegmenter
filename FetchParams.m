@@ -21,7 +21,7 @@ Params.fc = [100:25:750];             % wavelet scales, in Hertz
 Params.DoGwvlt = [2:3];               % Derivative of Gaussian wavelets examined
 
 %pulse song:  segment
-Params.pWid = round(Params.Fs/250)+1; % approx pulse width, in ticks (odd, rounded)
+Params.pWid = round(Params.Fs/250)+1; % 4*pWid is length of pulse kept, approx pulse width, in ticks (odd, rounded)
 Params.minIPI = round(Params.Fs/100); % lowest acceptable IPI, in ticks (even, rounded)
 Params.thresh = 4;                    % multiple of smoothed threshold over which pulses are counted
 

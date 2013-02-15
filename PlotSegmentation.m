@@ -24,9 +24,11 @@ if nargin == 4 %trim relevant field to region
 else
     Data.d = data.d;
     Data.fs = data.fs;
+    region = [1 size(data.d,1)];
+    Data.t = (region(1):region(2));
     Sines = sines;
     Pulses = pulses;
-    region = [0 0];
+    
 end
 
 DataFromStart = vertcat(zeros(region(1)-1,1),Data.d);
