@@ -10,6 +10,8 @@ Params.Fs = 10000;                    % sampling frequency, in Hertz
 Params.keep_mediumrare_data = false;   % if false, Sines.MultiTaper.A, Sines.*.clips, Pulses.cmh*,
                                       %     Pulses.*.x, and Pulses.pulse_model*.allZ* are not saved
 Params.copy_raw_data = true;          % if false, Data.d/hyg/daqinfo are not saved in the .mat file
+Params.sines_first = false;          % if false, segment pulse, then sine. 
+                                    % if true, segment sine, then pulse, then sine
 
 %estimating noise
 Params.low_freq_cutoff = 100;         % exclude data below this frequency
@@ -21,7 +23,7 @@ Params.fc = [100:25:750];             % wavelet scales, in Hertz
 Params.DoGwvlt = [2:3];               % Derivative of Gaussian wavelets examined
 
 %pulse song:  segment
-Params.pWid = round(Params.Fs/250)+1; % 4*pWid is length of pulse kept, approx pulse width, in ticks (odd, rounded)
+Params.pWid = round(Params.Fs/250)+1; % 4 * pWid is length of pulse kept in ticks ; approx pulse width
 Params.minIPI = round(Params.Fs/100); % lowest acceptable IPI, in ticks (even, rounded)
 Params.thresh = 4;                    % multiple of smoothed threshold over which pulses are counted
 

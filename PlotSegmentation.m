@@ -32,12 +32,25 @@ else
 end
 
 DataFromStart = vertcat(zeros(region(1)-1,1),Data.d);
+if isfield(Sines.LengthCull,'start')
+    Sines.LengthCull.clips = GetClips(Sines.LengthCull.start,Sines.LengthCull.stop,DataFromStart);
+    sineMFFT = findSineMaxFFT(Sines.LengthCull,data.fs);
+else 
+    Sines.LengthCull.clips = {};
+end
+if isfield(Pulses.AmpCull,'w0')
+    Pulses.AmpCull.x = GetClips(Pulses.AmpCull.w0,Pulses.AmpCull.w1,DataFromStart);
+else
+    Pulses.AmpCull.x = {};
+end
+if isfield(Pulses.ModelCull2,'w0')
+    Pulses.ModelCull2.x = GetClips(Pulses.ModelCull2.w0,Pulses.ModelCull2.w1,DataFromStart);
+    pulseMFFT = findPulseMaxFFT(Pulses.ModelCull2,data.fs);
+else
+    Pulses.ModelCull2.x = {};
+end
 
-Sines.LengthCull.clips = GetClips(Sines.LengthCull.start,Sines.LengthCull.stop,DataFromStart);
-Pulses.AmpCull.x = GetClips(Pulses.AmpCull.w0,Pulses.AmpCull.w1,DataFromStart);
-Pulses.ModelCull2.x = GetClips(Pulses.ModelCull2.w0,Pulses.ModelCull2.w1,DataFromStart);
-sineMFFT = findSineMaxFFT(Sines.LengthCull,data.fs);
-pulseMFFT = findPulseMaxFFT(Pulses.ModelCull2,data.fs);
+
 
 figure; clf;
 %plot the signal
@@ -62,7 +75,7 @@ end
 
 % plot sine data
 
-if numel(Sines.LengthCull.start)>0
+if isfield(Sines.LengthCull,'start')
     for n = 1:numel(Sines.LengthCull.start)
         x_start = round(Sines.LengthCull.start(n));
         x_stop = round(x_start + size(Sines.LengthCull.clips{n},1));
@@ -84,10 +97,15 @@ set(ax2,'YGrid','on')
 
 hold(ax3 ,'on')
 ylabel(ax3, 'Carrier Freq (Hz)','FontSize',10);
-scatter(ax3,(sineMFFT.timeAll+5e2)./data.fs,sineMFFT.freqAll,35,'b','filled');
-scatter(ax3,pulseMFFT.timeAll./data.fs,pulseMFFT.freqAll,35,'r','filled');
+if exist('sineMFFT','var')
+    scatter(ax3,(sineMFFT.timeAll)./data.fs,sineMFFT.freqAll,35,'b','filled');
+end
+if exist('pulseMFFT','var')
+    scatter(ax3,pulseMFFT.timeAll./data.fs,pulseMFFT.freqAll,35,'r','filled');
+end
 set(ax3,'YGrid','on')
 
 linkaxes([ax1 ax2 ax3],'x');
+xlim([0 length(Data.d)./data.fs])
 zoom xon;
 hold off
