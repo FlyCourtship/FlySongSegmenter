@@ -25,7 +25,7 @@ function MergedInTimeHarmonics = SineSegmenter(data, SinesFromMultiTaper, Fs, dT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 allevents=SinesFromMultiTaper.events;%column 1 = time in sec, column 2 is freq in Hz
 stepsize=round(dS * Fs);
-windowsize_half=round(dT * Fs/2);
+windowsize_half=round(dS * Fs/2);
 %data = SinesFromMultiTaper.d;
 inRangeEvents=[];
 

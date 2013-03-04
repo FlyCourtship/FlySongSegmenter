@@ -33,12 +33,31 @@ disp(['Song length is ' num2str(length(xsong)/Params.Fs/60,3) ' minutes.']);
 Data.d = xsong;
 Data.fs = Params.Fs;
 
-fprintf('Finding noise floor.\n')
-if isempty(xempty) %if user provides only xsong
-    xempty=xsong(1:min(end,1e6));
+
+if Params.sines_first && Params.find_sine
+   fprintf('Running multitaper analysis #1.\n')
+    % multi taper estimate sine
+   Sines.MultiTaper = ...
+       MultiTaperFTest(Data.d, Params.Fs, Params.NW, Params.K, Params.dT, Params.dS, Params.pval, Params.fwindow);
+   tmp = Sines.MultiTaper;
+   
+   Sines.TimeHarmonicMerge = ...
+       SineSegmenter(Data.d, Sines.MultiTaper, Params.Fs, Params.dT, Params.dS, ...
+       Params.sine_low_freq, Params.sine_high_freq, Params.sine_range_percent);
+   
+   % mask sine in xsong
+   xsong = MaskSines(Data.d,Sines.TimeHarmonicMerge);
+else
+    if isempty(xempty) %if user provides only xsong
+        xempty=xsong(1:min(end,1e6));
+    end
+    tmp = MultiTaperFTest(xempty, Params.Fs, Params.NW, Params.K, Params.dT, Params.dS, Params.pval, Params.fwindow);
+    
 end
-tmp = MultiTaperFTest(xempty, Params.Fs, Params.NW, Params.K, Params.dT, Params.dS, Params.pval, Params.fwindow);
+fprintf('Finding noise floor.\n')
 noise = EstimateNoise(xsong, tmp, Params, Params.low_freq_cutoff, Params.high_freq_cutoff);
+
+
 
 fprintf('Running wavelet transformation.\n')
 [Pulses.cmhSong  Pulses.cmhNoise  Pulses.cmh_dog  Pulses.cmh_sc  Pulses.sc] = ...
@@ -66,9 +85,9 @@ if Params.find_sine
     
     if ~isempty(Pulses.(Params.mask_pulses))
         fprintf('Masking pulses.\n')
-        tmp = MaskPulses(xsong,Pulses.(Params.mask_pulses));
+        tmp = MaskPulses(Data.d,Pulses.(Params.mask_pulses));
     else
-        tmp = xsong;
+        tmp = Data.d;
     end
     
     fprintf('Running multitaper analysis.\n')
