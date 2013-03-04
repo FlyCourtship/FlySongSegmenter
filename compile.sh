@@ -19,3 +19,4 @@ mkdir -p fly_song_segmenter
   -a order \
   -a padcat2 
 
+chmod g+x ./fly_song_segmenter/run_fly_song_segmenter.sh
