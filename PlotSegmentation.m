@@ -106,6 +106,6 @@ end
 set(ax3,'YGrid','on')
 
 linkaxes([ax1 ax2 ax3],'x');
-xlim([0 length(Data.d)./data.fs])
+%xlim([0 length(Data.d)./data.fs])
 zoom xon;
 hold off
