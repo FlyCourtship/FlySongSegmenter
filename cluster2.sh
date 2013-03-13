@@ -19,6 +19,8 @@ if [ -d MCR_CACHE_ROOT ]
     rm -rf $MCR_CACHE_ROOT
 fi
 
+mkdir $MCR_CACHE_ROOT
+
 fly_song_segmenter/run_fly_song_segmenter.sh /usr/local/matlab-2012b $1 $2 $3 $4 $5
 
 foo=$1
