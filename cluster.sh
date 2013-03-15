@@ -36,10 +36,10 @@ do
   qsub -t 1-$nchan \
       -N FSS-$clean_daq_name-$clean_params_name \
       -pe batch 8 \
-#      -l r620=true \
       -l short=true,h_rt=2:00:00 \
       -b y -j y -o /dev/null \
        -cwd \
        -V \
        $cmd
+#      -l r620=true \
 done
