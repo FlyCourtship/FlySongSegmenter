@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #ssh login to cluster, cd to FlySongSegmenter/, ./compile.sh
 
 #hard-coded for matlab 2012b on janelia cluster
