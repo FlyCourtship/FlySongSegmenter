@@ -1,13 +1,16 @@
 #!/bin/bash
 
-#ssh login to cluster, cd to FlySongSegmenter/, ./compile.sh
+#ssh login to cluster
+#qlogin -l interactive=true
+#cd to FlySongSegmenter/
+#./compile.sh
 
-#hard-coded for matlab 2012b on janelia cluster
+#hard-coded for matlab 2013a on janelia cluster
 
 mkdir -p fly_song_segmenter
 
 #  -R -singleCompThread \
-/usr/local/matlab-2012b/bin/mcc -o fly_song_segmenter \
+/usr/local/matlab-2013a/bin/mcc -o fly_song_segmenter \
   -W main:fly_song_segmenter \
   -T link:exe \
   -d fly_song_segmenter \

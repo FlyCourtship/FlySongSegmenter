@@ -6,7 +6,7 @@
 #each channel of each file is sent to it's own half node.  all files
 #assumed to have the same number of channels.
 
-#hard-coded for matlab 2012b on janelia cluster
+#hard-coded for matlab 2013a on janelia cluster
 
 daq_file_or_folder="$1"
 params_path="$2"
@@ -36,10 +36,11 @@ do
   qsub -t 1-$nchan \
       -N FSS-$clean_daq_name-$clean_params_name \
       -pe batch 8 \
-      -l short=true,h_rt=2:00:00 \
       -b y -j y -o /dev/null \
+      -l new=true \
        -cwd \
        -V \
        $cmd
+#      -l short=true,h_rt=2:00:00 \
 #      -l r620=true \
 done
