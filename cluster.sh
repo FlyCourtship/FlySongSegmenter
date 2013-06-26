@@ -37,7 +37,7 @@ do
       -N FSS-$clean_daq_name-$clean_params_name \
       -pe batch 8 \
       -b y -j y -o /dev/null \
-      -l new=true \
+      -l old=true \
        -cwd \
        -V \
        $cmd
