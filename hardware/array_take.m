@@ -174,10 +174,9 @@ edit_autoturnoff=uicontrol('style','edit','string',autoturnoff_init,'tooltip','a
 popupmenu_nchan=uicontrol('style','popupmenu','value',nchan_init,...
    'string',[1:max_nchan],'tooltip','number of channels to record',...
    'callback', @array_init);
-% popupmenu_daq=uicontrol('style','popupmenu','value',1,...
-%    'string',daqhwinfo('nidaq','InstalledBoardIds'),...
-%    'position',[tmp(3)-100-45*(start_stop==-1)-20*calibrate tmp(4)-24 50 22],...
-%    'callback', @array_init);
+popupmenu_daq=uicontrol('style','popupmenu','value',1,...
+   'string',daqhwinfo('nidaq','InstalledBoardIds'),...
+   'callback', @array_init);
 edit_samplerate=uicontrol('style','edit','string',samplerate_init,'tooltip','sampling rate in Hertz'...
     ,'callback', @array_init);
 if(calibrate)
@@ -231,12 +230,13 @@ for(i=1:length(text_hygro))
 end
 set(button_save,'position',[40+65*length(text_hygro) tmp(4)-24 20 20]);
 set(text_filedir,'position',[60+65*length(text_hygro) tmp(4)-32 tmp(3)-575 30]);
-set(button_wav,'position',[tmp(3)-315-45*(start_stop==-1)-20*calibrate tmp(4)-24 20 20]);
-set(edit_filesize,'position',[tmp(3)-295-45*(start_stop==-1)-20*calibrate tmp(4)-24 20 22]);
-set(popupmenu_hygro,'position',[tmp(3)-270-45*(start_stop==-1)-20*calibrate tmp(4)-24 45 22]);
-set(popupmenu_range,'position',[tmp(3)-220-45*(start_stop==-1)-20*calibrate tmp(4)-24 40 22]);
-set(edit_samplerate,'position',[tmp(3)-175-45*(start_stop==-1)-20*calibrate tmp(4)-24 50 22]);
-set(popupmenu_nchan,'position',[tmp(3)-120-45*(start_stop==-1)-20*calibrate tmp(4)-24 35 22]);
+set(button_wav,'position',[tmp(3)-425-45*(start_stop==-1)-20*calibrate tmp(4)-24 20 20]);
+set(edit_filesize,'position',[tmp(3)-400-45*(start_stop==-1)-20*calibrate tmp(4)-24 20 22]);
+set(popupmenu_hygro,'position',[tmp(3)-375-45*(start_stop==-1)-20*calibrate tmp(4)-24 45 22]);
+set(popupmenu_range,'position',[tmp(3)-325-45*(start_stop==-1)-20*calibrate tmp(4)-24 40 22]);
+set(edit_samplerate,'position',[tmp(3)-280-45*(start_stop==-1)-20*calibrate tmp(4)-24 50 22]);
+set(popupmenu_nchan,'position',[tmp(3)-225-45*(start_stop==-1)-20*calibrate tmp(4)-24 35 22]);
+set(popupmenu_daq,'position',[tmp(3)-185-45*(start_stop==-1)-20*calibrate tmp(4)-24 100 22]);
 set(edit_autoturnoff,'position',[tmp(3)-80-45*(start_stop==-1)-20*calibrate tmp(4)-24 30 22]);
 if(calibrate)
   set(button_calib,'position',[tmp(3)-15-45*(start_stop==-1) tmp(4)-24 20 20]);
@@ -301,8 +301,8 @@ end
 hygro_period=60*2^(get(popupmenu_hygro,'value')-2);
 range=range_settings(get(popupmenu_range,'value'));
 daq=daqhwinfo('nidaq','InstalledBoardIds');
-% daq=char(daq(get(popupmenu_daq,'value')));
-daq=char(daq(1));
+daq=char(daq(get(popupmenu_daq,'value')));
+% daq=char(daq(1));
 
 ai = analoginput('nidaq',daq);
 set(ai,'InputType','NonReferencedSingleEnded');
@@ -415,7 +415,7 @@ if(running && (start_stop==-1 || ~getvalue(dio.StartStop)))
     set(button_start_stop,'string','start','backgroundColor',[0 1 0]);
   end
   if(calibrate)  set(button_calib,'enable','on');  end
-%   set(popupmenu_daq,'enable','on');
+  set(popupmenu_daq,'enable','on');
   set(popupmenu_nchan,'enable','on');
   set(edit_autoturnoff,'enable','on');
   set(edit_samplerate,'enable','on');
@@ -484,7 +484,7 @@ elseif(~running && (start_stop==-1 || getvalue(dio.StartStop)))
     set(button_start_stop,'string','stop','backgroundColor',[1 0 0]);
   end
   if(calibrate)  set(button_calib,'enable','off');  end
-%   set(popupmenu_daq,'enable','off');
+  set(popupmenu_daq,'enable','off');
   set(popupmenu_nchan,'enable','off');
   set(edit_autoturnoff,'enable','off');
   set(edit_samplerate,'enable','off');
