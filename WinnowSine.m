@@ -34,6 +34,8 @@ discard_less_samples=round(discard_less_sec * Fs);
 %Winnow 1: Remove sine that overlaps pulse
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+fprintf('  Remove sine that overlaps pulse\n')
+
 %Get # sig digits for rounding signal data
 %Add one significant digit to ensure capture data with sample frequencies
 %that are not in units of 10
@@ -83,6 +85,8 @@ winnowed_sine_1 = setdiff(all_sine,all_pulses);
 %%max_pulse_pause apart
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+fprintf('  Remove sine song falling between two nearby pulses\n')
+
 %get all pulse_pauses
 if ~isempty(Pulses)
     pulse_pauses=cell(numel(Pulses.w0-1),1);
@@ -105,6 +109,8 @@ winnowed_sine_2 = setdiff(winnowed_sine_1,pulse_pauses);
 %call contiguous sequence to get start and stop times
 %sine_start and sine_stop now represent winnowed sine values
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+fprintf('  Call contiguous sequence\n')
 
 [sine_start,sine_stop] = contiguous_sequence(winnowed_sine_2);
 
@@ -183,6 +189,9 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%winnow to bouts > discard_less_n_steps
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+fprintf('  Discard less n steps\n')
+
 for x = NumBouts:-1:1
     if sine_stop(x) - sine_start(x) <= discard_less_samples
         sine_start(x)=[];
@@ -213,6 +222,8 @@ end
 %and to grab clips
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+fprintf('  Grap clips\n')
+
 rdcdNumBouts = numel(sine_start);
 NumBouts=rdcdNumBouts;
 sine_clips = cell(NumBouts,1);
@@ -225,6 +236,9 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Produce output
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+fprintf('  Produce output\n')
+
 %CulledByLength.num_events = numel(sine_start);
 CulledByLength.start = sine_start';
 CulledByLength.stop = sine_stop';

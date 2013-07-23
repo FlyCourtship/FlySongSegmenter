@@ -37,10 +37,10 @@ do
       -N FSS-$clean_daq_name-$clean_params_name \
       -pe batch 8 \
       -b y -j y -o /dev/null \
-      -l old=true \
+      -l new=true \
+      -l short=true,h_rt=2:00:00 \
        -cwd \
        -V \
        $cmd
-#      -l short=true,h_rt=2:00:00 \
 #      -l r620=true \
 done

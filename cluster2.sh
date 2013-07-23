@@ -8,9 +8,9 @@ export MCR_CACHE_VERBOSE=1
 
 if [ -d /scratch/$USER ]
   then
-    export MCR_CACHE_ROOT=/scratch/$USER/mcr_cache_root.$JOB_ID
+    export MCR_CACHE_ROOT=/scratch/$USER/mcr_cache_root.$JOB_ID.$SGE_TASK_ID
   else
-    export MCR_CACHE_ROOT=~/mcr_cache_root.$JOB_ID
+    export MCR_CACHE_ROOT=~/mcr_cache_root.$JOB_ID.$SGE_TASK_ID
 fi
 
 if [ -d MCR_CACHE_ROOT ]

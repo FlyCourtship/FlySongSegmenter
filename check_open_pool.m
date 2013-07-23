@@ -3,8 +3,11 @@ function [poolavail,isOpen] = check_open_pool
 
 %num_procs=feature('numCores');
 num_procs=8;
-
 poolavail = exist('matlabpool','file');
+isOpen = 0;
+
+%if(isdeployed)  return;  end
+
 if poolavail~=0
   %check if pools open (as might occur, for eg if called from Process_multi_daq_Song
   isOpen = matlabpool('size') > 0;
@@ -16,6 +19,4 @@ if poolavail~=0
       disp('WARNING: Could not open matlab pool. Proceeding with a single thread.');
     end
   end
-else
-  isOpen = 0;
 end
