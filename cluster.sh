@@ -39,9 +39,13 @@ do
       -b y -j y -o /dev/null \
       -l new=true \
 <<<<<<< HEAD
+<<<<<<< HEAD
       -l short=true,h_rt=2:00:00 \
 =======
 >>>>>>> minor changes
+=======
+      -l short=true,h_rt=2:00:00 \
+>>>>>>> minor
        -cwd \
        -V \
        $cmd
