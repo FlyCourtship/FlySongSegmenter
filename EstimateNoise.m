@@ -4,6 +4,7 @@ function noise = EstimateNoise(xsong,ssf,param,low_freq_cutoff,high_freq_cutoff)
 %%Finds putative noise by fitting a mixture model to the distribution of
 %%power values (A) and taking the lowest mean (±var) as noise
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 pool = exist('matlabpool','file');
 
 warning('off','stats:gmdistribution:FailedToConverge')

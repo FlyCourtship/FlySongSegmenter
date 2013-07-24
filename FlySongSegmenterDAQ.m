@@ -11,13 +11,7 @@ function FlySongSegmenterDAQ(song_daq_file,channel_num,song_range,params_path)
 [poolavail,isOpen] = check_open_pool;
 
 fprintf(['Reading daq file header info.\n']);
-try
-  song_daqinfo = daqread(song_daq_file,'info');
-catch
-  disp('ERROR:  can''t open .daq file.  exiting.');
-  check_close_pool(poolavail,isOpen);
-  return;
-end
+song_daqinfo = daqread(song_daq_file,'info');
 nchannels_song = length(song_daqinfo.ObjInfo.Channel);
 try
   hyg = load([song_daq_file(1:end-4) '.hyg']);

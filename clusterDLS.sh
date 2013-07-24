@@ -11,6 +11,7 @@
 daq_file_or_folder="$1"
 params_path="$2"
 nchan="$3"
+sample_range="$4"
 params_name=$(basename "$params_path" ".m")
 clean_params_name=$(echo "$params_name" | sed "s/[^a-zA-Z0-9 ]/_/g")
 
@@ -31,19 +32,16 @@ do
   if [ ! -d $daq_folder/$daq_name\_out ] ; then
     mkdir $daq_folder/$daq_name\_out
   fi
-  cmd="./cluster2.sh \"$daq_file\" -p \"$params_path\" -c "'"${SGE_TASK_ID}"'
+  cmd="./cluster2DLS.sh \"$daq_file\" -p \"$params_path\" -s \"$sample_range\" -c "'"${SGE_TASK_ID}"'   
   cmd=$cmd" > $daq_folder/$daq_name""_out""/$clean_daq_name-"'${SGE_TASK_ID}'"-$clean_params_name.log"
   qsub -t 1-$nchan \
       -N FSS-$clean_daq_name-$clean_params_name \
       -pe batch 8 \
       -b y -j y -o /dev/null \
       -l new=true \
-<<<<<<< HEAD
-      -l short=true,h_rt=2:00:00 \
-=======
->>>>>>> minor changes
        -cwd \
        -V \
        $cmd
+#      -l short=true,h_rt=2:00:00 \
 #      -l r620=true \
 done
