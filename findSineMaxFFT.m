@@ -35,7 +35,8 @@ parfor i = 1:NumSine
             
             [~,I] = max(voltage); %I = index of max of the signal between 50-300Hz
             maxFFTFreq{i} = freq2(I); %the frequency with this index
-            maxFFTFreqTime{i} = boutStart+(T(1) * Fs):(T(1) * Fs):boutStop - (T(1) * Fs);
+            %maxFFTFreqTime{i} = boutStart+(T(1) * Fs):(T(1) * Fs):boutStop - (T(1) * Fs);
+            maxFFTFreqTime{i} = boutStart + (boutStop - boutStart)/(2* numel(I)) * [1:2:2*numel(I)]
         end
     end
 end

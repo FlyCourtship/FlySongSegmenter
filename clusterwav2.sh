@@ -21,10 +21,10 @@ fi
 
 mkdir $MCR_CACHE_ROOT
 
-fly_song_segmenter/run_fly_song_segmenter.sh /usr/local/matlab-2013a $1 $2 $3 $4 $5 $6 $7
+FSSwav/run_FSSwav.sh /usr/local/matlab-2013a $1 $2
 
-foo=$1
-chmod -R g+w ${foo:0:(${#foo}-4)}"_out"
+#foo=$1
+#chmod -R a+w ${foo:0:(${#foo}-4)}"_out"
 
 rm -rf $MCR_CACHE_ROOT
 
