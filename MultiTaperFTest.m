@@ -22,7 +22,7 @@
 %addpath chronux\spectral_analysis\continuous\
 
 function SSF=MultiTaperFTest(d,fs,NW,K,dT,dS,pval,fwindow)
-% pool = exist('matlabpool','file');
+%pool = exist('matlabpool','file');
 if nargin < 8
     fwindow = [0 fs/2];
 end
