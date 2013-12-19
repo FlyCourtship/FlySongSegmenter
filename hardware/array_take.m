@@ -107,7 +107,7 @@ nchan_init=32;
 samplerate_init=10e3;
 range_init=2;      % i.e. range_settings(range_init)
 hygro_init=1;      % time btw measurements, 1 = 30s, 2 = 60s, 3 = 120s, etc.
-wav_init=1;        % 1 = save as separated .wav files in addition to .daq
+wav_init=0;        % 1 = save as separated .wav files in addition to .daq
 wav_size_init=2;   % max length in minutes for each .wav file.  0 = unlimited
 window_size=1.5;   % scale factor from default window size, must be >=1.5
 autoturnoff_init=0;  % 0=manual turn off, >0 is the desired length in minutes
