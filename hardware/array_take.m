@@ -51,7 +51,7 @@ global button_fft button_timetrace button_equalizer text_realtime edit_autoturno
 global button_save text_filedir button_wav edit_filesize text_hygro
 global button_scale_bigger button_scale_smaller buttons_chan
 global hygro_clockperiod hygro_timeout hygro_datain hygro_dataout hygro_clock
-global video vifile video_format video_compress max_Fs
+global video vifile video_format video_compress max_Fs input_type
 
 clear buttons_chan
 
@@ -67,8 +67,9 @@ hygro_dataout=1;   % the digital output line connected to the SHT7x's DATA line
 hygro_datain=1;    % the digital input line(s) connected to the SHT7x's DATA line
 in_port=0;         % which hardware port is used for digital input
 out_port=1;        % which hardware port is used for digital output
+input_type='NonReferencedSingleEnded';
 
-elseif(1)  % NI-6259
+elseif(0)  % NI-6259
 
 max_nchan=32;      % maximum number of channels your hardware supports
 max_Fs=1e6;     % maximum aggregate sampling frequency your hardware supports, in Hz
@@ -78,8 +79,9 @@ hygro_dataout=6;   % the digital output line connected to the SHT7x's DATA line
 hygro_datain=[0 1 5 6 7];    % the digital input line(s) connected to the SHT7x's DATA line
 in_port=1;         % which hardware port is used for digital input
 out_port=2;        % which hardware port is used for digital output
+input_type='NonReferencedSingleEnded';
 
-else  % NI-6281
+elseif(0)  % NI-6281
 
 max_nchan=16;      % maximum number of channels your hardware supports
 max_Fs=500e3;     % maximum aggregate sampling frequency your hardware supports, in Hz
@@ -89,6 +91,19 @@ hygro_dataout=6;   % the digital output line connected to the SHT7x's DATA line
 hygro_datain=[0 1 5 6 7];    % the digital input line(s) connected to the SHT7x's DATA line
 in_port=1;         % which hardware port is used for digital input
 out_port=2;        % which hardware port is used for digital output
+input_type='NonReferencedSingleEnded';
+
+else  % NI-6009
+
+max_nchan=4;      % maximum number of channels your hardware supports
+max_Fs=48e3;     % maximum aggregate sampling frequency your hardware supports, in Hz
+range_settings=[20 10 5 4 2.5 2 1.25 1];   % available scales your hardware supports, in V
+hygro_clock=nan;     % the digital output line connected to the SHT7x's SCK line
+hygro_dataout=nan;   % the digital output line connected to the SHT7x's DATA line
+hygro_datain=nan;    % the digital input line(s) connected to the SHT7x's DATA line
+in_port=nan;         % which hardware port is used for digital input
+out_port=nan;        % which hardware port is used for digital output
+input_type='Differential';
 
 end
 
@@ -103,9 +118,9 @@ video_compress='none';
 
 %%%% SOFTWARE SETTINGS
 
-nchan_init=32;
+nchan_init=max_nchan;
 samplerate_init=10e3;
-range_init=2;      % i.e. range_settings(range_init)
+range_init=min(2,length(range_settings));      % i.e. range_settings(range_init)
 hygro_init=1;      % time btw measurements, 1 = 30s, 2 = 60s, 3 = 120s, etc.
 wav_init=0;        % 1 = save as separated .wav files in addition to .daq
 wav_size_init=2;   % max length in minutes for each .wav file.  0 = unlimited
@@ -130,9 +145,11 @@ set(gcf,'ResizeFcn',@resizeFcn);
 
 text_realtime=uicontrol('style','text',...
    'backgroundColor',tmp2,'tooltip','time in seconds the display lags the acquisition');
-for(i=1:length(hygro_datain))
-  text_hygro(i)=uicontrol('style','text',...
-     'backgroundColor',tmp2,'tooltip',['temperature & humidity from unit #' num2str(i)]);
+if(~isnan(hygro_clock))
+  for(i=1:length(hygro_datain))
+    text_hygro(i)=uicontrol('style','text',...
+       'backgroundColor',tmp2,'tooltip',['temperature & humidity from unit #' num2str(i)]);
+  end
 end
 button_save=uicontrol('style','radiobutton','value',0,...
    'backgroundColor',tmp2,'tooltip','save data to specified directory',...
@@ -285,7 +302,7 @@ global Fs range_settings count start_stop in_port out_port calibrate video max_F
 global popupmenu_hygro popupmenu_nchan edit_samplerate popupmenu_range 
 global popupmenu_daq button_calib buttons_chan
 global hygro_period hygro_datain hygro_dataout hygro_clock
-global running ai ao dio vi video_format
+global running ai ao dio vi video_format input_type
 
 if(~isempty(ai))  delete(ai);  end
 if(~isempty(ao))  delete(ao);  end
@@ -305,7 +322,7 @@ daq=char(daq(get(popupmenu_daq,'value')));
 % daq=char(daq(1));
 
 ai = analoginput('nidaq',daq);
-set(ai,'InputType','NonReferencedSingleEnded');
+set(ai,'InputType',input_type);
 for(i=0:nchan-1)
   %tmp=addchannel(ai,max_nchan-1-i);
   tmp=addchannel(ai,i);
@@ -329,19 +346,25 @@ if(calibrate && get(button_calib,'value'))
   addchannel(ao,1);
 end
 
-dio = digitalio('nidaq',daq);
+if((start_stop>-1) || (~isnan(hygro_clock)))
+  dio = digitalio('nidaq',daq);
+end
 if(start_stop>-1)
   addline(dio,start_stop,in_port,'in','StartStop');
 end
-addline(dio,hygro_clock,out_port,'out','HygroClk');
-addline(dio,hygro_dataout,out_port,'out','HygroOut');
-addline(dio,hygro_datain,in_port,'in','HygroIn');
+if(~isnan(hygro_clock))
+  addline(dio,hygro_clock,out_port,'out','HygroClk');
+  addline(dio,hygro_dataout,out_port,'out','HygroOut');
+  addline(dio,hygro_datain,in_port,'in','HygroIn');
+end
 
 running=0;
 if(start_stop>-1)
   set(dio,'TimerFcn',{@array_start_stop_cbk});
 end
-start(dio);
+if((start_stop>-1) || (~isnan(hygro_clock)))
+  start(dio);
+end
 
 buttons_chan=uibuttongroup('unit','pixels','position',[0 0 1 1],...
    'SelectionChangeFcn',@selcbk);
@@ -375,7 +398,7 @@ global Fs range_settings start_stop calibrate video
 global running button_exit button_start_stop button_calib edit_autoturnoff
 global popupmenu_hygro popupmenu_nchan edit_samplerate popupmenu_range 
 global popupmenu_daq button_save text_filedir button_wav edit_filesize
-global ai ao dio vi vifile video_compress filename t t2 hygro_period
+global ai ao dio vi vifile video_compress filename t t2 hygro_period hygro_clock
 
 if(running && (start_stop==-1 || ~getvalue(dio.StartStop)))
   running=0;
@@ -429,8 +452,10 @@ if(running && (start_stop==-1 || ~getvalue(dio.StartStop)))
   end
   set(text_filedir,'enable','on');
   set(button_save,'enable','on');
-  stop(t);
-  delete(t);
+  if(~isnan(hygro_clock))
+    stop(t);
+    delete(t);
+  end
   if((~isempty(t2)) && isvalid(t2))
     stop(t2);
     delete(t2);
@@ -495,12 +520,14 @@ elseif(~running && (start_stop==-1 || getvalue(dio.StartStop)))
   set(text_filedir,'enable','off');
   set(button_save,'enable','off');
   
-  t=timer;
-  set(t,'Name','hygrometer');
-  set(t,'Period',hygro_period);
-  set(t,'ExecutionMode','fixedRate');
-  set(t,'TimerFcn',@array_hygro);
-  start(t);
+  if(~isnan(hygro_clock))
+    t=timer;
+    set(t,'Name','hygrometer');
+    set(t,'Period',hygro_period);
+    set(t,'ExecutionMode','fixedRate');
+    set(t,'TimerFcn',@array_hygro);
+    start(t);
+  end
 
   tmp=str2num(get(edit_autoturnoff,'string'));
   if(tmp>0)
