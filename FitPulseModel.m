@@ -213,8 +213,8 @@ Z2shM = scaleZ2M(Z2shM,shM);
 
 %if data longer than model, just trim to model
 if max_length > lengthfhM %max_length is from data (Z)
-    startM = find(abs(fhM>0),1,'first');
-    finishM = find(abs(fhM>0),1,'last');
+    startM = find(abs(fhM)>0,1,'first');
+    finishM = find(abs(fhM)>0,1,'last');
     fhM = fhM(startM:finishM);
     if isfield(pulse_model,'fhS')
         fhS = fhS(startM:finishM);
@@ -247,8 +247,8 @@ end
 %trim data and model down to relevant parts (no padding) for second harmonic
 
 if max_length > lengthshM %max_length is from data (Z)
-    startM = find(abs(shM>0),1,'first');
-    finishM = find(abs(shM>0),1,'last');
+    startM = find(abs(shM)>0,1,'first');
+    finishM = find(abs(shM)>0,1,'last');
     shM = shM(startM:finishM);
     if isfield(pulse_model,'fhS')
         shS = shS(startM:finishM);
