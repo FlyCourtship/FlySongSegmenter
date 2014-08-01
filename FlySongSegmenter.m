@@ -10,7 +10,7 @@ function [Data, Sines, Pulses, Params] = ...
 
 tstart=tic;
 
-[poolavail,isOpen] = check_open_pool;
+%[poolavail,isOpen] = check_open_pool;
 
 if(~isdeployed)
     addpath(genpath('./chronux'));
@@ -74,8 +74,8 @@ fprintf('Culling pulses heuristically.\n')
 
 if(exist('cpm','var'))
     fprintf('Culling pulses with likelihood model.\n')
-    [Pulses.pulse_model  Pulses.Lik_pulse] = FitPulseModel(cpm,Pulses.AmpCull.x);
-    [Pulses.pulse_model2  Pulses.Lik_pulse2] = FitPulseModel(cpm,Pulses.IPICull.x);
+    [Pulses.pulse_model  Pulses.Lik_pulse] = FitPulseModel(cpm,Pulses.AmpCull.x,Params.raw_model);
+    [Pulses.pulse_model2  Pulses.Lik_pulse2] = FitPulseModel(cpm,Pulses.IPICull.x,Params.raw_model);
     Pulses.ModelCull = ModelCullPulses(Pulses.AmpCull, Pulses.Lik_pulse.LLR_fh, [0 max(Pulses.Lik_pulse.LLR_fh)+1]);
     Pulses.ModelCull2 = ModelCullPulses(Pulses.IPICull, Pulses.Lik_pulse2.LLR_fh, [0 max(Pulses.Lik_pulse2.LLR_fh)+1]);
     Pulses.OldPulseModel = cpm;
@@ -137,7 +137,7 @@ if ~Params.copy_raw_data
     Data.d = [];
 end
 
-check_close_pool(poolavail,isOpen);
+%check_close_pool(poolavail,isOpen);
 
 tstop=toc(tstart);
 disp(['Run time was ' num2str(tstop/60,3) ' minutes.']);

@@ -1,12 +1,17 @@
-function [new_pulse_model,Lik_pulse] = FitPulseModel(pulse_model,new_pulses,sample_freqs)
+function [new_pulse_model,Lik_pulse] = FitPulseModel(pulse_model,new_pulses,raw_model,sample_freqs)
 
 %Fit new data to a pulse model
 %[pulse_model,Lik_pulse] = FitPulseModel(pulse_model,new_pulses)
-%[pulse_model,Lik_pulse] = FitPulseModel(pulse_model,new_pulses,sample_freqs)
+%[pulse_model,Lik_pulse] = FitPulseModel(pulse_model,new_pulses,raw_model,sample_freqs)
 %USAGE
 %If the model and data were sampled at different sampling frequnecies, then
 %enter this in sample_freqs
 %sample_freqs e.g. [1e4 4e4] as the freqs for the model and new_pulses
+%raw_model: True if want to estimate model from all pulse events (default),
+%False if want to estimate first harmonic model from pulses that look most
+%like first harmonic from the original pulse model and second harmonic
+%model from pulses that look most like the second harmonic from original
+%pulse model.
 %
 %provide sample of pulses
 %return pulse model & std etc and Lik of individual pulses given the model
@@ -59,11 +64,14 @@ else
     shZ = pulse_model.shZ;
 end
 
+if nargin <3
+    raw_model = 1;
+end
 
 
 %resample model and data to coordinate sample frequencies with new data
 %
-if nargin == 3 %if user provides sampling frequencies
+if nargin == 4 %if user provides sampling frequencies
 %    sfs = sample_freqs;%e.g. [1e4 4e4] as the freqs for the model and new_pulses
     fsM = sample_freqs(1);
     fsZ = sample_freqs(2);
@@ -213,8 +221,8 @@ Z2shM = scaleZ2M(Z2shM,shM);
 
 %if data longer than model, just trim to model
 if max_length > lengthfhM %max_length is from data (Z)
-    startM = find(abs(fhM)>0,1,'first');
-    finishM = find(abs(fhM)>0,1,'last');
+    startM = find(abs(fhM>0),1,'first');
+    finishM = find(abs(fhM>0),1,'last');
     fhM = fhM(startM:finishM);
     if isfield(pulse_model,'fhS')
         fhS = fhS(startM:finishM);
@@ -247,8 +255,8 @@ end
 %trim data and model down to relevant parts (no padding) for second harmonic
 
 if max_length > lengthshM %max_length is from data (Z)
-    startM = find(abs(shM)>0,1,'first');
-    finishM = find(abs(shM)>0,1,'last');
+    startM = find(abs(shM>0),1,'first');
+    finishM = find(abs(shM>0),1,'last');
     shM = shM(startM:finishM);
     if isfield(pulse_model,'fhS')
         shS = shS(startM:finishM);
@@ -311,66 +319,100 @@ best_LLR = max(LLR_fh,LLR_sh);
 
 
 
-
-%calculate new pulse models with pulses that fit first and second harmonic
-%best and return these
-
-%grab events that are reasonable fits (chisq < 1.5) and fit first harmonic model better
-fhZ4M = Z2fhM(best_chisqr <1.5 & best_chisqr_idx == 1 | best_chisqr_idx == 3,:);
-%grab events that fit second harmonic model better
-shZ4M = Z2shM(best_chisqr <1.5 & best_chisqr_idx == 2 | best_chisqr_idx == 4,:);
-
-
-%Build model of fh with fh data
-if size(fhZ4M,1)>1
-    fprintf('Fitting first harmonic model.\n');
-    %nfhM is new fhM fit to fhZ4M
-    [fhZ4M,nfhM] = alignpulses(fhZ4M,20);
-        
-    %compare SE at each point (from front and back) with deviation of fh model
-    %start and stop when deviation exceeds SE of data
-    S_Z = std(fhZ4M(fhZ4M ~= 0));%take only data that are not 0 (i.e. padding)
-    SE_Z = S_Z/sqrt(n_samples);
+if raw_model
+    %calculate pulse model from all data
+    d= new_pulses;
+    n_samples = length(d);
+    max_length = max(cellfun(@length,d));
+    total_length = 2* max_length;
+    Z = zeros(n_samples,total_length );
     
-    start = find((abs(fhM)>SE_Z),1,'first');
-    finish = find((abs(fhM)>SE_Z),1,'last');
+    %pad pulses
+    for n=1:n_samples;
+        X = d{n};
+        T = length(X);
+        [~,C] = max(X);%get position of max power
+        %center on max power
+        left_pad = max_length - C;  %i.e. ((total_length/2) - C)
+        right_pad = total_length - T - left_pad;
+        Z(n,:) = [zeros(left_pad,1); X ;zeros((right_pad),1)];
+    end
     
-    nfhM  = nfhM(start:finish);
-	fhZ4M = fhZ4M(:,start:finish);
+    %align pulses
+    [aligned_pulses,M] = alignpulses(Z,10);
     
+    %trim back to pulse length
+    [~,maxidx]=max(abs(M));
+    modellength = length(d{1});
+    span = ceil(modellength/2);
+    fhZ4M = aligned_pulses(:,maxidx-span:maxidx+span);
     %Get standard deviation at each point
     S_fhZ4M = std(fhZ4M);
     
-else
-    nfhM = [];
-    S_fhZ4M = [];
-end
-
-%Build second harmonic model
-if size(shZ4M,1)>1
-    
-    fprintf('Building second harmonic model\n')
-    
-    [shZ4M,nshM] = alignpulses(shZ4M,20);
-        
-    %compare SE at each point (from front and back) with deviation of fh model
-    %start and stop when deviation exceeds SE of data
-    S_Z = std(shZ4M(shZ4M ~= 0));%take only data that are not 0 (i.e. padding)
-    SE_Z = S_Z/sqrt(n_samples);
-    
-    start = find((abs(shM)>SE_Z),1,'first');
-    finish = find((abs(shM)>SE_Z),1,'last');
-    
-    nshM  = nshM(start:finish);    
-    shZ4M = shZ4M(:,start:finish);
-    
-    %Get standard deviation at each point
-    
-    S_shZ4M = std(shZ4M);
-    
-else
+    nfhM = M(:,maxidx-span:maxidx+span);
     nshM = [];
     S_shZ4M = [];
+else
+    %calculate new pulse models with pulses that fit first and second harmonic
+    %best and return these
+    
+    %grab events that are reasonable fits (chisq < 1.5) and fit first harmonic model better
+    fhZ4M = Z2fhM(best_chisqr <1.5 & best_chisqr_idx == 1 | best_chisqr_idx == 3,:);
+    %grab events that fit second harmonic model better
+    shZ4M = Z2shM(best_chisqr <1.5 & best_chisqr_idx == 2 | best_chisqr_idx == 4,:);
+    
+    
+    %Build model of fh with fh data
+    if size(fhZ4M,1)>1
+        fprintf('Fitting first harmonic model.\n');
+        %nfhM is new fhM fit to fhZ4M
+        [fhZ4M,nfhM] = alignpulses(fhZ4M,20);
+        
+        %compare SE at each point (from front and back) with deviation of fh model
+        %start and stop when deviation exceeds SE of data
+        S_Z = std(fhZ4M(fhZ4M ~= 0));%take only data that are not 0 (i.e. padding)
+        SE_Z = S_Z/sqrt(n_samples);
+        
+        start = find((abs(fhM)>SE_Z),1,'first');
+        finish = find((abs(fhM)>SE_Z),1,'last');
+        
+        nfhM  = nfhM(start:finish);
+        fhZ4M = fhZ4M(:,start:finish);
+        
+        %Get standard deviation at each point
+        S_fhZ4M = std(fhZ4M);
+        
+    else
+        nfhM = [];
+        S_fhZ4M = [];
+    end
+    
+    %Build second harmonic model
+    if size(shZ4M,1)>1
+        
+        fprintf('Building second harmonic model\n')
+        
+        [shZ4M,nshM] = alignpulses(shZ4M,20);
+        
+        %compare SE at each point (from front and back) with deviation of fh model
+        %start and stop when deviation exceeds SE of data
+        S_Z = std(shZ4M(shZ4M ~= 0));%take only data that are not 0 (i.e. padding)
+        SE_Z = S_Z/sqrt(n_samples);
+        
+        start = find((abs(shM)>SE_Z),1,'first');
+        finish = find((abs(shM)>SE_Z),1,'last');
+        
+        nshM  = nshM(start:finish);
+        shZ4M = shZ4M(:,start:finish);
+        
+        %Get standard deviation at each point
+        
+        S_shZ4M = std(shZ4M);
+        
+    else
+        nshM = [];
+        S_shZ4M = [];
+    end
 end
 
 new_pulse_model.newfhM = nfhM;

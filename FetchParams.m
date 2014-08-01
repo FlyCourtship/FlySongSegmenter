@@ -12,6 +12,9 @@ Params.keep_mediumrare_data = false;   % if false, Sines.MultiTaper.A, Sines.*.c
 Params.copy_raw_data = true;          % if false, Data.d/hyg/daqinfo are not saved in the .mat file
 Params.sines_first = false;          % if false, segment pulse, then sine. 
                                     % if true, segment sine, then pulse, then sine
+Params.raw_model = true;            % if true, then estimate pulse model from all pulses
+									% if false, use pulses that best fit provided first harmonic model 
+									% to build new first harmonic model, same for second harmonic
 
 %estimating noise
 Params.low_freq_cutoff = 100;         % exclude data below this frequency
