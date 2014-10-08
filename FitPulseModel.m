@@ -33,7 +33,7 @@ function [new_pulse_model,Lik_pulse] = FitPulseModel(pulse_model,new_pulses,raw_
 
 
        
-if isempty(new_pulses);%if no pulses passed, send back empty arrays
+if length(new_pulses) < 2 %isempty(new_pulses);%if fewer tha 2 pulses passed, send back empty arrays
     new_pulse_model.newfhM = [];
     new_pulse_model.newshM = [];
     new_pulse_model.newfhS = [];

@@ -2,7 +2,7 @@
 
 #ssh login to cluster
 #qlogin -l interactive=true
-#cd to VisMap/
+#cd to FlySongSegmenter/
 #./compile.sh
 
 #hard-coded for matlab 2013a on janelia cluster
@@ -19,10 +19,10 @@ mkdir -p FSSwav
   -w enable:switch_ignored \
   -w enable:missing_lib_sentinel \
   -w enable:demo_license \
-  -v FlySongSegmenterWAV.m \
-  -a alignment \
-  -a centroid_tracking \
-  -a utilities 
+  -v FlySongSegmenterWAV_unix.m \
+  -a chronux \
+  -a order \
+  -a padcat2 
 
 chmod g+x ./FSSwav/run_FSSwav.sh
 chmod g+x ./FSSwav/FSSwav
