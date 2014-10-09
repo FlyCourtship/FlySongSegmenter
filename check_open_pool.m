@@ -1,6 +1,6 @@
 function [poolavail,isOpen] = check_open_pool
 
-num_procs=feature('numCores');
+num_procs=min(12,feature('numCores'));
 
 poolavail = exist('matlabpool','file');
 if poolavail~=0
