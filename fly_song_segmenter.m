@@ -31,17 +31,18 @@ function fly_song_segmenter_unix(song_path, varargin)
     if strcmp(ext, '.daq')
         FlySongSegmenterDAQ(p.Results.song_path, str2num(p.Results.channel_num), sample_range, p.Results.params_path);
     elseif strcmp(ext, '.wav')
-        if(~isempty(p.Results.channel_num))
-          error('-c channel_num only valid with .daq files');
-        end
-        if(isempty(sample_range))
-          [data, Fs] = wavread(p.Results.song_path);
-        else
-          [data, Fs] = wavread(p.Results.song_path,sample_range);
-        end
-        process_song_data(p.Results.song_path, data, Fs, p.Results.params_path);
-        %[data, Sines, Pulses, Params]=FlySongSegmenter(data, [], p.Results.params_path, Fs);
-        %save([p.Results.song_path(1:end-4) '.mat'], 'data','Sines','Pulses','Params','-v7.3');
+        FlySongSegmenterWAV(p.Results.song_path, str2num(p.Results.channel_num), sample_range, p.Results.params_path);
+%        if(~isempty(p.Results.channel_num))
+%          error('-c channel_num only valid with .daq files');
+%        end
+%        if(isempty(sample_range))
+%          [data, Fs] = wavread(p.Results.song_path);
+%        else
+%          [data, Fs] = wavread(p.Results.song_path,sample_range);
+%        end
+%        process_song_data(p.Results.song_path, data, Fs, p.Results.params_path);
+%        %[data, Sines, Pulses, Params]=FlySongSegmenter(data, [], p.Results.params_path, Fs);
+%        %save([p.Results.song_path(1:end-4) '.mat'], 'data','Sines','Pulses','Params','-v7.3');
     elseif strcmp(ext, '.au')
         if(~isempty(p.Results.channel_num))
           error('-c channel_num only valid with .daq files');

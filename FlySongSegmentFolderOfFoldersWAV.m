@@ -14,7 +14,7 @@ folder = dir(folder_of_folder_of_wav_files);
 for y = 1:numel(folder)
     if folder(y).isdir
         if ~strncmp(folder(y).name,'.',1)
-            FlySongSegmenterWAV([folder_of_folder_of_wav_files folder(y).name],song_range,params_path);
+            FlySongSegmenterWAV([folder_of_folder_of_wav_files folder(y).name],[],song_range,params_path);
         end
     end
 end
