@@ -21,6 +21,7 @@ end
 if nargin < 3
     params_path = [];
 end
+disp('Fetching parameters.');
 FetchParams;
 
 if((nargin>3) & (varargin{1}~=Params.Fs))

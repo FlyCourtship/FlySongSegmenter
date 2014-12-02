@@ -1,4 +1,4 @@
-function fly_song_segmenter_unix(song_path, varargin)
+function fly_song_segmenter(song_path, varargin)
     % Convert Unix-style command line arguments to MATLAB-style.
     varargin = regexprep(varargin, '^-p$', 'params_path');
     varargin = regexprep(varargin, '^-s$', 'sample_range');
@@ -14,9 +14,9 @@ function fly_song_segmenter_unix(song_path, varargin)
     catch ME
         disp(ME.message);
         disp('Usage:');
-        disp('    fly_song_segmenter_unix song_path [-p params_path] [-s sample_range] [-c channel_num]');
+        disp('    fly_song_segmenter song_path [-p params_path] [-s sample_range] [-c channel_num]');
         disp('e.g.');
-        disp('    fly_song_segmenter_unix song.wav -p params.m -s 1000:2000 -c 7');
+        disp('    fly_song_segmenter song.wav -p params.m -s 1000:2000 -c 7');
         return
     end
     
