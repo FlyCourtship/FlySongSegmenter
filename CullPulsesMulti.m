@@ -47,7 +47,7 @@ for y = 1:file_num
             maxRange = max(Lik_data) + 1;
         end
         
-        culled_pulseInfo = CullPulses(pI_data,Lik_data,[minRange maxRange]);
+        culled_pulseInfo = ModelCullPulses(pI_data,Lik_data,[minRange maxRange]);
         
         if strcmp(pI_name,'pulseInfo') == 1
 
