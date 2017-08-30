@@ -47,7 +47,9 @@ if Params.sines_first && Params.find_sine
        Params.sine_low_freq, Params.sine_high_freq, Params.sine_range_percent);
    
    % mask sine in xsong
-   xsong = MaskSines(Data.d,Sines.TimeHarmonicMerge);
+   if ~isempty(Sines.TimeHarmonicMerge)
+       xsong = MaskSines(Data.d,Sines.TimeHarmonicMerge);
+   end
 else
     if isempty(xempty) %if user provides only xsong
         xempty=xsong(1:min(end,1e6));
@@ -77,8 +79,8 @@ if(exist('cpm','var'))
     fprintf('Culling pulses with likelihood model.\n')
     [Pulses.pulse_model  Pulses.Lik_pulse] = FitPulseModel(cpm,Pulses.AmpCull.x,Params.raw_model);
     [Pulses.pulse_model2  Pulses.Lik_pulse2] = FitPulseModel(cpm,Pulses.IPICull.x,Params.raw_model);
-    Pulses.ModelCull = ModelCullPulses(Pulses.AmpCull, Pulses.Lik_pulse.LLR_fh, [0 max(Pulses.Lik_pulse.LLR_fh)+1]);
-    Pulses.ModelCull2 = ModelCullPulses(Pulses.IPICull, Pulses.Lik_pulse2.LLR_fh, [0 max(Pulses.Lik_pulse2.LLR_fh)+1]);
+    Pulses.ModelCull = ModelCullPulses(Pulses.AmpCull, Pulses.Lik_pulse.LLR_best, [0 max(Pulses.Lik_pulse.LLR_best)+1]);
+    Pulses.ModelCull2 = ModelCullPulses(Pulses.IPICull, Pulses.Lik_pulse2.LLR_best, [0 max(Pulses.Lik_pulse2.LLR_best)+1]);
     Pulses.OldPulseModel = cpm;
 end
 
