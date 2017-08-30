@@ -10,7 +10,7 @@
 mkdir -p fly_song_segmenter
 
 #  -R -singleCompThread \
-/usr/local/matlab-2013a/bin/mcc -o fly_song_segmenter \
+/misc/local/matlab-2013a/bin/mcc -o fly_song_segmenter \
   -W main:fly_song_segmenter \
   -T link:exe \
   -d fly_song_segmenter \

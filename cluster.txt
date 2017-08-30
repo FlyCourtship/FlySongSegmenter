@@ -1,0 +1,57 @@
+BATCHING JOBS TO THE JANELIA CLUSTER
+
+(1) Compile the Matlab code
+
+First login to the cluster's scheduler node, either directly with openNX
+(see our wiki: http://wiki/wiki/display/ScientificComputing/NX+Client+Setup)
+or indirectly via SSH ("ssh login1" on a Mac using terminal.app or on a PC
+using putty.exe).  Once there, run matlab on a compute node:
+
+$ bsub -XF -R"rusage[matlab=1]" /misc/local/matlab-2013a/bin/matlab -desktop
+
+Then issue the command to compile. You need to provide the full path to
+the code.  For example, assuming your code is in your home directory (and
+not wrapped in a folder)
+
+>> deploytool -build fly_song_segmenter.prj
+
+Alternatively, if, for example, you put the code in the subfolder /song/code,
+you would issue this command.
+
+>> deploytool -build song/code/fly_song_segmenter.prj
+
+If you don't want to launch Matlab, you can compile from the Unix command
+line using
+
+$ mcc -vm -I chronux -I order fly_song_segmenter.m
+
+Note:  doing it this way will put the executables in FSS/ not
+FSS/find_fly_song/.  If you have problems with disk space try
+deleting/moving/renaming find_fly_song.prj, which deploytool uses, but
+somehow seemingly screws up mcc.
+
+(2) Get a scratch folder
+
+Jobs on the Janelia cluster see your home directory.  Matlab normally writes
+temporary files to ~/.mcrCache.  If you run multiple jobs at once these files
+get overwritten, and Matlab can't open a pool of workers.  So contact the help
+desk and ask them to create a scratch folder for your account on the cluster.
+This will not be on your disk share but rather on a local disk on each slot
+of the cluster.  If /scratch is present, the scripts will automatically tell
+matlab to put the temp files there, and they will hence not be overwritten.
+
+
+(3) Run the compiled code
+
+First login to the cluster's scheduler node as before.  Then "cd" to the
+directory cluster.sh lives in.  This will depend on where you put it in
+your home directory.
+
+$ cd /home/username/bin
+
+Then batch jobs to the cluster.
+
+$ ./cluster.sh  full_path_to_file_or_folder_of_.daqs  full_path_to_params.m  number_of_channels
+
+cluster.sh is a shell script that uses `bsub` to call a compiled version of
+FlySongSegmenterDAQ().

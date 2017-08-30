@@ -30,17 +30,11 @@ for data_file in $data_files ; do
   if [ ! -d $data_folder/$data_name\_out ] ; then
     mkdir $data_folder/$data_name\_out
   fi
-  cmd="./cluster2.sh \"$data_file\" -p \"$params_path\" -c "'"${SGE_TASK_ID}"'
-  cmd=$cmd" > $data_folder/$data_name""_out""/$clean_data_name-"'${SGE_TASK_ID}'"-$clean_params_name.log"
-  qsub -t 1-$nchan \
-      -N FSS-$clean_data_name-$clean_params_name \
-      -pe batch 12 \
-      -b y -j y -o /dev/null \
-       -cwd \
-       -l short=true \
-       -V \
+  cmd="./cluster2.sh \"$data_file\" -p \"$params_path\" -c "'"${LSB_JOBINDEX}"'
+  cmd=$cmd" > $data_folder/$data_name""_out""/$clean_data_name-"'${LSB_JOBINDEX}'"-$clean_params_name.log"
+  bsub -J FSS-$clean_data_name-$clean_params_name[1-$nchan] \
+       -n 12 -R"affinity[core(1)]" \
+       -o /dev/null \
+       -W 60 \
        $cmd
-#      -l old=true \
-#      -l short=true,h_rt=2:00:00 \
-#      -l r620=true \
 done
