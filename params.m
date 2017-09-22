@@ -9,3 +9,5 @@
 %data, and don't check the copy into git
 
 Params.sines_first = true;
+Params.sine_low_freq = 70;
+Params.wav_file_nosong_channels = 4;
