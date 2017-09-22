@@ -33,7 +33,7 @@ Params.thresh = 4;                    % multiple of smoothed threshold over whic
 %pulse song:  cull with heuristics
 Params.minAmplitude  = 6;             %multiple of the mean noise which pulses must exceed
 Params.maxIPI = round(Params.Fs/5);   %if no other pulse within this many ticks, do not count as a pulse
-Params.frequency = 1000;               %if best matched scale is greater than this frequency, do not count as a pulse
+Params.frequency = 700;               %if best matched scale is greater than this frequency, do not count as a pulse
 Params.close = round(Params.Fs/50);   %if pulse peaks are this close together, only keep the larger pulse
 
 %pulse song:  cull with model
