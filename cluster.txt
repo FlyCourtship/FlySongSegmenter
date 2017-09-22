@@ -7,7 +7,7 @@ First login to the cluster's scheduler node, either directly with openNX
 or indirectly via SSH ("ssh login1" on a Mac using terminal.app or on a PC
 using putty.exe).  Once there, run matlab on a compute node:
 
-$ bsub -XF -R"rusage[matlab=1]" /misc/local/matlab-2013a/bin/matlab -desktop
+$ bsub -XF -R"rusage[matlab=1]" /usr/local/matlab-2017a/bin/matlab -desktop
 
 Then issue the command to compile. You need to provide the full path to
 the code.  For example, assuming your code is in your home directory (and
@@ -26,9 +26,9 @@ line using
 $ mcc -vm -I chronux -I order fly_song_segmenter.m
 
 Note:  doing it this way will put the executables in FSS/ not
-FSS/find_fly_song/.  If you have problems with disk space try
-deleting/moving/renaming find_fly_song.prj, which deploytool uses, but
-somehow seemingly screws up mcc.
+FSS/fly_song_segmenter/.  If you have problems with disk space try
+deleting/moving/renaming fly_song_segmenter.prj, which deploytool
+uses, but somehow seemingly screws up mcc.
 
 (2) Get a scratch folder
 

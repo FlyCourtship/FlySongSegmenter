@@ -5,12 +5,12 @@
 #cd to FlySongSegmenter/
 #./compile.sh
 
-#hard-coded for matlab 2013a on janelia cluster
+#hard-coded for matlab 2017a on janelia cluster
 
 mkdir -p fly_song_segmenter
 
 #  -R -singleCompThread \
-/misc/local/matlab-2013a/bin/mcc -o fly_song_segmenter \
+/usr/local/matlab-2017a/bin/mcc -o fly_song_segmenter \
   -W main:fly_song_segmenter \
   -T link:exe \
   -d fly_song_segmenter \

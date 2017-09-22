@@ -6,7 +6,7 @@
 #each channel of each file is sent to it's own node.  all files
 #assumed to have the same number of channels.
 
-#hard-coded for matlab 2013a on janelia cluster
+#hard-coded for matlab 2017a on janelia cluster
 
 data_file_or_folder="$1"
 params_path="$2"

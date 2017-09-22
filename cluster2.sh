@@ -21,7 +21,7 @@ fi
 
 mkdir $MCR_CACHE_ROOT
 
-fly_song_segmenter/run_fly_song_segmenter.sh /misc/local/matlab-2013a $1 $2 $3 $4 $5
+fly_song_segmenter/for_testing/run_fly_song_segmenter.sh /usr/local/matlab-2017a $1 $2 $3 $4 $5
 
 foo=$1
 chmod -R g+w ${foo:0:(${#foo}-4)}"_out"
