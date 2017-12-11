@@ -60,6 +60,8 @@ Params.discard_less_sec = .03;      % minimum length for sine song, in seconds
 Params.max_pulse_pause = 0.070; %max_pulse_pause in seconds, used to winnow apparent sine between pulses
 Params.mask_pulses = 'ModelCull2';
 
+%specify number of channels with non-song data in multi-channel wav files
+Params.wav_file_nosong_channels = 0;
 
 %READ IN USER DEFINED PARAMETERS, SOME OF WHICH MAY REPLACE DEFAULTS
 if ~exist('params_path', 'var') || isempty(params_path)
