@@ -104,3 +104,10 @@ Depending on your machine architecture, you might see dramatic speed
 improvements with:
 
 http://research.microsoft.com/en-us/um/people/minka/software/lightspeed/
+
+
+FORKS
+
+For a machine learning pulse classifier, and an updated manual segmenter, see
+
+https://github.com/murthylab/songSegmenter
