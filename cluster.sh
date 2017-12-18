@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #cd to folder containing cluster.sh and then execute:
-#./cluster.sh  full_path_to_file_or_folder_of_.daqs/.wavs  full_path_to_params.m  number_of_channels
+#./cluster.sh  full_path_to_file_or_folder_of_.daqs/.wavs  full_path_to_params.m  number_of_nosong_channels number_of_song_channels
 
 #each channel of each file is sent to it's own node.  all files
 #assumed to have the same number of channels.
@@ -10,7 +10,8 @@
 
 data_file_or_folder="$1"
 params_path="$2"
-nchan="$3"
+numnosongchan="$3"
+numsongchan="$4"
 params_name=$(basename "$params_path" ".m")
 clean_params_name=$(echo "$params_name" | sed "s/[^a-zA-Z0-9 ]/_/g")
 
@@ -32,7 +33,7 @@ for data_file in $data_files ; do
   fi
   cmd="./cluster2.sh \"$data_file\" -p \"$params_path\" -c "'"${LSB_JOBINDEX}"'
   cmd=$cmd" > $data_folder/$data_name""_out""/$clean_data_name-"'${LSB_JOBINDEX}'"-$clean_params_name.log"
-  bsub -J FSS-$clean_data_name-$clean_params_name[1-$nchan] \
+  bsub -J FSS-$clean_data_name-$clean_params_name[$((numnosongchan+1))-$numsongchan] \
        -n 12 -R"affinity[core(1)]" \
        -o /dev/null \
        -W 60 \
