@@ -1,10 +1,11 @@
-function song_quick_check_wav96(wavfile,channels)
+function song_quick_check_wav96(wavfile,channels,range)
 %
 %USAGE
-%song_quick_check(wavfile)
-%
-%Check only some channels
 %song_quick_check(wavfile,channels)
+%
+%for custom song snippet range
+%song_quick_check(wavfile,channels,range)
+%
 %
 %Takes output from array_take and performs a quick and simple analysis to
 %find and display several snippets of putative song. Outputs ten plots of
@@ -12,16 +13,20 @@ function song_quick_check_wav96(wavfile,channels)
 %consecutive numbers in recording device.
 %
 %e.g.s
-%
-%%song_quick_check('20110624132239.wav')
-%
-%Check only some channels
 %song_quick_check('20110624132239.wav',[2 7])
+%
+%custom range
+%song_quick_check('20110624132239.wav',[2 7],1e4)
+
 
 %Change this value if your wav file does not have 4 no-song channels
 FetchParams;
 number_nosong_channels = Params.wav_file_nosong_channels;
-snippet_length = 2e4;
+if nargin<3
+    snippet_length = 2e4; 
+else
+    snippet_length = range;
+end
 
 [poolavail,isOpen] = check_open_pool;
 
