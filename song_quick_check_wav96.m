@@ -8,7 +8,7 @@ function song_quick_check_wav96(wavfile,channels,range)
 %
 %
 %Takes output from array_take and performs a quick and simple analysis to
-%find and display several snippets of putative song. Outputs ten plots of
+%find and display several snippets of putative song. Outputs plots of
 %each channel. For channels, use first and last channel of a range. Use 
 %consecutive numbers in recording device.
 %
@@ -156,7 +156,7 @@ for channel = start_channel:end_channel
         handle = handle + 1;
         axes(ax(handle));
         if column == 1
-            row = sprintf(['Channel ' num2str(channel)]);
+            row = sprintf(['Channel ' num2str(channel-start_channel)]);
             text(0,.5,row,'FontSize',10);
         else
             if sum(abs(snippets(channel-start_channel + 1,column-1,1:100))) ~= 0; %check to make sure has song
@@ -181,7 +181,7 @@ check_close_pool(poolavail,isOpen)
 
 fprintf('Saving figure.\n')
 [pathstr, name, ~] = fileparts(wavfile);
-fileName_channels = sprintf('_ch%d-%d',start_channel,end_channel);
+fileName_channels = sprintf('_ch%d-%d',channels(1),channels(2));
 outfile = [pathstr filesep name '_ch' fileName_channels '.png'];
 warning('off','MATLAB:LargeImage')
 export_fig(outfile,'-r300');
